@@ -1,0 +1,1 @@
+c:\jdk1.6.0_24\bin\xjc -d c:\temp\jb\src -p home.genealogy.schema.all c:\genealogy\SchemaV3.0\genealogy.xsd
