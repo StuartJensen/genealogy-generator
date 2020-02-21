@@ -1,0 +1,103 @@
+<!ELEMENT marriage  (marriageId , husbandPersonId , wifePersonId , 
+               marriageInfo? , terminationInfo?)  >
+
+<!ELEMENT place4Level  (#PCDATA)  >
+
+<!ELEMENT place3Level  (#PCDATA) >
+
+<!ELEMENT place2Level  (#PCDATA)  >
+
+<!ELEMENT day  (#PCDATA)  >
+
+<!ELEMENT year  (#PCDATA)  >
+
+<!ELEMENT wifePersonId  (#PCDATA)  >
+
+<!ELEMENT husbandPersonId  (#PCDATA)  >
+
+<!ELEMENT sealToSpouseInfo  (date? , place? , temple? , proxy*)  >
+
+<!ELEMENT place  (place1Level? , place2Level? , place3Level? , 
+               place4Level? , placeModifier?)  >
+
+<!ELEMENT marriageInfo  (date? , place? , sealToSpouseInfo?)>
+
+<!ELEMENT terminationInfo  (date? , terminationReason?)  >
+
+<!ELEMENT marriageId  (#PCDATA)  >
+
+<!ELEMENT personName  (firstName? , middleName? , lastName?)  >
+
+<!ELEMENT lastName  (#PCDATA)  >
+
+<!ELEMENT middleName  (#PCDATA)>
+
+<!ELEMENT firstName  (#PCDATA)  >
+
+<!ELEMENT month  (#PCDATA)  >
+
+<!ELEMENT dateModifier  (#PCDATA) >
+
+<!ELEMENT place1Level  (#PCDATA) >
+
+<!ELEMENT placeModifier  (#PCDATA)  >
+
+<!ELEMENT temple  (#PCDATA)  >
+
+<!ELEMENT terminationReason  (#PCDATA) >
+
+<!ELEMENT proxy  (personName?)  >
+
+<!ELEMENT date  (year? , month? , day? , dateModifier?)>
+
+<!ATTLIST month
+               
+               knownMonth (January | February | March | April | May | 
+               June | July | August | September | October | November | 
+               December)   #IMPLIED 
+                >
+
+<!ATTLIST dateModifier
+               
+               relativeTime (ABOUT | AFTER | BEFORE | CALC)  "ABOUT"
+               
+               
+               ldsModifiers (CHILD | BIC | SUBMITTED | DONOTSEAL | 
+               SEALEDFORTIME | NEVER)  #IMPLIED
+                >
+
+<!ATTLIST place1Level
+               
+               knownCountry (USA | England | Scotland | Ireland | Whales | 
+               Denmark | Norway | Finland | Germany | France | Italy | 
+               Austria | Switzerland | Hungary | Spain | Canada | Mexico | 
+               Greece | Russia | Sweden | UNKNOWN)  #REQUIRED
+                >
+
+<!ATTLIST placeModifier
+               
+               placeQualifier (OF)  #IMPLIED
+                >
+
+<!ATTLIST temple
+               
+               knownTemple (SLAKE | PROVO | SGEOR | LANGE | SDIEG | 
+               ALBER | APIA | ARIZO | ATLAN | BAIRE | BOGOT | BOISE | 
+               BOUNT | CHICA | DALLA | DENVE | EHOUS | FRANK | FREIB | 
+               GUATE | GUAYA | HARTF | HAWAI | HKONG | IFALL | JOHAN | 
+               JRIVE | LIMA | LOGAN | LONDO | LVEGA | MANIL | MANTI | 
+               MEXIC | MTIMP | NAUVO | NUKUA | NZEAL | OAKLA | OGDEN | 
+               ORLAN | PAPEE | POFFI | PORTL | PREST | SANTI | SEATT | 
+               SEOUL | SLOUI | SPAUL | STOCK | SWISS | SYDNE | TAIPE | 
+               TOKYO | TORON | WASHI)  #IMPLIED
+                >
+
+<!ATTLIST terminationReason
+               
+               knownReason (Divorce | Seperation | DeathOfHusband | 
+               DeathOfWife | NeverMarried)  #IMPLIED
+               
+                >
+
+<!ATTLIST proxy knownProxy (SELF)  #IMPLIED >
+

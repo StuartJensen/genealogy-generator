@@ -1,0 +1,37 @@
+<!--<Title>Untitled 1--
+ >
+<!ELEMENT familyIndex  - - (childrenIndex , marriageIndex , 
+               referenceTagIndex) --<Title>FamilyIndex-- >
+
+<!ELEMENT childPersonId  - - (#PCDATA) --<Title>ChildPersonId-- >
+
+<!ELEMENT marriageIndexEntry  - - (personId , marriageId+) --<Title>MarriageIndexEntry-- >
+
+<!ELEMENT childrenIndexEntry  - - (marriageId , childPersonId+) --<Title>ChildrenIndexEntry-- >
+
+<!ELEMENT marriageIndex  - - (marriageIndexEntry*) --<Title>MarriageIndex-- >
+
+<!ELEMENT childrenIndex  - - (childrenIndexEntry*) --<Title>ChildrenIndex-- >
+
+<!ELEMENT personTagIndexEntry  - - (personId , tagInfo+) --<Title>PersonTagIndexEntry-- >
+
+<!ELEMENT referenceTagIndex  - - (personTagIndexEntry* , 
+               marriageTagIndexEntry*) --<Title>ReferenceTagIndex-- >
+
+<!ELEMENT personId  - - (#PCDATA) --<Title>PersonId-- >
+
+<!ELEMENT referenceEntryId  - - (#PCDATA) --<Title>ReferenceEntryId-- >
+
+<!ELEMENT referenceId  - - (#PCDATA) --<Title>ReferenceId-- >
+
+<!ELEMENT tagType  - - (#PCDATA) --<Title>TagType-- >
+
+<!ELEMENT tagQuality  - - (#PCDATA) --<Title>TagQuality-- >
+
+<!ELEMENT marriageTagIndexEntry  - - (marriageId , tagInfo+) --<Title>MarriageTagIndexEntry-- >
+
+<!ELEMENT marriageId  - - (#PCDATA) --<Title>MarriageId-- >
+
+<!ELEMENT tagInfo  - - (referenceId , referenceEntryId , tagQuality , 
+               tagType) --<Title>tagInfo-- >
+

@@ -1,0 +1,157 @@
+<!ELEMENT person (personName , nickName? , royalEnumeration? , 
+               gender , personId , personAFN? , profession? , religion? , 
+               title? , birthInfo? , chrInfo? , deathInfo? , burialInfo? , 
+               ldsInfo? , parentId?) >
+
+<!ELEMENT date (year? , month? , day? , dateModifier? , range?) >
+
+<!ELEMENT day (#PCDATA)  >
+
+<!ELEMENT year (#PCDATA)  >
+
+<!ELEMENT place4Level (#PCDATA)  >
+
+<!ELEMENT place3Level (#PCDATA)  >
+
+<!ELEMENT place2Level (#PCDATA)  >
+
+<!ELEMENT birthInfo (date? , place? , hospital?)  >
+
+<!ELEMENT chrInfo (date? , place?) >
+
+<!ELEMENT deathInfo (date? , place? , causeOfDeath?)  >
+
+<!ELEMENT personName (firstName? , middleName? , lastName? , 
+               altSpelling*)  >
+
+<!ELEMENT lastName (#PCDATA)  >
+
+<!ELEMENT middleName (#PCDATA)  >
+
+<!ELEMENT firstName (#PCDATA)  >
+
+<!ELEMENT burialInfo (date? , place? , cemeteryName? , 
+               cemeteryPlotAddress?)  >
+
+<!ELEMENT cemeteryName (#PCDATA)  >
+
+<!ELEMENT ldsInfo (baptismInfo? , endowmentInfo? , 
+               sealToParentsInfo?)  >
+
+<!ELEMENT endowmentInfo (date? , place? , temple? , proxy?)  >
+
+<!ELEMENT baptismInfo (date? , place? , temple? , proxy?)  >
+
+<!ELEMENT sealToParentsInfo (date? , place? , temple? , proxy*)  >
+
+<!ELEMENT parentId (#PCDATA)  >
+
+<!ELEMENT place  (place1Level? , place2Level? , place3Level? , place4Level? , placeModifier? , altName*) >
+
+<!ELEMENT personAFN  (#PCDATA) >
+
+<!ELEMENT cemeteryPlotAddress (#PCDATA)  >
+
+<!ELEMENT nickName (#PCDATA) >
+
+<!ELEMENT royalEnumeration (#PCDATA)  >
+
+<!ELEMENT hospital (#PCDATA)  >
+
+<!ELEMENT personId (#PCDATA)  >
+
+<!ELEMENT endDate (year , month? , day? , dateModifier?)  >
+
+<!ELEMENT startDate (year , month? , day? , dateModifier?)  >
+
+<!ELEMENT range (startDate , endDate) >
+
+<!ELEMENT altSpelling (firstName? , middleName? , lastName?)  >
+
+<!ELEMENT altName (place1Level? , place2Level? , place3Level? , 
+               place4Level? , placeModifier? , range?)  >
+
+<!ELEMENT place1Level (#PCDATA) >
+
+<!ELEMENT dateModifier (#PCDATA)  >
+
+<!ELEMENT placeModifier (#PCDATA)  >
+
+<!ELEMENT temple (#PCDATA)  >
+
+<!ELEMENT month (#PCDATA)  >
+
+<!ELEMENT gender (#PCDATA)  >
+
+<!ELEMENT religion (#PCDATA)  >
+
+<!ELEMENT title (#PCDATA)  >
+
+<!ELEMENT profession (#PCDATA)  >
+
+<!ELEMENT causeOfDeath (#PCDATA)  >
+
+<!ELEMENT proxy (personName? , personId?) >
+
+<!ATTLIST place1Level
+                 knownCountry (USA | England | Scotland | Ireland | Wales | 
+               Denmark | Norway | Finland | Germany | France | Italy | 
+               Austria | Switzerland | Hungary | Spain | Canada | Mexico | 
+               Greece | Russia | Sweden | Turkey | Belgium | Prussia | 
+               Columbia | Venezuela | Brasil | Iceland | Egypt | Iran | 
+               Iraq | Pakistan | Japan | Korea | VietNam | Portugal | Scandinavia | AtSea |
+			   Tunisia | PacificOcean | AtlanticOcean | Austrasia | Bavaria |Neustria |
+			   UNKNOWN)  #IMPLIED >
+
+<!ATTLIST dateModifier
+               relativeTime (ABOUT | AFTER | BEFORE | CALC)  #IMPLIED
+               ldsModifiers (CHILD | BIC | SUBMITTED | SEALEDFORTIME | DONOTSEAL)  #IMPLIED >
+
+<!ATTLIST placeModifier placeQualifier (OF)  #IMPLIED >
+
+<!ATTLIST temple
+                 knownTemple (SLAKE | PROVO | SGEOR | LANGE | SDIEG | 
+               ALBER | APIA | ARIZO | ATLAN | BAIRE | BOGOT | BOISE | 
+               BOUNT | CHICA | DALLA | DENVE | EHOUS | FRANK | FREIB | 
+               GUATE | GUAYA | HARTF | HAWAI | HKONG | IFALL | JOHAN | 
+               JRIVE | LIMA | LOGAN | LONDO | LVEGA | MANIL | MANTI | 
+               MEXIC | MTIMP | NAUVO | NUKUA | NZEAL | OAKLA | OGDEN | 
+               ORLAN | PAPEE | POFFI | PORTL | PREST | SANTI | SEATT | 
+               SEOUL | SLOUI | SPAUL | STOCK | SWISS | SYDNE | TAIPE | 
+               TOKYO | TORON | WASHI)  #IMPLIED >
+
+<!ATTLIST month
+                 knownMonth (January | February | March | April | May | 
+               June | July | August | September | October | November | 
+               December)   #IMPLIED >
+
+<!ATTLIST gender knownGender (MALE | FEMALE | UNKNOWN)  "UNKNOWN" >
+
+<!ATTLIST religion
+               knownReligion (LDS | Catholic | Lutheran | Methodist | 
+               Baptist | Quaker | Episcopalian)  #IMPLIED >
+
+<!ATTLIST title
+               knownTitle (Sir | Lady | Captain | Lord | Lieutenant | 
+               Colonel | Deacon | General | Reverend | Father | Cardinal)  
+               #IMPLIED >
+
+<!ATTLIST profession
+                 knownProfession (Farmer | Butcher | Baker | Housewife | HomeMaker |
+               Blacksmith | Postman | Teacher | Carpenter | Priest | 
+               Military | Miner | SoftwareEngineer | ComputerTech | 
+               ShoeMaker | Realtor | Gardner | Courier | Teamster | 
+               Fuller | NewspaperPerson) #IMPLIED >
+
+<!ATTLIST causeOfDeath
+                 knownDeathCause (GeneralOldAge | BlackLung | WarInjury | 
+               HeartAttack | Polio | WhoopingCough | Murdered | Choking | 
+               Fire | Suicide | StillBorn | CribDeath | ChildBirth | 
+               HeartDisease | Tuberculosis | Cancer | CancerStomache | 
+               CancerColon | CancerLymph | CancerLung | Accident | 
+               AccidentCar | AccidentTrain | Drowning | AccidentMining | 
+               AccidentGunshot | Bronchitis | Smallpox | Asphyxiation | 
+               Pneumonia | ScarletFever)  #IMPLIED >
+
+<!ATTLIST proxy knownProxy (SELF) #IMPLIED >
+

@@ -1,0 +1,5 @@
+<!ENTITY % reference.dtd SYSTEM "c:\genealogy\SchemaV2.0\reference.dtd">
+
+%reference.dtd;
+
+<!ELEMENT references (reference*) >

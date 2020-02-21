@@ -1,0 +1,162 @@
+<!ELEMENT genReference (reference , entry*) >
+
+<!ELEMENT reference (referenceId , source , primaryGeography , 
+               timePeriod* , classification*) >
+
+<!ELEMENT source (title , author? , publisher? , address*) >
+
+<!ELEMENT publisher (company , year?) >
+
+<!ELEMENT address (institution , callNumber*) >
+
+<!ELEMENT column (paragraph*) >
+
+<!ELEMENT chapterNumbers (#PCDATA) >
+
+<!ELEMENT pageNumbers (#PCDATA) >
+
+<!ELEMENT volumeNumbers (#PCDATA) >
+
+<!ELEMENT tagGroup (marriageTag* , personTag*) >
+
+<!ELEMENT marriageId (#PCDATA) >
+
+<!ELEMENT marriageTag (marriageId , marriageTagType+) >
+
+<!ELEMENT header (volumeNumbers? , chapterNumbers? , pageNumbers? , 
+               entryNumbers? , paragraph*) >
+
+<!ELEMENT institution (#PCDATA) >
+
+<!ELEMENT primaryGeography (place1Level? , place2Level? , 
+               place3Level? , place4Level?) >
+
+<!ELEMENT year (#PCDATA) >
+
+<!ELEMENT company (#PCDATA) >
+
+<!ELEMENT callNumber (#PCDATA) >
+
+<!ELEMENT author (personName* , groupName*) >
+
+<!ELEMENT comment (paragraph*) >
+
+<!ELEMENT body ((paragraph* , table*)* | (table* , paragraph*)*)>
+
+<!ELEMENT timePeriod (startTime , endTime) >
+
+<!ELEMENT entryNumbers (#PCDATA)  >
+
+<!ELEMENT secondaryGeography (place1Level? , place2Level? , 
+               place3Level? , place4Level?) >
+
+<!ELEMENT place2Level (#PCDATA) >
+
+<!ELEMENT place4Level (#PCDATA) >
+
+<!ELEMENT endTime (#PCDATA) >
+
+<!ELEMENT startTime (#PCDATA) >
+
+<!ELEMENT formText (#PCDATA) >
+
+<!ELEMENT entryTitle (primaryPerson? , description) >
+
+<!ELEMENT primaryPerson (personId) >
+
+<!ELEMENT personId (#PCDATA) >
+
+<!ELEMENT title (#PCDATA) >
+
+<!ELEMENT description (#PCDATA) >
+
+<!ELEMENT place3Level (#PCDATA) >
+
+<!ELEMENT personName (firstName? , middleName? , lastName?) >
+
+<!ELEMENT lastName (#PCDATA) >
+
+<!ELEMENT middleName (#PCDATA) >
+
+<!ELEMENT firstName (#PCDATA) >
+
+<!ELEMENT groupName (#PCDATA) >
+
+<!ELEMENT referenceId (#PCDATA) >
+
+<!ELEMENT entryId (#PCDATA) >
+
+<!ELEMENT row (column+) >
+
+<!ELEMENT editorComment (#PCDATA) >
+
+<!ELEMENT personTag (personId , personTagType+) >
+
+<!ELEMENT entry (entryId , entryTitle , secondaryGeography* , 
+               header? , body? , comment? , tagGroup?, relatedPhotos?) >
+
+<!ELEMENT relatedPhotos (photoId+) >
+
+<!ELEMENT photoId (#PCDATA) >
+
+<!ELEMENT classification (#PCDATA) >
+
+<!ELEMENT place1Level (#PCDATA) >
+
+<!ELEMENT marriageTagType (#PCDATA) >
+
+<!ELEMENT personTagType (#PCDATA) >
+
+<!ELEMENT table (row+) >
+
+<!ELEMENT paragraph (#PCDATA|formText|editorComment)*>
+
+<!ATTLIST entry
+               access (PUBLIC | PRIVATE)  "PUBLIC" >
+
+<!ATTLIST classification
+               
+               type (COMPILED | ORIGINAL)  "ORIGINAL"
+               
+               subType (CivilRegistry | Census | Newspaper | Gazetteer | 
+               PersonalLetter | LocationHistory | FamilyHistory | 
+               GeneralHistory | PersonalExperience | 
+               CemeteryInscriptions | ChurchRecord | ProbateRecord | 
+               CivilVitalRecord | EmigrationRecord)  "GeneralHistory"
+                >
+
+<!ATTLIST place1Level               
+               knownCountry (USA | England | Scotland | Ireland | Whales | 
+               Denmark | Norway | Finland | Germany | France | Italy | 
+               Austria | Switzerland | Hungary | Spain | Canada | Mexico | 
+               Greece | Russia | Sweden)  #REQUIRED
+                >
+
+<!ATTLIST marriageTagType
+               marriageTag (MarrD | MarrP | SToSD | SToSP | LinkMarriage | 
+               TermD | TermReason)   #IMPLIED 
+               
+               tagQuality (HIGH | MEDIUM | LOW)  #IMPLIED >
+
+<!ATTLIST personTagType
+               personTag (BornD | BornP | ChrD | ChrP | DiedCause | 
+               DiedD | DiedP | BapD | BapP | EndD | EndP | BurD | BurP | 
+               SToPD | SToPP | Title | Profession | Religion | 
+               LinkCToFather | LinkCToMother | LinkFToChildren | 
+               LinkMToChildren | Location | Emigration | Name | 
+               Headstone | WillAndTestament | AgeInYear | CemeteryName | 
+               CemeteryPlot | LinkPToDescendants)   #IMPLIED 
+               
+               tagQuality (HIGH | MEDIUM | LOW)  #IMPLIED >
+
+<!ATTLIST table
+               rows  CDATA    #REQUIRED 
+               cols  CDATA    #REQUIRED 
+               border (None | SingleLine)  #IMPLIED
+                >
+
+<!ATTLIST paragraph
+               indent (No | Yes)  "Yes"
+               lineEnd (HdRet | None)  "HdRet"
+                >
+

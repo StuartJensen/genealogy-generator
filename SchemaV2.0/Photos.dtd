@@ -1,0 +1,5 @@
+<!ENTITY % photo.dtd SYSTEM "c:\genealogy\SchemaV2.0\photo.dtd">
+
+%photo.dtd;
+
+<!ELEMENT photos (photo*) >

@@ -1,0 +1,56 @@
+<!ENTITY % shared.dtd SYSTEM "c:\genealogy\SchemaV2.0\shared.dtd">
+%shared.dtd;
+
+<!ELEMENT photo  (title , fileList , source , seeAlso?) >
+
+<!ELEMENT title (paragraph*) >
+
+<!ELEMENT fileList (file+)  >
+
+<!ELEMENT file (#PCDATA) >
+
+<!ELEMENT source (singleton | publishedIn)  >
+
+<!ELEMENT singleton (date? , place? , caption? , photographer? , owner* , comment? , tagGroup?) >
+
+<!ELEMENT caption (paragraph*)  >
+
+<!ELEMENT photographer (personName? , studioName?) >
+
+<!ELEMENT studioName (#PCDATA) >
+
+<!ELEMENT owner (personName? , asOf? , address?)>
+
+<!ELEMENT asOf (date)>
+
+<!ELEMENT address (paragraph*) >
+
+<!ELEMENT comment (paragraph*) >
+
+<!ELEMENT publishedIn (referenceEntryId*)>
+
+
+<!ATTLIST photo
+				photoId CDATA #REQUIRED
+                access (PUBLIC | PRIVATE | COPYRIGHTED)  #IMPLIED >
+
+<!ATTLIST photographer
+				personId CDATA #IMPLIED >
+
+<!ATTLIST owner
+				personId CDATA #IMPLIED >
+
+<!ATTLIST file
+               type (JPG | GIF | BMP | TIFF)  #REQUIRED
+			   quality (Lowest | Low | Medium | High | Highest | Thumbnail)  #REQUIRED
+			   size CDATA #REQUIRED
+			   uniqueId CDATA #REQUIRED>
+
+<!ATTLIST fileList
+			   package CDATA #REQUIRED
+			   baseFileName CDATA #REQUIRED>
+
+<!ATTLIST singleton
+               mediaType (DigitalPhoto | Painting | Photo)  #IMPLIED>
+              
+

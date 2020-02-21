@@ -1,0 +1,18 @@
+<!ENTITY % shared.dtd SYSTEM "c:\genealogy\SchemaV2.0\shared.dtd">
+%shared.dtd;
+
+<!ELEMENT marriage  (marriageInfo? , termination?) >
+
+<!ELEMENT sealToSpouseInfo (info?, proxy*)  >
+
+<!ELEMENT marriageInfo (info?, sealToSpouseInfo?) >
+
+<!ELEMENT termination (date?) >
+
+<!ATTLIST marriage marriageId  CDATA  #REQUIRED
+				 husbandPersonId  CDATA  #REQUIRED
+				 wifePersonId CDATA  #REQUIRED
+				 version CDATA #REQUIRED >
+
+<!ATTLIST termination
+               reason (Divorce | Seperation | DeathOfHusband | DeathOfWife | NeverMarried)  #IMPLIED >

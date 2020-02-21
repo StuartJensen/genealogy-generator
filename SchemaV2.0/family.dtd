@@ -1,0 +1,22 @@
+<!ELEMENT family (#PCDATA) >
+
+<!ATTLIST family surname CDATA #REQUIRED
+				 basePersonId  CDATA  #REQUIRED
+				 baseMarriageId  CDATA  #REQUIRED
+				 email CDATA #REQUIRED
+				 dataPath CDATA  #REQUIRED
+				 outputPathTXT CDATA #IMPLIED
+				 outputPathHTML CDATA #IMPLIED
+				 outputPathWP CDATA #IMPLIED
+				 formsBaseUrlFile CDATA #IMPLIED 
+				 formsBaseUrlWeb CDATA #IMPLIED 
+				 formsCounterFgs CDATA #IMPLIED 
+				 formsCounterPerInfo CDATA #IMPLIED 
+				 formsCounterPerIndex CDATA #IMPLIED 
+				 formsCounterPhoto CDATA #IMPLIED 
+				 formsCounterPhotoIndex CDATA #IMPLIED 
+				 formsCounterRef CDATA #IMPLIED 
+				 formsCounterRefIndex CDATA #IMPLIED 
+				 formsCounterHome CDATA #IMPLIED  >
+
+

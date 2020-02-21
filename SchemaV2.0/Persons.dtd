@@ -1,0 +1,5 @@
+<!ENTITY % person.dtd SYSTEM "c:\genealogy\SchemaV2.0\person.dtd">
+
+%person.dtd;
+
+<!ELEMENT persons (person*) >

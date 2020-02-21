@@ -1,0 +1,193 @@
+
+<!ELEMENT place (place1Level?, globalCoordinates?)>
+
+<!ELEMENT place1Level (place2Level?)>
+
+<!ELEMENT place2Level (place3Level?)>
+
+<!ELEMENT place3Level (#PCDATA)>
+
+<!ELEMENT globalCoordinates (WGS84?)>
+
+<!ELEMENT WGS84 (latitude, longitude)>
+
+<!ELEMENT latitude (#PCDATA) >
+
+<!ELEMENT longitude (#PCDATA) >
+
+<!ELEMENT date (dateRange?, dateOr*)>
+
+<!ELEMENT dateRange (#PCDATA)>
+
+<!ELEMENT dateOr (date)>
+
+<!ELEMENT personName (firstName? , middleName? , lastName?)>
+
+<!ELEMENT lastName (altSpelling*)>
+
+<!ELEMENT middleName (altSpelling*)>
+
+<!ELEMENT firstName (altSpelling*)>
+
+<!ELEMENT altSpelling (#PCDATA)>
+
+<!ELEMENT table (row+) >
+
+<!ELEMENT row (column+) >
+
+<!ELEMENT column (paragraph*) >
+
+<!ELEMENT paragraph (#PCDATA|formText|editorComment|space|personId|marriageId|referenceId|referenceEntryId|photoId|tag)*>
+
+<!ELEMENT formText (#PCDATA) >
+
+<!ELEMENT editorComment (#PCDATA) >
+
+<!ELEMENT space (#PCDATA) >
+
+<!ELEMENT tagGroup (marriageTag* , personTag*)  >
+
+<!ELEMENT marriageTag (marriageTagType+)  >
+
+<!ELEMENT personTag (personTagType+)  >
+
+<!ELEMENT tag (#PCDATA)  >
+
+<!ELEMENT marriageTagType (#PCDATA) >
+
+<!ELEMENT personTagType (#PCDATA) >
+
+<!ELEMENT marriageId (#PCDATA) >
+
+<!ELEMENT personId (#PCDATA) >
+
+<!ELEMENT referenceId (#PCDATA) >
+
+<!ELEMENT referenceEntryId (#PCDATA) >
+
+<!ELEMENT photoId (#PCDATA) >
+
+<!ELEMENT proxy (personName? , personId?)>
+
+<!ELEMENT info (date? , place?)>
+
+<!ELEMENT seeAlso (personId|marriageId|referenceId|referenceEntryId|photoId)* >
+
+<!ATTLIST personId id CDATA #REQUIRED >
+
+<!ATTLIST marriageId id CDATA #REQUIRED >
+
+<!ATTLIST referenceId id CDATA #REQUIRED >
+
+<!ATTLIST referenceEntryId id CDATA #REQUIRED
+						   entryId CDATA #REQUIRED >
+
+<!ATTLIST photoId id CDATA #REQUIRED
+				  type (EMBEDDED | LINKED) #IMPLIED >
+
+<!ATTLIST proxy modifier (SELF) #IMPLIED >
+
+<!ATTLIST space
+               count CDATA  #IMPLIED >
+
+<!ATTLIST date year CDATA #IMPLIED
+               month (January | February | March | April | May | June | July | August | September | October | November | December)   #IMPLIED
+			   day (1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31) #IMPLIED
+               relativeTime (ABOUT | AFTER | BEFORE | CALC | PROBABLY | CHRISTENING)  #IMPLIED
+               ldsModifiers (CHILD | BIC | CLEARED | UNCLEARED | SUBMITTED | SEALEDFORTIME | DONOTSEAL | NEVER)  #IMPLIED >
+
+<!ATTLIST dateRange
+			   yearBegin CDATA #IMPLIED
+               monthBegin (January | February | March | April | May | June | July | August | September | October | November | December)   #IMPLIED
+			   dayBegin CDATA #IMPLIED
+               relativeTimeBegin (ABOUT | CALC | PROBABLY)  #IMPLIED
+			   yearEnd CDATA #IMPLIED
+               monthEnd (January | February | March | April | May | June | July | August | September | October | November | December)   #IMPLIED
+			   dayEnd CDATA #IMPLIED
+               relativeTimeEnd (ABOUT | CALC | PROBABLY)  #IMPLIED >
+
+<!ATTLIST place
+               modifier (NEAR | OF | PROBABLY)  #IMPLIED
+			   country (USA|England|Scotland|Ireland|Wales|Denmark|Norway|Finland|Germany|France|Holland|Ukraine|
+			   Italy|Austria|Switzerland|Hungary|Spain|Canada|Mexico|Greece|Russia|Sweden|Turkey|Belgium|Tonga|
+			   Prussia|Columbia|Venezuela|Brazil|Iceland|Israel|Egypt|India|Iran|Iraq|Pakistan|Japan|Korea|VietNam|Portugal|NewZealand|
+			   Australia|Scandinavia|Tunisia|AtSea|PacificOcean|AtlanticOcean|Austrasia|Bavaria|Neustria|Netherlands|UNKNOWN) #REQUIRED
+               temple (ABA | ACCRA | ADELA | ALBER | ALBUQ | ANCHO | ANTON | APIA | ARIZO | ASUNC | ATLAN | BAIRE | BILLI | 
+						BIRMI | BISMA | BOGOT | BOISE | BOSTO | BOUNT | BRISB | BROUG | CAMPI | CARAC | CHICA | CIUJU | COCHA | 
+						COLJU | COLSC | COLUM | COPEN | CRIVE | CURIT | DALLA | DENVE | DETRO | EDMON | EHOUS | FRANK | FREIB |  
+						FRESN | FUKUO | GUADA | GUATE | GUAYA | HAGUE | HALIF | HARRI | HAWAI | HELSI | HERMO | HKONG | HOUST | 
+						IFALL | JOHAN | JRIVE | KIEV | KIRTL | KONA | LANGE | LIMA | LOGAN | LONDO | LOUIS | LUBBO | LVEGA | 
+						MADRI | MANIL | MANHA | MANTI | MEDFO | MELBO | MEMPH | MERID | MEXIC | MNTVD | MONTE | MONTI | MONTR | 
+						MTIMP | NASHV | NAUV2 | NAUVO | NBEAC | NUKUA | NYORK | NZEAL | OAKLA | OAXAC | OGDEN | OKLAH | ORLAN | 
+						PALEG | PALMY | PAPEE | PCITY | PERTH | POFFI | PORTL | PREST | PROVO | RALEI | RECIF | REDLA | REGIN | 
+						RENO | REXBU | SACRA | SAMOA | SANTI | SANTO | SDIEG | SDOMI | SEATT | SEOUL | SGEOR | SJOSE | SLAKE | 
+						SLOUI | SNOWF | SPAUL | SPMIN | SPOKA | STOCK | SUVA | SWISS | SYDNE | TAIPE | TAMPI | TGUTI | TOKYO | 
+						TORON | TRICI | VERAC | VERNA | VILLA | WASHI | WINTE | WQUAR)  #IMPLIED >
+
+
+<!ATTLIST place1Level
+               name  CDATA    #REQUIRED >
+
+<!ATTLIST place2Level
+               name  CDATA    #REQUIRED >
+
+<!ATTLIST place3Level
+               name  CDATA    #REQUIRED >
+
+<!ATTLIST latitude
+               hemisphere (N | S) #REQUIRED
+			   degrees CDATA #REQUIRED
+			   minutes CDATA #REQUIRED>
+
+<!ATTLIST longitude
+               hemisphere (E | W) #REQUIRED
+			   degrees CDATA #REQUIRED
+			   minutes CDATA #REQUIRED>
+
+<!ATTLIST firstName
+               name  CDATA    #REQUIRED >
+
+<!ATTLIST middleName
+               name  CDATA    #REQUIRED >
+
+<!ATTLIST lastName
+               name  CDATA    #REQUIRED >
+
+<!ATTLIST marriageTag marriageId CDATA #REQUIRED >
+
+<!ATTLIST personTag personId CDATA #REQUIRED >
+
+<!ATTLIST tag
+			   personId CDATA #IMPLIED
+			   marriageId CDATA #IMPLIED
+               type (BornD | BornP | ChrD | ChrP | DiedCause | DiedD | DiedP | BapD | BapP | EndD | EndP | BurD | BurP |
+               SToPD | SToPP | Title | Profession | Religion | 
+               LinkCToFather | LinkCToMother | LinkFToChildren | 
+               LinkMToChildren | Location | Emigration | Name | 
+               Headstone | WillAndTestament | AgeInYear | CemeteryName | Trivia |
+               CemeteryPlot | LinkPToDescendants | Portrait | Home | PictureOf | OwnerOf | BapTemple | BapProxy | EndTemple | EndProxy |
+			   MarrD | MarrP | SToSD | SToSP | SToSTemple | SToSProxy | LinkMarriage | TermD | TermReason | FamilyPortrait | ExtFamilyPortrait | ExtFamilyPicture | CouplePortrait | ChildrenPortrait | FamilyBurialPlot | ThreeGeneration | FourGeneration | FiveGeneration | Obituary)   #REQUIRED
+               quality (HIGH | MEDIUM | LOW) #REQUIRED>
+
+<!ATTLIST marriageTagType
+               type (MarrD | MarrP | SToSD | SToSP | SToSTemple | SToSProxy | LinkMarriage | TermD | TermReason | ExtFamilyPortrait | ExtFamilyPicture | FamilyPortrait | CouplePortrait | ChildrenPortrait | Home | Headstone | FamilyBurialPlot | Location)   #REQUIRED
+               quality (HIGH | MEDIUM | LOW)  #REQUIRED >
+
+<!ATTLIST personTagType
+               type (BornD | BornP | ChrD | ChrP | DiedCause | DiedD | DiedP | BapD | BapP | EndD | EndP | BurD | BurP |
+               SToPD | SToPP | Title | Profession | Religion | 
+               LinkCToFather | LinkCToMother | LinkFToChildren | 
+               LinkMToChildren | Location | Emigration | Name | 
+               Headstone | WillAndTestament | AgeInYear | CemeteryName | Trivia |
+               CemeteryPlot | LinkPToDescendants | Portrait | Home | PictureOf | OwnerOf | BapTemple | BapProxy | EndTemple | EndProxy | ExtFamilyPicture | ThreeGeneration | FourGeneration | FiveGeneration | Obituary)   #REQUIRED
+               quality (HIGH | MEDIUM | LOW) #REQUIRED >
+
+<!ATTLIST table
+               rows  CDATA    #REQUIRED 
+               cols  CDATA    #REQUIRED 
+               border (None | SingleLine)  "SingleLine">
+
+<!ATTLIST paragraph
+               indent (No | Yes)  "Yes"
+               lineEnd (HdRet | None)  "HdRet" >
+

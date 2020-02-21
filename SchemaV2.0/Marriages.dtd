@@ -1,0 +1,5 @@
+<!ENTITY % marriage.dtd SYSTEM "c:\genealogy\SchemaV2.0\marriage.dtd">
+
+%marriage.dtd;
+
+<!ELEMENT marriages (marriage*) >

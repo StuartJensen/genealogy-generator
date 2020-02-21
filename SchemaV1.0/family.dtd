@@ -1,0 +1,29 @@
+<!--<Title>Untitled 1--
+ >
+<!ELEMENT family  - - (surname , personPath , marriagePath , 
+               referencePath , layoutPath , outputPathWP , 
+               outputPathHTML , outputPathTXT , outputPathDefault , 
+               basePersonId , baseMarriageId) --<Title>Family-- >
+
+<!ELEMENT surname  - - (#PCDATA) --<Title>Surname-- >
+
+<!ELEMENT basePersonId  - - (#PCDATA) --<Title>BasePersonId-- >
+
+<!ELEMENT referencePath  - - (#PCDATA) --<Title>ReferencePath-- >
+
+<!ELEMENT marriagePath  - - (#PCDATA) --<Title>MarriagePath-- >
+
+<!ELEMENT personPath  - - (#PCDATA) --<Title>PersonPath-- >
+
+<!ELEMENT baseMarriageId  - - (#PCDATA) --<Title>BaseMarriageId-- >
+
+<!ELEMENT layoutPath  - - (#PCDATA) --<Title>LayoutPath-- >
+
+<!ELEMENT outputPathTXT  - - (#PCDATA) --<Title>OutputPathTXT-- >
+
+<!ELEMENT outputPathHTML  - - (#PCDATA) --<Title>OutputPathHTML-- >
+
+<!ELEMENT outputPathWP  - - (#PCDATA) --<Title>OutputPathWP-- >
+
+<!ELEMENT outputPathDefault  - - (#PCDATA) --<Title>OutputPathDefault-- >
+

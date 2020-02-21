@@ -1,0 +1,72 @@
+<!ENTITY % shared.dtd SYSTEM "c:\genealogy\SchemaV2.0\shared.dtd">
+%shared.dtd;
+
+<!ELEMENT person (personIdentification , profession* , religion* , 
+               birthInfo? , chrInfo? , deathInfo? , burialInfo? , ldsInfo?, eventGroup?)+>
+
+<!ELEMENT eventGroup (event*)>
+
+<!ELEMENT event (eventTitle?, date?, place?, eventDescription)>
+
+<!ELEMENT eventTitle (paragraph)>
+
+<!ELEMENT eventDescription (paragraph*)>
+
+<!ELEMENT birthInfo (info?)>
+
+<!ELEMENT chrInfo (info?)>
+
+<!ELEMENT deathInfo (info?)>
+
+<!ELEMENT personIdentification (personName, nickName*, title*)>
+
+<!ELEMENT nickName (#PCDATA)>
+
+<!ELEMENT title (#PCDATA)>
+
+<!ELEMENT religion (#PCDATA)>
+
+<!ELEMENT profession (#PCDATA)>
+
+<!ELEMENT burialInfo (info?)>
+
+<!ELEMENT ldsInfo (baptismInfo? , endowmentInfo? , sealToParentsInfo?)>
+
+<!ELEMENT endowmentInfo (info? , proxy?)>
+
+<!ELEMENT baptismInfo (info? , proxy?)>
+
+<!ELEMENT sealToParentsInfo (info? , proxy*)>
+
+<!ATTLIST event
+               tag (BornD | BornP | Born | ChrD | ChrP | Chr | DiedCause | DiedD | DiedP | Died | BapD | BapP | Bap | EndD | EndP | End | BurD | BurP | Bur |
+               SToPD | SToPP | SToP | Title | Profession | Religion | LinkCToFather | LinkCToMother | LinkFToChildren | LinkMToChildren | Location | Emigration | Name | 
+               Headstone | WillAndTestament | AgeInYear | CemeteryName | CemeteryPlot | LinkPToDescendants | Home | OwnerOf | BapTemple | BapProxy | EndTemple | EndProxy |
+			   Personality | PersonComment | Hobbies | Education | Siblings | EditorNotes | TimeLine | BirthStats | Trivia | Uncategorized)  #REQUIRED >
+
+
+<!ATTLIST person version CDATA #REQUIRED
+				 personId  CDATA  #REQUIRED
+				 parentId  CDATA  #IMPLIED
+				 adopted (Yes | No) #IMPLIED
+				 afn CDATA  #IMPLIED
+				 ssn CDATA #IMPLIED
+				 gender ( MALE | FEMALE | UNKNOWN )  #REQUIRED
+				 living (Yes | No) #IMPLIED >
+
+<!ATTLIST personIdentification royalEnumeration CDATA #IMPLIED >
+
+<!ATTLIST title name CDATA #IMPLIED >
+
+<!ATTLIST profession name CDATA #IMPLIED >
+
+<!ATTLIST religion name CDATA #IMPLIED >
+
+<!ATTLIST nickName name CDATA #IMPLIED >
+
+<!ATTLIST deathInfo cause CDATA #IMPLIED >
+
+<!ATTLIST burialInfo cemeteryName CDATA #IMPLIED
+					 cemeteryPlotAddress CDATA #IMPLIED >
+
+<!ATTLIST birthInfo hospital CDATA #IMPLIED >

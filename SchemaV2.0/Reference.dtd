@@ -1,0 +1,78 @@
+<!ENTITY % shared.dtd SYSTEM "c:\genealogy\SchemaV2.0\shared.dtd">
+%shared.dtd;
+
+<!ELEMENT reference (citation, entry*)>
+
+<!ELEMENT citation (source , place , dateRange* , classification*) >
+
+<!ELEMENT source (title , author? , publisher? , address*) >
+
+<!ELEMENT publisher (company , date?) >
+
+<!ELEMENT address (institution , callNumber*) >
+
+<!ELEMENT chapterNumbers (#PCDATA) >
+
+<!ELEMENT pageNumbers (#PCDATA) >
+
+<!ELEMENT volumeNumbers (#PCDATA) >
+
+<!ELEMENT header (volumeNumbers? , chapterNumbers? , pageNumbers? , 
+               entryNumbers? , paragraph*) >
+
+<!ELEMENT institution (#PCDATA) >
+
+<!ELEMENT company (#PCDATA) >
+
+<!ELEMENT callNumber (#PCDATA) >
+
+<!ELEMENT author (personName* , groupName*) >
+
+<!ELEMENT comment (paragraph*) >
+
+<!ELEMENT body ((paragraph* , table*)* | (table* , paragraph*)*)>
+
+<!ELEMENT entryNumbers (#PCDATA) >
+
+<!ELEMENT entryTitle (paragraph*) >
+
+<!ELEMENT title (#PCDATA)>
+
+<!ELEMENT groupName (#PCDATA) >
+
+<!ELEMENT entry (entryTitle , place* , 
+               header? , body? , comment? , tagGroup? , seeAlso?) >
+
+<!ELEMENT classification (#PCDATA) >
+
+<!ATTLIST reference
+				 referenceId  CDATA  #REQUIRED >
+
+<!ATTLIST company
+				 name CDATA  #REQUIRED >
+
+<!ATTLIST institution
+				 name CDATA  #REQUIRED >
+
+<!ATTLIST callNumber
+				 name CDATA  #REQUIRED >
+
+<!ATTLIST groupName
+				 name CDATA  #REQUIRED >
+
+<!ATTLIST title
+				 name CDATA  #REQUIRED >
+
+<!ATTLIST entry
+               access (PUBLIC | PRIVATE | COPYRIGHTED)  #REQUIRED
+			   entryId CDATA #REQUIRED >
+
+<!ATTLIST classification
+               type (COMPILED | ORIGINAL)  #IMPLIED
+               subType (CivilRegistry | Census | Newspaper | Gazetteer | 
+               PersonalLetter | LocationHistory | FamilyHistory | 
+               GeneralHistory | PersonalExperience | LandRecord |
+               CemeteryInscriptions | ChurchRecord | ProbateRecord | 
+               CivilVitalRecord | EmigrationRecord | CemeteryRecords |
+			   MilitaryRecords | PhotoAlbum | Directory | AutoBiography | Interview)  #IMPLIED >
+			   

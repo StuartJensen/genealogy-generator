@@ -1,0 +1,211 @@
+<!--<Title>Untitled 1--
+ >
+<!ELEMENT photo  - - (photoId , title , fileDescription , content? , 
+               source? , comments? , tagGroup?) --<Title>Photo-- >
+
+<!ELEMENT year  - - (#PCDATA) --<Title>Year-- >
+
+<!ELEMENT day  - - (#PCDATA) --<Title>Day-- >
+
+<!ELEMENT range  - - (startDate , endDate) --<Title>Range-- >
+
+<!ELEMENT startDate  - - (year? , month? , day? , dateModifier?) --<Title>StartDate-- >
+
+<!ELEMENT endDate  - - (year? , month? , day? , dateModifier?) --<Title>EndDate-- >
+
+<!ELEMENT place  - - (place1Level? , place2Level? , place3Level? , 
+               place4Level? , placeModifier?) --<Title>Place-- >
+
+<!ELEMENT place4Level  - - (#PCDATA) --<Title>place4Level-- >
+
+<!ELEMENT place3Level  - - (#PCDATA) --<Title>Place3Level-- >
+
+<!ELEMENT place2Level  - - (#PCDATA) --<Title>Place2Level-- >
+
+<!ELEMENT formText  - - (#PCDATA) --<Title>FormText-- >
+
+<!ELEMENT editorComment  - - (#PCDATA) --<Title>EditorComment-- >
+
+<!ELEMENT comments  - - (paragraph*) --<Title>Comments-- >
+
+<!ELEMENT caption  - - (paragraph*) --<Title>Caption-- >
+
+<!ELEMENT baseFileName  - - (#PCDATA) --<Title>BaseFileName-- >
+
+<!ELEMENT content  - - (date? , place? , caption?) --<Title>Content-- >
+
+<!ELEMENT tagGroup  - - (marriageTag* & personTag*) --<Title>TagGroup-- >
+
+<!ELEMENT marriageId  - - (#PCDATA) --<Title>MarriageId-- >
+
+<!ELEMENT fileDescription  - - (package , baseFileName , file+) --<Title>FileDescription-- >
+
+<!ELEMENT package  - - (#PCDATA) --<Title>Package-- >
+
+<!ELEMENT file  - - (uniqueId , type , quality+) --<Title>File-- >
+
+<!ELEMENT uniqueId  - - (#PCDATA) --<Title>UniqueId-- >
+
+<!ELEMENT marriageTag  - - (marriageId , marriageTagType+) --<Title>MarriageTag-- >
+
+<!ELEMENT personTag  - - (personId , personTagType+) --<Title>PersonTag-- >
+
+<!ELEMENT photoId  - - (#PCDATA) --<Title>PhotoId-- >
+
+<!ELEMENT title  - - (#PCDATA) --<Title>Title-- >
+
+<!ELEMENT photographer  - - (personName? , personId? , studioName?) --<Title>Photographer-- >
+
+<!ELEMENT source  - - (mediaType? , photographer? , originalOwner? , 
+               currentOwner?) --<Title>Source-- >
+
+<!ELEMENT firstName  - - (#PCDATA) --<Title>FirstName-- >
+
+<!ELEMENT middleName  - - (#PCDATA) --<Title>MiddleName-- >
+
+<!ELEMENT lastName  - - (#PCDATA) --<Title>LastName-- >
+
+<!ELEMENT altSpelling  - - (firstName? , middleName? , lastName?) --<Title>AltSpelling-- >
+
+<!ELEMENT studioName  - - (#PCDATA) --<Title>StudioName-- >
+
+<!ELEMENT originalOwner  - - (personName? , personId? , asOf? , address?) --<Title>OriginalOwner-- >
+
+<!ELEMENT personName  - - (firstName? , middleName? , lastName? , 
+               altSpelling*) --<Title>PersonName-- >
+
+<!ELEMENT currentOwner  - - (personName? , personId? , asOf? , address?) --<Title>CurrentOwner-- >
+
+<!ELEMENT personId  - - (#PCDATA) --<Title>PersonId-- >
+
+<!ELEMENT date  - - (year? , month? , day? , dateModifier? , range?) --<Title>Date-- >
+
+<!ELEMENT asOf  - - (date) --<Title>AsOf-- >
+
+<!ELEMENT address  - - (paragraph*) --<Title>Address-- >
+
+<!ELEMENT month  - - (#PCDATA) --<Title>Month-- >
+
+<!ELEMENT dateModifier  - - (#PCDATA) --<Title>DateModifier-- >
+
+<!ELEMENT place1Level  - - (#PCDATA) --<Title>Place1Level-- >
+
+<!ELEMENT placeModifier  - - (#PCDATA) --<Title>PlaceModifier-- >
+
+<!ELEMENT paragraph  - - (#PCDATA) +(formText , editorComment) --<Title>Paragraph-- >
+
+<!ELEMENT marriageTagType  - - (#PCDATA) --<Title>MarriageTagType-- >
+
+<!ELEMENT personTagType  - - (#PCDATA) --<Title>PersonTagType-- >
+
+<!ELEMENT type  - - (#PCDATA) --<Title>Type-- >
+
+<!ELEMENT quality  - - (#PCDATA) --<Title>Quality-- >
+
+<!ELEMENT mediaType  - - (#PCDATA) --<Title>MediaType-- >
+
+<!ATTLIST month
+               --<Title>Untitled 1 - Attribute List-004--
+               
+               knownMonth (January , February , March , April , May , 
+               June , July , August , September , October , November , 
+               December)   #IMPLIED 
+               --<Title>KnownMonth--
+                >
+
+<!ATTLIST dateModifier
+               --<Title>Untitled 1 - Attribute List-001--
+               
+               relativeTime (ABOUT , AFTER , BEFORE , CALC)  "ABOUT"
+               
+               --<Title>RelativeTime--
+               
+               ldsModifiers (CHILD , BIC , SUBMITTED , SEALEDFORTIME , 
+               DONOTSEAL)  "BIC"
+               --<Title>LdsModifiers--
+                >
+
+<!ATTLIST place1Level
+               --<Title>Untitled 1 - Attribute List-000--
+               
+               knownCountry (USA , England , Scotland , Ireland , Whales , 
+               Denmark , Norway , Finland , Germany , France , Italy , 
+               Austria , Switzerland , Hungary , Spain , Canada , Mexico , 
+               Greece , Russia , Sweden , Turkey , Belgium , Prussia , 
+               Columbia , Venezuela , Brasil , Iceland , Egypt , Iran , 
+               Iraq , Pakistan , Japan , Korea , VietNam , Portugal)  
+               "USA"
+               --<Title>knownCountry--
+                >
+
+<!ATTLIST placeModifier
+               --<Title>Untitled 1 - Attribute List-002--
+               
+               placeQualifier (OF)  "OF"
+               --<Title>PlaceQualifier--
+                >
+
+<!ATTLIST paragraph
+               --<Title>GenReference - Attribute List-006--
+               
+               indent (No , Yes)  "Yes"
+               --<Title>Indent--
+               
+               lineEnd (HdRet , None)  "HdRet"
+               --<Title>LineEnd--
+                >
+
+<!ATTLIST marriageTagType
+               --<Title>GenReference - Attribute List-003--
+               
+               marriageTag (MarrD , MarrP , SToSD , SToSP , LinkMarriage , 
+               FamilyPortrait , CouplePortrait)   #IMPLIED 
+               --<Title>MarriageTag--
+               
+               tagQuality (HIGH , MEDIUM , LOW)  "MEDIUM"
+               
+               --<Title>TagQuality--
+                >
+
+<!ATTLIST personTagType
+               --<Title>GenReference - Attribute List-004--
+               
+               personTag (BornD , BornP , ChrD , ChrP , DiedCause , 
+               DiedD , DiedP , BapD , BapP , EndD , EndP , BurD , BurP , 
+               SToPD , SToPP , Title , Profession , Religion , 
+               LinkCToFather , LinkCToMother , LinkFToChildren , 
+               LinkMToChildren , Location , Emigration , Name , 
+               Headstone , WillAndTestament , AgeInYear , CemeteryName , 
+               CemeteryPlot , Portrait , Home , PictureOf , OwnerOf)  
+                #IMPLIED 
+               --<Title>PersonTag--
+               
+               tagQuality (HIGH , MEDIUM , LOW)  "MEDIUM"
+               
+               --<Title>TagQuality--
+                >
+
+<!ATTLIST type
+               --<Title>Untitled 1 - Attribute List-003--
+               
+               knownType (JPG , GIF , BMP , TIFF)  "JPG"
+               
+               --<Title>knownType--
+                >
+
+<!ATTLIST quality
+               --<Title>Untitled 1 - Attribute List-005--
+               
+               knownQuality (Lowest , Low , Medium , High , Highest , 
+               Thumbnail)  "Medium"
+               --<Title>knownQuality--
+                >
+
+<!ATTLIST mediaType
+               --<Title>Untitled 1 - Attribute List-006--
+               
+               knownMediaType (DigitalPhoto , Painting , Photo)  "Photo"
+               
+               --<Title>knownMediaType--
+                >
+
