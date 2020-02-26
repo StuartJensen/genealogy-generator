@@ -85,7 +85,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>home.Genealogy</mainClass>
+							<mainClass>home.genealogy.Genealogy</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

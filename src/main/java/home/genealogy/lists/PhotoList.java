@@ -1,15 +1,16 @@
 package home.genealogy.lists;
 
+import home.genealogy.Genealogy;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Photos;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.PhotoIdHelper;
-import home.genealogy.util.CommandLineParameterList;
 import home.genealogy.util.FileNameFileFilter;
 import home.genealogy.util.MarshallUtil;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,39 +24,24 @@ public class PhotoList
 {
 	private Photo[] m_arPhotoList;
 	
-	public PhotoList(CFGFamily family, CommandLineParameterList listCLP)
+	public PhotoList(CFGFamily family)
 		throws Exception
 	{
-		String strDataPath = family.getDataPath();
-		if (!strDataPath.endsWith(File.separator))
+		this(family, Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML);
+	}
+	
+	public PhotoList(CFGFamily family, String strSource)
+		throws Exception
+	{
+		if ((null == strSource) ||
+			(0 == strSource.length()) ||
+			strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML))
 		{
-			strDataPath += File.separator;
+			unMarshallIndividualFiles(family);
 		}
-		
-		m_arPhotoList = new Photo[family.getPhotoListMaxSize()];
-		
-		// Setup JAXB unmarshaller
-		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
-		
-		String strDirectoryPhotos = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
-		File fDirectoryPhotos = new File(strDirectoryPhotos);
-		File[] arFiles = fDirectoryPhotos.listFiles(new FileNameFileFilter("Ph", ".xml"));
-		if ((null != arFiles) && (0 != arFiles.length))
+		else if (strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML))
 		{
-			for (int i=0; i<arFiles.length; i++)
-			{
-				Photo photo = (Photo)unmarshaller.unmarshal(arFiles[i]);
-				int iPhotoId = PhotoHelper.getPhotoId(photo);
-				if (PhotoIdHelper.PHOTOID_INVALID == iPhotoId)
-				{
-					throw new Exception("Photo has invalid photo id: " + arFiles[i].getName());
-				}
-				if (iPhotoId >= m_arPhotoList.length)
-				{
-					throw new Exception("Photo's photo id out of range: " + iPhotoId);
-				}
-				m_arPhotoList[iPhotoId] = photo;
-			}
+			unMarshallAllFile(family);
 		}
 	}
 	
@@ -84,6 +70,44 @@ public class PhotoList
 			}
 		}
 		return iCount;
+	}
+	
+	public void unMarshallAllFile(CFGFamily family)
+		throws Exception
+	{
+		String strDataPath = family.getDataPathSlashTerminated();
+		
+		m_arPhotoList = new Photo[family.getPhotoListMaxSize()];
+		
+		// Setup JAXB unmarshaller
+		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		
+		String strDirectoryPhotos = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
+		String strFileName = strDirectoryPhotos + File.separator + CFGFamily.PHOTOS_ALL_FILENAME;
+
+		File fAllFile = new File(strFileName);
+		if (fAllFile.exists())
+		{
+			Photos photos = (Photos)unmarshaller.unmarshal(fAllFile);
+			List<Photo> lPhotos = photos.getPhoto();
+			for (Photo photo : lPhotos)
+			{
+				int iPhotoId = PhotoHelper.getPhotoId(photo);
+				if (PhotoIdHelper.PHOTOID_INVALID == iPhotoId)
+				{
+					throw new Exception("Photo has invalid photo id: " + fAllFile.getName());
+				}
+				if (iPhotoId >= m_arPhotoList.length)
+				{
+					throw new Exception("Photo's photo id out of range: " + iPhotoId);
+				}
+				m_arPhotoList[iPhotoId] = photo;
+			}
+		}
+		else
+		{
+			System.out.println("WARNING: Photos ALL file not found: " + strFileName);
+		}
 	}
 
 	public void marshallAllFile(CFGFamily family, boolean bFormattedOutput)
@@ -114,13 +138,70 @@ public class PhotoList
 			lPhotos.add(iter.next());
 		}
 		
-		String strDataPath = family.getDataPath();
-		if (!strDataPath.endsWith(File.separator))
-		{
-			strDataPath += File.separator;
-		}
+		String strDataPath = family.getDataPathSlashTerminated();
 		String strDirectory = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
-		MarshallUtil.marshall(marshaller, photos, strDirectory + File.separator + "allPhotos.xml");
+		MarshallUtil.marshall(marshaller, photos, strDirectory + File.separator + CFGFamily.PHOTOS_ALL_FILENAME);
+	}
+	
+	public void unMarshallIndividualFiles(CFGFamily family)
+		throws Exception
+	{
+		String strDataPath = family.getDataPathSlashTerminated();
+		
+		m_arPhotoList = new Photo[family.getPhotoListMaxSize()];
+		
+		// Setup JAXB unmarshaller
+		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		
+		String strDirectoryPhotos = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
+		File fDirectoryPhotos = new File(strDirectoryPhotos);
+		File[] arFiles = fDirectoryPhotos.listFiles(new FileNameFileFilter(CFGFamily.PHOTOS_FILE_PREFIX, CFGFamily.DOTXML_FILE_POSTFIX));
+		if ((null != arFiles) && (0 != arFiles.length))
+		{
+			for (int i=0; i<arFiles.length; i++)
+			{
+				Photo photo = (Photo)unmarshaller.unmarshal(arFiles[i]);
+				int iPhotoId = PhotoHelper.getPhotoId(photo);
+				if (PhotoIdHelper.PHOTOID_INVALID == iPhotoId)
+				{
+					throw new Exception("Photo has invalid photo id: " + arFiles[i].getName());
+				}
+				if (iPhotoId >= m_arPhotoList.length)
+				{
+					throw new Exception("Photo's photo id out of range: " + iPhotoId);
+				}
+				m_arPhotoList[iPhotoId] = photo;
+			}
+		}
 	}
 
+	public void marshallIndividualFiles(CFGFamily family, boolean bFormattedOutput)
+	{
+		Marshaller marshaller = null;
+		try
+		{
+			marshaller = MarshallUtil.createMarshaller(family.getSchemaFile(), bFormattedOutput);
+		}
+		catch (JAXBException jb)
+		{
+			System.out.println("Exception creating JAXB Marshaller: " + jb.toString());
+			return;
+		}
+		catch (SAXException se)
+		{
+			System.out.println("Exception creating JAXB Marshaller: " + se.toString());
+			return;
+		}
+		
+		String strDataPath = family.getDataPathSlashTerminated();
+		String strDirectory = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
+		
+		Iterator<Photo> iter = getPhotos();
+		while (iter.hasNext())
+		{
+			Photo photo = iter.next();
+			String strPhotoFileName = MessageFormat.format(CFGFamily.PHOTOS_FILE_FORMAT_STRING, photo.getPhotoId());
+			MarshallUtil.marshall(marshaller, photo, strDirectory + File.separator + strPhotoFileName);
+		}
+	}
 }

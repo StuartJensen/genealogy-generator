@@ -2,9 +2,11 @@ package home.genealogy.configuration;
 
 import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.PersonId;
+import home.genealogy.util.StringUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -55,11 +57,11 @@ public class CFGFamilyList {
 						MarriageId marriageId = new MarriageId();
 						marriageId.setId(strBaseMarriageId);
 						family.setBaseMarriageId(marriageId);
-						family.setDataPath(strDataPath);
-						family.setPhotoPath(strPhotoPath);
+						family.setDataPath(StringUtil.toLowerCase(strDataPath));
+						family.setPhotoPath(StringUtil.toLowerCase(strPhotoPath));
 						family.setContactEMail(strContactEMail);
-						family.setOutputPathHTML(strOutputPathHTML);
-						family.setSchemafile(strSchemaFile);
+						family.setOutputPathHTML(StringUtil.toLowerCase(strOutputPathHTML));
+						family.setSchemafile(StringUtil.toLowerCase(strSchemaFile));
 						family.setUrlPrefix(strUrlPrefix);
 						family.setPersonListMaxSize(strPersonListMaxSize);
 						family.setMarriageListMaxSize(strMarriageListMaxSize);
@@ -74,6 +76,10 @@ public class CFGFamilyList {
 				}
 			}
 		}
+		else
+		{
+			throw new FileNotFoundException("Family configuration file not found: " + fConfiguration.getAbsolutePath());
+		}
 	}
 	
 	public CFGFamily getFamily(String strFamilyIdentifier)
@@ -81,7 +87,7 @@ public class CFGFamilyList {
 		for (int i=0; i<m_alFamilyList.size(); i++)
 		{
 			CFGFamily family = m_alFamilyList.get(i);
-			if (family.getFamilyIdentifier().equals(strFamilyIdentifier))
+			if (family.getFamilyIdentifier().equalsIgnoreCase(strFamilyIdentifier))
 			{
 				return family;
 			}

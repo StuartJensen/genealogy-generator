@@ -1,5 +1,7 @@
 package home.genealogy.configuration;
 
+import java.io.File;
+
 import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.PersonId;
 
@@ -24,6 +26,22 @@ public class CFGFamily
 	public static final String APPENDAGE_DATAPATH_MARRIAGES = "marriages";
 	public static final String APPENDAGE_DATAPATH_REFERENCES = "references";
 	public static final String APPENDAGE_DATAPATH_PHOTOS = "photos";
+	
+	public static final String PERSONS_FILE_PREFIX = "P";
+	public static final String MARRIAGES_FILE_PREFIX = "M";
+	public static final String PHOTOS_FILE_PREFIX = "Ph";
+	public static final String REFERENCES_FILE_PREFIX = "R";
+	public static final String DOTXML_FILE_POSTFIX = ".xml";
+	
+	public static final String PERSONS_FILE_FORMAT_STRING = CFGFamily.PERSONS_FILE_PREFIX + "{0}" + CFGFamily.DOTXML_FILE_POSTFIX;
+	public static final String MARRIAGES_FILE_FORMAT_STRING = CFGFamily.MARRIAGES_FILE_PREFIX + "{0}" + CFGFamily.DOTXML_FILE_POSTFIX;
+	public static final String PHOTOS_FILE_FORMAT_STRING = CFGFamily.PHOTOS_FILE_PREFIX + "{0}" + CFGFamily.DOTXML_FILE_POSTFIX;
+	public static final String REFERENCES_FILE_FORMAT_STRING = CFGFamily.REFERENCES_FILE_PREFIX + "{0}" + CFGFamily.DOTXML_FILE_POSTFIX;
+
+	public static final String PERSONS_ALL_FILENAME = "allPersons" + DOTXML_FILE_POSTFIX;
+	public static final String MARRIAGES_ALL_FILENAME = "allMarriages" + DOTXML_FILE_POSTFIX;
+	public static final String PHOTOS_ALL_FILENAME = "allPhotos" + DOTXML_FILE_POSTFIX;
+	public static final String REFERENCES_ALL_FILENAME = "allReferences" + DOTXML_FILE_POSTFIX;
 	
 	private String m_strFamilyIdentifier;
 	private String m_strSurname;
@@ -101,6 +119,19 @@ public class CFGFamily
 	public String getDataPath()
 	{
 		return m_strDataPath;
+	}
+	
+	public String getDataPathSlashTerminated()
+	{
+		if (null != m_strDataPath)
+		{
+			if (!m_strDataPath.endsWith(File.separator))
+			{
+				return m_strDataPath += File.separator;
+			}
+			return m_strDataPath;
+		}
+		return File.separator;
 	}
 	
 	public void setPhotoPath(String strPhotoPath)

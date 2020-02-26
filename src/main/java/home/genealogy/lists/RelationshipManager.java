@@ -3,6 +3,7 @@ package home.genealogy.lists;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToChildren;
 import home.genealogy.indexes.IndexPersonToMarriages;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonId;
@@ -25,7 +26,8 @@ public class RelationshipManager
 	public static final String UNKNOWN = "X";
 	
 	public static void setRelationships(CFGFamily family, PersonList personList, MarriageList marriageList,
-			                            IndexPersonToMarriages idxPerToMar, IndexMarriageToChildren idxMarToChild)
+			                            IndexPersonToMarriages idxPerToMar, IndexMarriageToChildren idxMarToChild,
+			                            IOutputStream outputStream)
 	{
 		PersonId basePersonId = family.getBasePersonId();
 		if (null != basePersonId)
@@ -38,7 +40,7 @@ public class RelationshipManager
 				
 				// While secondary relationships are found, keep setting them.  When we
 				// finally set zero we know we are done.
-				while (0 != setSecondaryRelationships(personList, marriageList, idxPerToMar, idxMarToChild));
+				while (0 != setSecondaryRelationships(personList, marriageList, idxPerToMar, idxMarToChild, outputStream));
 			}
 		}
 	}
@@ -84,7 +86,8 @@ public class RelationshipManager
 	
 	private static int setSecondaryRelationships(PersonList personList, MarriageList marriageList,
 			                                     IndexPersonToMarriages idxPerToMar,
-			                                     IndexMarriageToChildren idxMarToChild)
+			                                     IndexMarriageToChildren idxMarToChild,
+			                                     IOutputStream outputStream)
 	{
 		int iCount = 0;
 		Iterator<Person> iter = personList.getPersons();
@@ -229,7 +232,7 @@ public class RelationshipManager
 				}
 			}
 		}
-		System.out.println("Secondary Relationships: " + iCount);
+		outputStream.output("Secondary Relationships: " + iCount + "\n");
 		return iCount;
 	}
 	

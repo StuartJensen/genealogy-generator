@@ -34,12 +34,18 @@ public class Genealogy
 	public static final String COMMAND_LINE_PARAM_FAMILY = "family";
 	public static final String COMMAND_LINE_PARAM_ACTION = "action";
 	public static final String COMMAND_LINE_PARAM_FORMAT = "format";
+	public static final String COMMAND_LINE_PARAM_SOURCE = "source";
+	public static final String COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML = "allxml";
+	public static final String COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML = "individualxml";
+	public static final String COMMAND_LINE_PARAM_DESTINATION = "destination";
+	public static final String COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML = "allxml";
+	public static final String COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML = "individualxml";
 	public static final String COMMAND_LINE_PARAM_FORMAT_VALUE_PRETTY = "pretty";
 	public static final String COMMAND_LINE_PARAM_FORMAT_VALUE_COMPACT = "compact";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE = "validate";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME = "time";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET = "target";
-	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_GENERATEALL = "generateall";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT = "convert";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM = "htmlform";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE = "type";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_PERSONLIST = "personlist";
@@ -136,26 +142,56 @@ public class Genealogy
 	
 			CFGFamilyList listFamily = new CFGFamilyList(new File(listCLP.getValue(COMMAND_LINE_PARAM_CONFIG)));
 			CFGFamily family = listFamily.getFamily(listCLP.getValue(COMMAND_LINE_PARAM_FAMILY));
+			if (null == family)
+			{
+				showUsage("No family found: " + listCLP.getValue(COMMAND_LINE_PARAM_FAMILY));
+			}
 			
 			String strAction = listCLP.getValue(COMMAND_LINE_PARAM_ACTION);
 			if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE))
 			{
-				GenealogyValidator validator = new GenealogyValidator(family, listCLP);
+				GenealogyValidator validator = new GenealogyValidator(family, listCLP, outputStream);
 				validator.validate();
 			}
-			else if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATEALL))
+			else if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT))
 			{
-				PersonList personList = new PersonList(family, listCLP);
+				String strSource = listCLP.getValue(COMMAND_LINE_PARAM_SOURCE);
+				String strDestination = listCLP.getValue(COMMAND_LINE_PARAM_DESTINATION);
+				if ((null == strSource) ||
+					(0 == strSource.length()) ||
+					(null == strDestination) ||
+					(0 == strDestination.length()))
+				{
+					showUsage("Either source \"" + strSource + "\" or destination \"" + strDestination + "\" are empty or null");
+				}
+				
+				if (!strSource.equalsIgnoreCase(COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML) &&
+					!strSource.equalsIgnoreCase(COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML))
+				{
+					showUsage("Invalid value for source: " + strSource);
+				}
+				if (!strDestination.equalsIgnoreCase(COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML) &&
+					!strDestination.equalsIgnoreCase(COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML))
+				{
+					showUsage("Invalid value for destination: " + strDestination);
+				}
+				
+				if (strSource.equalsIgnoreCase(strDestination))
+				{
+					showUsage("Source and destination are the same: " + strDestination);
+				}
+
+				PersonList personList = new PersonList(family, strSource);
 				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, listCLP);
+				PhotoList photoList = new PhotoList(family, strSource);
 				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, listCLP);
+				MarriageList marriageList = new MarriageList(family, strSource);
 				marriageList.setInLineFlags(family, personList);
 				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, listCLP);
+				ReferenceList referenceList = new ReferenceList(family, strSource);
 				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				
-				boolean bFormattedOutput = false;
+				boolean bFormattedOutput = true;
 				String strFormat = listCLP.getValue(COMMAND_LINE_PARAM_FORMAT);
 				if (null != strFormat)
 				{
@@ -165,37 +201,51 @@ public class Genealogy
 					}
 				}
 				
-				personList.marshallAllFile(family, bFormattedOutput);
-				outputStream.output("Created Person List: allPersons.xml file\n");
-				photoList.marshallAllFile(family, bFormattedOutput);
-				outputStream.output("Created Person List: allPhotos.xml file\n");
-				marriageList.marshallAllFile(family, bFormattedOutput);
-				outputStream.output("Created Person List: allMarriages.xml file\n");
-				referenceList.marshallAllFile(family, bFormattedOutput);
-				outputStream.output("Created Person List: allReferences.xml file\n");
+				if (strDestination.equalsIgnoreCase(COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML))
+				{
+					personList.marshallAllFile(family, bFormattedOutput);
+					outputStream.output("Stored Person List to destination: " + CFGFamily.PERSONS_ALL_FILENAME + " file\n");
+					photoList.marshallAllFile(family, bFormattedOutput);
+					outputStream.output("Stored Photo List to destination: " + CFGFamily.PHOTOS_ALL_FILENAME + " file\n");
+					marriageList.marshallAllFile(family, bFormattedOutput);
+					outputStream.output("Stored Marriage List to destination: " + CFGFamily.MARRIAGES_ALL_FILENAME + " file\n");
+					referenceList.marshallAllFile(family, bFormattedOutput);
+					outputStream.output("Stored Reference List to destination: " + CFGFamily.REFERENCES_ALL_FILENAME + " file\n");
+				}
+				else if (strDestination.equalsIgnoreCase(COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML))
+				{
+					personList.marshallIndividualFiles(family, bFormattedOutput);
+					outputStream.output("Stored Person List to destination: individual xml files\n");
+					photoList.marshallIndividualFiles(family, bFormattedOutput);
+					outputStream.output("Stored Photo List to destination: individual xml files\n");
+					marriageList.marshallIndividualFiles(family, bFormattedOutput);
+					outputStream.output("Stored Marriage List to destination: individual xml files\n");
+					referenceList.marshallIndividualFiles(family, bFormattedOutput);
+					outputStream.output("Stored Reference List to destination: individual xml files\n");
+				}
 			}
 			else if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM))
 			{
 				String strType = listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE);
 				if (null == strType)
 				{
-					showUsage("No \"" + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE + "\" Command Line Parameter!");
+					showUsage("Missing \"" + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE + "\" Command Line Parameter!");
 				}
 				
-				PersonList personList = new PersonList(family, listCLP);
+				PersonList personList = new PersonList(family);
 				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, listCLP);
+				PhotoList photoList = new PhotoList(family);
 				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, listCLP);
+				MarriageList marriageList = new MarriageList(family);
 				marriageList.setInLineFlags(family, personList);
 				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, listCLP);
+				ReferenceList referenceList = new ReferenceList(family);
 				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				// Set relationships in the personList
 				IndexMarriageToSpouses idxMarrToSpouses = new IndexMarriageToSpouses(family, marriageList);
 				IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(family, marriageList);
 				IndexMarriageToChildren idxMarToChild = new IndexMarriageToChildren(family, listCLP, personList);
-				RelationshipManager.setRelationships(family, personList, marriageList, idxPerToMar, idxMarToChild);
+				RelationshipManager.setRelationships(family, personList, marriageList, idxPerToMar, idxMarToChild, outputStream);
 				
 				boolean bSuppressLiving = true;
 				String strSuppressLiving = listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING);
@@ -284,14 +334,14 @@ public class Genealogy
 			}
 			else if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_ERRORCHECK))
 			{
-				PersonList personList = new PersonList(family, listCLP);
+				PersonList personList = new PersonList(family);
 				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, listCLP);
+				PhotoList photoList = new PhotoList(family);
 				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, listCLP);
+				MarriageList marriageList = new MarriageList(family);
 				marriageList.setInLineFlags(family, personList);
 				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, listCLP);
+				ReferenceList referenceList = new ReferenceList(family);
 				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				
 				ErrorChecker errorChecker = new ErrorChecker(family, personList, marriageList, referenceList, photoList, listCLP, outputStream);
@@ -299,20 +349,20 @@ public class Genealogy
 			}
 			else if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS))
 			{
-				PersonList personList = new PersonList(family, listCLP);
+				PersonList personList = new PersonList(family);
 				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, listCLP);
+				PhotoList photoList = new PhotoList(family);
 				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, listCLP);
+				MarriageList marriageList = new MarriageList(family);
 				marriageList.setInLineFlags(family, personList);
 				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, listCLP);
+				ReferenceList referenceList = new ReferenceList(family);
 				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				// Set relationships in the personList
 				IndexMarriageToSpouses idxMarrToSpouses = new IndexMarriageToSpouses(family, marriageList);
 				IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(family, marriageList);
 				IndexMarriageToChildren idxMarToChild = new IndexMarriageToChildren(family, listCLP, personList);
-				RelationshipManager.setRelationships(family, personList, marriageList, idxPerToMar, idxMarToChild);
+				RelationshipManager.setRelationships(family, personList, marriageList, idxPerToMar, idxMarToChild, outputStream);
 
 				GenerationManager generationManager = new GenerationManager(family, personList, listCLP, outputStream);
 				generationManager.process();
@@ -325,14 +375,14 @@ public class Genealogy
 					showUsage("No \"" + COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE + "\" Command Line Parameter!");
 				}
 				
-				PersonList personList = new PersonList(family, listCLP);
+				PersonList personList = new PersonList(family);
 				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, listCLP);
+				PhotoList photoList = new PhotoList(family);
 				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, listCLP);
+				MarriageList marriageList = new MarriageList(family);
 				marriageList.setInLineFlags(family, personList);
 				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, listCLP);
+				ReferenceList referenceList = new ReferenceList(family);
 				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				WebSiteValidator validator = new WebSiteValidator(family, personList, marriageList, referenceList, photoList, listCLP, strType, outputStream);
 				validator.validate();
@@ -363,24 +413,51 @@ public class Genealogy
 		}
 		System.out.println("Usage: Genealogy [Parameters]");
 		System.out.println(" Required Parameters");		
-		System.out.println("   " + COMMAND_LINE_PARAM_CONFIG + "=c:\\gen\\config.properties");
-		System.out.println("   " + COMMAND_LINE_PARAM_FAMILY + "=Jensen");
-		System.out.println("   " + COMMAND_LINE_PARAM_ACTION + "=validate");
+		System.out.println("   " + COMMAND_LINE_PARAM_CONFIG + "=[absolute path to config file]");
+		System.out.println("   " + COMMAND_LINE_PARAM_FAMILY + "=[family surname]");
+		System.out.println("   " + COMMAND_LINE_PARAM_ACTION + "=[action]");
+		System.out.println(" Optional (or Action Sensitive Parameters");
+		System.out.println("   " + COMMAND_LINE_PARAM_LOG + "=[file or stdout specifier]");
+		System.out.println("       " + COMMAND_LINE_PARAM_LOG_VALUE_STDOUT + " for Standard Out logging only (default)");
+		System.out.println("       " + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " for File logging (requires filename to be specified)");
+		System.out.println("   " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=[absolute path to log file]");
+		System.out.println("   " + COMMAND_LINE_PARAM_LOG_FILE_ECHO + "=[true or false]");		
+		System.out.println("       only applicable when Standard Out logging is specified, if true will echo logged data to Standard Out");
 		System.out.println(" Possible Actions");
 		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE);
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME + "=1 (days, -1 for no time limits)");
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET + "=" +COMMAND_LINE_PARAM_TARGET_PERSONS + "," + COMMAND_LINE_PARAM_TARGET_MARRIAGES + " (also: \"" + COMMAND_LINE_PARAM_TARGET_REFERENCES + "\", \"" + COMMAND_LINE_PARAM_TARGET_PHOTOS + "\", default is all");	
 		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM);
-		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE + "=fsg");
-		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_FGS + " for Family Group Sheets");
-		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_PERSONLIST + " for Person List Index");	
-		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_PHOTOLIST + " for Photo List Index");
+		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE + "=[specifier for which forms to generate]");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_FGS + " for Family Group Sheets only");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_PHOTOS + " for Photos only");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_REFERENCES + " for References only");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_PERSONLIST + " for Person List Index only");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_PHOTOLIST + " for Photo List Index only");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_REFERENCELIST + " for Reference List Index only");
+		System.out.println("       " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TYPE_ALL + " for all types");
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING + "=true/false");
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLDS + "=true/false");
-		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_GENERATEALL + " to generate the \"all\" versions of persons, marriages, photos, and references XML files");
+
+		System.out.println("   " + COMMAND_LINE_PARAM_SOURCE + "=[source: all*.XML files OR individual XML files]");
+		System.out.println("     " + COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML + " for populating lists from the all*.xml files");
+		System.out.println("     " + COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML + " for populating lists from individual xml files");
+		System.out.println("   " + COMMAND_LINE_PARAM_DESTINATION + "=[destination: all*.XML files OR individual XML files]");
+		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML + " for writing lists to the all*.xml files");
+		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML + " for writing lists to individual xml files");
+
+		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT + " to read all lists from a source and write to a destination");
 		System.out.println("     " + COMMAND_LINE_PARAM_FORMAT + "=[XML Output Format]");
 		System.out.println("       " + COMMAND_LINE_PARAM_FORMAT_VALUE_PRETTY + " for line ends and indented XML (default)");
 		System.out.println("       " + COMMAND_LINE_PARAM_FORMAT_VALUE_COMPACT + " for unformatted small XML");
+
+		System.out.println(" Example Command Lines");
+		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT + " " + COMMAND_LINE_PARAM_SOURCE + "=" + COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML +" " + COMMAND_LINE_PARAM_DESTINATION + "=" + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML);
+		System.out.println("      to read all lists from individual xml files and write all list content to their respective all*.xml files");
+		System.out.println("      to read and write the opposite, flip the soure and destination values");
+		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt");
+		System.out.println("      to validate all lists and direct the output (validation results) to a specified log file");
+
 		System.exit(1);
 	}
 }

@@ -1,5 +1,6 @@
 package home.genealogy.lists;
 
+import home.genealogy.Genealogy;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageId;
@@ -9,11 +10,11 @@ import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
-import home.genealogy.util.CommandLineParameterList;
 import home.genealogy.util.FileNameFileFilter;
 import home.genealogy.util.MarshallUtil;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,39 +28,24 @@ public class MarriageList
 {
 	private Marriage[] m_arMarriageList;
 	
-	public MarriageList(CFGFamily family, CommandLineParameterList listCLP)
+	public MarriageList(CFGFamily family)
 		throws Exception
 	{
-		String strDataPath = family.getDataPath();
-		if (!strDataPath.endsWith(File.separator))
+		this(family, Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML);
+	}
+	
+	public MarriageList(CFGFamily family, String strSource)
+		throws Exception
+	{
+		if ((null == strSource) ||
+			(0 == strSource.length()) ||
+			strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML))
 		{
-			strDataPath += File.separator;
+			unMarshallIndividualFiles(family);
 		}
-		
-		m_arMarriageList = new Marriage[family.getMarriageListMaxSize()];
-		
-		// Setup JAXB unmarshaller
-		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
-		
-		String strDirectoryMarriages = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
-		File fDirectoryMarriages = new File(strDirectoryMarriages);
-		File[] arFiles = fDirectoryMarriages.listFiles(new FileNameFileFilter("M", ".xml"));
-		if ((null != arFiles) && (0 != arFiles.length))
+		else if (strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML))
 		{
-			for (int i=0; i<arFiles.length; i++)
-			{
-				Marriage marriage = (Marriage)unmarshaller.unmarshal(arFiles[i]);
-				int iMarriageId = MarriageHelper.getMarriageId(marriage);
-				if (MarriageIdHelper.MARRIAGEID_INVALID == iMarriageId)
-				{
-					throw new Exception("Marriage has invalid marriage id: " + arFiles[i].getName());
-				}
-				if (iMarriageId >= m_arMarriageList.length)
-				{
-					throw new Exception("Marriage's marriage id out of range: " + iMarriageId);
-				}
-				m_arMarriageList[iMarriageId] = marriage;
-			}
+			unMarshallAllFile(family);
 		}
 	}
 
@@ -144,6 +130,44 @@ public class MarriageList
 		return iCount;
 	}
 	
+	public void unMarshallAllFile(CFGFamily family)
+		throws Exception
+	{
+		String strDataPath = family.getDataPathSlashTerminated();
+		
+		m_arMarriageList = new Marriage[family.getMarriageListMaxSize()];
+		
+		// Setup JAXB unmarshaller
+		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		
+		String strDirectoryMarriages = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
+		String strFileName = strDirectoryMarriages + File.separator + CFGFamily.MARRIAGES_ALL_FILENAME;
+
+		File fAllFile = new File(strFileName);
+		if (fAllFile.exists())
+		{
+			Marriages marriages = (Marriages)unmarshaller.unmarshal(fAllFile);
+			List<Marriage> lMarriages = marriages.getMarriage();
+			for (Marriage marriage : lMarriages)
+			{
+				int iMarriageId = MarriageHelper.getMarriageId(marriage);
+				if (MarriageIdHelper.MARRIAGEID_INVALID == iMarriageId)
+				{
+					throw new Exception("Marriage has invalid marriage id: " + fAllFile.getName());
+				}
+				if (iMarriageId >= m_arMarriageList.length)
+				{
+					throw new Exception("Marriage's marriage id out of range: " + iMarriageId);
+				}
+				m_arMarriageList[iMarriageId] = marriage;
+			}
+		}
+		else
+		{
+			System.out.println("WARNING: Marriages ALL file not found: " + strFileName);
+		}
+	}
+	
 	public void marshallAllFile(CFGFamily family, boolean bFormattedOutput)
 	{
 		Marshaller marshaller = null;
@@ -172,12 +196,71 @@ public class MarriageList
 			lMarriages.add(iter.next());
 		}
 		
-		String strDataPath = family.getDataPath();
-		if (!strDataPath.endsWith(File.separator))
-		{
-			strDataPath += File.separator;
-		}
+		String strDataPath = family.getDataPathSlashTerminated();
 		String strDirectory = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
-		MarshallUtil.marshall(marshaller, marriages, strDirectory + File.separator + "allMarriages.xml");
+		MarshallUtil.marshall(marshaller, marriages, strDirectory + File.separator + CFGFamily.MARRIAGES_ALL_FILENAME);
+	}
+	
+	public void unMarshallIndividualFiles(CFGFamily family)
+		throws Exception
+	{
+		String strDataPath = family.getDataPathSlashTerminated();
+		
+		m_arMarriageList = new Marriage[family.getMarriageListMaxSize()];
+		
+		// Setup JAXB unmarshaller
+		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		
+		String strDirectoryMarriages = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
+		File fDirectoryMarriages = new File(strDirectoryMarriages);
+		File[] arFiles = fDirectoryMarriages.listFiles(new FileNameFileFilter(CFGFamily.MARRIAGES_FILE_PREFIX, CFGFamily.DOTXML_FILE_POSTFIX));
+		if ((null != arFiles) && (0 != arFiles.length))
+		{
+			for (int i=0; i<arFiles.length; i++)
+			{
+				Marriage marriage = (Marriage)unmarshaller.unmarshal(arFiles[i]);
+				int iMarriageId = MarriageHelper.getMarriageId(marriage);
+				if (MarriageIdHelper.MARRIAGEID_INVALID == iMarriageId)
+				{
+					throw new Exception("Marriage has invalid marriage id: " + arFiles[i].getName());
+				}
+				if (iMarriageId >= m_arMarriageList.length)
+				{
+					throw new Exception("Marriage's marriage id out of range: " + iMarriageId);
+				}
+				m_arMarriageList[iMarriageId] = marriage;
+			}
+		}
+	}
+	
+	
+	public void marshallIndividualFiles(CFGFamily family, boolean bFormattedOutput)
+	{
+		Marshaller marshaller = null;
+		try
+		{
+			marshaller = MarshallUtil.createMarshaller(family.getSchemaFile(), bFormattedOutput);
+		}
+		catch (JAXBException jb)
+		{
+			System.out.println("Exception creating JAXB Marshaller: " + jb.toString());
+			return;
+		}
+		catch (SAXException se)
+		{
+			System.out.println("Exception creating JAXB Marshaller: " + se.toString());
+			return;
+		}
+		
+		String strDataPath = family.getDataPathSlashTerminated();
+		String strDirectory = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
+		
+		Iterator<Marriage> iter = getMarriages();
+		while (iter.hasNext())
+		{
+			Marriage marriage = iter.next();
+			String strMarriageFileName = MessageFormat.format(CFGFamily.MARRIAGES_FILE_FORMAT_STRING, marriage.getMarriageId());
+			MarshallUtil.marshall(marshaller, marriage, strDirectory + File.separator + strMarriageFileName);
+		}
 	}
 }

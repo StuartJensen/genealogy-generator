@@ -2,6 +2,7 @@ package home.genealogy.action.validate;
 
 import home.genealogy.Genealogy;
 import home.genealogy.configuration.CFGFamily;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.util.CommandLineParameterList;
 
 import java.io.File;
@@ -16,21 +17,19 @@ public class GenealogyValidator
 	private static final long MILLISECONDS_ONE_DAY = (60 * 60 * 24 * 1000);
 	private CFGFamily m_family;
 	private CommandLineParameterList m_listCLP;
+	private IOutputStream m_outputStream;
 	
-	public GenealogyValidator(CFGFamily family, CommandLineParameterList listCLP)
+	public GenealogyValidator(CFGFamily family, CommandLineParameterList listCLP, IOutputStream outputStream)
 	{
 		m_family = family;
 		m_listCLP = listCLP;
+		m_outputStream = outputStream;
 	}
 	
 	public void validate()
 		throws Exception
 	{
-		String strDataPath = m_family.getDataPath();
-		if (!strDataPath.endsWith(File.separator))
-		{
-			strDataPath += File.separator;
-		}
+		String strDataPath = m_family.getDataPathSlashTerminated();
 		
 		// Initialize the validator with the schema
 		SchemaFactory sf = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
@@ -89,7 +88,7 @@ public class GenealogyValidator
 		{
 			String strDirectoryPersons = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PERSONS;
 			File fDirectoryPersons = new File(strDirectoryPersons);
-			File[] arFiles = fDirectoryPersons.listFiles(new TimeFileFilter("P", ".xml", lTimeLimitDays * MILLISECONDS_ONE_DAY));
+			File[] arFiles = fDirectoryPersons.listFiles(new TimeFileFilter("P", CFGFamily.DOTXML_FILE_POSTFIX, lTimeLimitDays * MILLISECONDS_ONE_DAY));
 			if ((null != arFiles) && (0 != arFiles.length))
 			{
 				for (int i=0; i<arFiles.length; i++)
@@ -101,7 +100,7 @@ public class GenealogyValidator
 					}
 					catch (Throwable t)
 					{
-						System.out.println("Validation Error (Person): " + arFiles[i].getName() + ": " + t.getMessage());
+						m_outputStream.output("Validation Error (Person): " + arFiles[i].getName() + ": " + t.getMessage() + "\n");
 						lPersonsErrors++;
 					}
 				}
@@ -113,7 +112,7 @@ public class GenealogyValidator
 		{
 			String strDirectoryMarriages = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
 			File fDirectoryMarriages = new File(strDirectoryMarriages);
-			File[] arFiles = fDirectoryMarriages.listFiles(new TimeFileFilter("M", ".xml", lTimeLimitDays * MILLISECONDS_ONE_DAY));
+			File[] arFiles = fDirectoryMarriages.listFiles(new TimeFileFilter("M", CFGFamily.DOTXML_FILE_POSTFIX, lTimeLimitDays * MILLISECONDS_ONE_DAY));
 			if ((null != arFiles) && (0 != arFiles.length))
 			{
 				for (int i=0; i<arFiles.length; i++)
@@ -125,7 +124,7 @@ public class GenealogyValidator
 					}
 					catch (Throwable t)
 					{
-						System.out.println("Validation Error (Marriage): " + arFiles[i].getName() + ": " + t.getMessage());
+						m_outputStream.output("Validation Error (Marriage): " + arFiles[i].getName() + ": " + t.getMessage() + "\n");
 						lMarriagesErrors++;
 					}
 				}
@@ -137,7 +136,7 @@ public class GenealogyValidator
 		{
 			String strDirectoryReferences = strDataPath + CFGFamily.APPENDAGE_DATAPATH_REFERENCES;
 			File fDirectoryReferences = new File(strDirectoryReferences);
-			File[] arFiles = fDirectoryReferences.listFiles(new TimeFileFilter("R", ".xml", lTimeLimitDays * MILLISECONDS_ONE_DAY));
+			File[] arFiles = fDirectoryReferences.listFiles(new TimeFileFilter("R", CFGFamily.DOTXML_FILE_POSTFIX, lTimeLimitDays * MILLISECONDS_ONE_DAY));
 			if ((null != arFiles) && (0 != arFiles.length))
 			{
 				for (int i=0; i<arFiles.length; i++)
@@ -149,7 +148,7 @@ public class GenealogyValidator
 					}
 					catch (Throwable t)
 					{
-						System.out.println("Validation Error (Reference): " + arFiles[i].getName() + ": " + t.getMessage());
+						m_outputStream.output("Validation Error (Reference): " + arFiles[i].getName() + ": " + t.getMessage() + "\n");
 						lReferencesErrors++;
 					}
 				}
@@ -161,7 +160,7 @@ public class GenealogyValidator
 		{
 			String strDirectoryPhotos = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
 			File fDirectoryPhotos = new File(strDirectoryPhotos);
-			File[] arFiles = fDirectoryPhotos.listFiles(new TimeFileFilter("Ph", ".xml", lTimeLimitDays * MILLISECONDS_ONE_DAY));
+			File[] arFiles = fDirectoryPhotos.listFiles(new TimeFileFilter("Ph", CFGFamily.DOTXML_FILE_POSTFIX, lTimeLimitDays * MILLISECONDS_ONE_DAY));
 			if ((null != arFiles) && (0 != arFiles.length))
 			{
 				for (int i=0; i<arFiles.length; i++)
@@ -173,19 +172,18 @@ public class GenealogyValidator
 					}
 					catch (Throwable t)
 					{
-						System.out.println("Validation Error (Photo): " + arFiles[i].getName() + ": " + t.getMessage());
+						m_outputStream.output("Validation Error (Photo): " + arFiles[i].getName() + ": " + t.getMessage() + "\n");
 						lPhotosErrors++;
 					}
 				}
 			}
 		}
 		
-		System.out.println("Validation Report:");
-		System.out.println("Persons: Examined: " + lPersonsExamined + ", Errors: " + lPersonsErrors);
-		System.out.println("Marriages: Examined: " + lMarriagesExamined + ", Errors: " + lMarriagesErrors);
-		System.out.println("References: Examined: " + lReferencesExamined + ", Errors: " + lReferencesErrors);
-		System.out.println("Photos Examined: " + lPhotosExamined + ", Errors: " + lPhotosErrors);
-		
+		m_outputStream.output("Validation Report:\n");
+		m_outputStream.output("Persons: Examined: " + lPersonsExamined + ", Errors: " + lPersonsErrors + "\n");
+		m_outputStream.output("Marriages: Examined: " + lMarriagesExamined + ", Errors: " + lMarriagesErrors + "\n");
+		m_outputStream.output("References: Examined: " + lReferencesExamined + ", Errors: " + lReferencesErrors + "\n");
+		m_outputStream.output("Photos Examined: " + lPhotosExamined + ", Errors: " + lPhotosErrors + "\n");
 	}
 
 }
