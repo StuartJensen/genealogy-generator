@@ -1,0 +1,100 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>com.polmont.genealogy</groupId>
+	<artifactId>generator</artifactId>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
+	<name>Genealogy Generator Project</name>
+
+	<properties>
+		<debug>false</debug>
+		<debuglevel>lines,vars,source</debuglevel>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>java-net-repo</id>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+	</repositories>
+
+
+		<dependencies>
+			<dependency>
+			    <groupId>xerces</groupId>
+			    <artifactId>xercesImpl</artifactId>
+			    <version>2.11.0</version>
+			</dependency>
+		</dependencies>
+
+	<build>
+		<plugins>
+		
+		<plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jaxb2-maven-plugin</artifactId>
+            <version>2.5.0</version>
+            <executions>
+                <execution>
+                    <id>xjc</id>
+                    <goals>
+                        <goal>xjc</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <!-- Set the package of the generated code -->
+                <packageName>home.genealogy.schema.all</packageName>
+
+                <!-- Indicate that we should use DTD input instead of XSDs -->
+                <sourceType>XmlSchema</sourceType>
+
+                <!-- Define the directory where we should find the DTD files -->
+                <sources>
+                    <source>schemaV3.0/genealogy.xsd</source>
+                </sources>
+            </configuration>
+        </plugin>
+        
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<debug>${debug}</debug>
+					<debuglevel>${debuglevel}</debuglevel>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>home.Genealogy</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+			
+		</plugins>
+	</build>
+	
+</project>

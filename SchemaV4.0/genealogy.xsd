@@ -1,0 +1,1175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="family">
+    <xs:complexType mixed="true">
+      <xs:attribute name="surname" use="required"/>
+      <xs:attribute name="basePersonId" use="required"/>
+      <xs:attribute name="baseMarriageId" use="required"/>
+      <xs:attribute name="email" use="required"/>
+      <xs:attribute name="dataPath" use="required"/>
+      <xs:attribute name="outputPathTXT"/>
+      <xs:attribute name="outputPathHTML"/>
+      <xs:attribute name="outputPathWP"/>
+      <xs:attribute name="formsBaseUrlFile"/>
+      <xs:attribute name="formsBaseUrlWeb"/>
+      <xs:attribute name="formsCounterFgs"/>
+      <xs:attribute name="formsCounterPerInfo"/>
+      <xs:attribute name="formsCounterPerIndex"/>
+      <xs:attribute name="formsCounterPhoto"/>
+      <xs:attribute name="formsCounterPhotoIndex"/>
+      <xs:attribute name="formsCounterRef"/>
+      <xs:attribute name="formsCounterRefIndex"/>
+      <xs:attribute name="formsCounterHome"/>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:simpleType name="parentRelationshipType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="blood"/>
+      <xs:enumeration value="motherBlood"/>
+      <xs:enumeration value="fatherBlood"/>
+      <xs:enumeration value="motherAdopted"/>
+      <xs:enumeration value="fatherAdopted"/>
+      <xs:enumeration value="motherAuthoritative"/>
+      <xs:enumeration value="fatherAuthoritative"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+   <xs:simpleType name="gender">
+     <xs:restriction base="xs:token">
+       <xs:enumeration value="MALE"/>
+       <xs:enumeration value="FEMALE"/>
+       <xs:enumeration value="UNKNOWN"/>
+     </xs:restriction>
+   </xs:simpleType>
+   
+  <xs:simpleType name="month">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="January"/>
+      <xs:enumeration value="February"/>
+      <xs:enumeration value="March"/>
+      <xs:enumeration value="April"/>
+      <xs:enumeration value="May"/>
+      <xs:enumeration value="June"/>
+      <xs:enumeration value="July"/>
+      <xs:enumeration value="August"/>
+      <xs:enumeration value="September"/>
+      <xs:enumeration value="October"/>
+      <xs:enumeration value="November"/>
+      <xs:enumeration value="December"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="day">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="5"/>
+      <xs:enumeration value="6"/>
+      <xs:enumeration value="7"/>
+      <xs:enumeration value="8"/>
+      <xs:enumeration value="9"/>
+      <xs:enumeration value="10"/>
+      <xs:enumeration value="11"/>
+      <xs:enumeration value="12"/>
+      <xs:enumeration value="13"/>
+      <xs:enumeration value="14"/>
+      <xs:enumeration value="15"/>
+      <xs:enumeration value="16"/>
+      <xs:enumeration value="17"/>
+      <xs:enumeration value="18"/>
+      <xs:enumeration value="19"/>
+      <xs:enumeration value="20"/>
+      <xs:enumeration value="21"/>
+      <xs:enumeration value="22"/>
+      <xs:enumeration value="23"/>
+      <xs:enumeration value="24"/>
+      <xs:enumeration value="25"/>
+      <xs:enumeration value="26"/>
+      <xs:enumeration value="27"/>
+      <xs:enumeration value="28"/>
+      <xs:enumeration value="29"/>
+      <xs:enumeration value="30"/>
+      <xs:enumeration value="31"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="timeModifiers">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="ABOUT"/>
+      <xs:enumeration value="AFTER"/>
+      <xs:enumeration value="BEFORE"/>
+      <xs:enumeration value="CALC"/>
+      <xs:enumeration value="PROBABLY"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="placeModifiers">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="NEAR"/>
+      <xs:enumeration value="OF"/>
+      <xs:enumeration value="PROBABLY"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="country" >
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="USA"/>
+      <xs:enumeration value="England"/>
+      <xs:enumeration value="Scotland"/>
+      <xs:enumeration value="Ireland"/>
+      <xs:enumeration value="Wales"/>
+      <xs:enumeration value="Denmark"/>
+      <xs:enumeration value="Norway"/>
+      <xs:enumeration value="Finland"/>
+      <xs:enumeration value="Germany"/>
+      <xs:enumeration value="France"/>
+      <xs:enumeration value="Holland"/>
+      <xs:enumeration value="Ukraine"/>
+      <xs:enumeration value="Italy"/>
+      <xs:enumeration value="Austria"/>
+      <xs:enumeration value="Switzerland"/>
+      <xs:enumeration value="Hungary"/>
+      <xs:enumeration value="Spain"/>
+      <xs:enumeration value="Canada"/>
+      <xs:enumeration value="Mexico"/>
+      <xs:enumeration value="Greece"/>
+      <xs:enumeration value="Russia"/>
+      <xs:enumeration value="Sweden"/>
+      <xs:enumeration value="Turkey"/>
+      <xs:enumeration value="Belgium"/>
+      <xs:enumeration value="Tonga"/>
+      <xs:enumeration value="Prussia"/>
+      <xs:enumeration value="Columbia"/>
+      <xs:enumeration value="Venezuela"/>
+      <xs:enumeration value="Brazil"/>
+      <xs:enumeration value="Iceland"/>
+      <xs:enumeration value="Israel"/>
+      <xs:enumeration value="Egypt"/>
+      <xs:enumeration value="India"/>
+      <xs:enumeration value="Iran"/>
+      <xs:enumeration value="Iraq"/>
+      <xs:enumeration value="Pakistan"/>
+      <xs:enumeration value="Japan"/>
+      <xs:enumeration value="Korea"/>
+      <xs:enumeration value="VietNam"/>
+      <xs:enumeration value="Portugal"/>
+      <xs:enumeration value="NewZealand"/>
+      <xs:enumeration value="Australia"/>
+      <xs:enumeration value="Scandinavia"/>
+      <xs:enumeration value="Tunisia"/>
+      <xs:enumeration value="AtSea"/>
+      <xs:enumeration value="PacificOcean"/>
+      <xs:enumeration value="AtlanticOcean"/>
+      <xs:enumeration value="Austrasia"/>
+      <xs:enumeration value="Bavaria"/>
+      <xs:enumeration value="Neustria"/>
+      <xs:enumeration value="Netherlands"/>
+      <xs:enumeration value="UNKNOWN"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="parents">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="type" type="parentRelationshipType" />
+      </xs:sequence>
+      <xs:attribute name="marriageId" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="marriage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="marriageInfo"/>
+        <xs:element minOccurs="0" ref="termination"/>
+      </xs:sequence>
+      <xs:attribute name="marriageId" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="husbandPersonId" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="wifePersonId" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="version" use="required"/>
+      <xs:attribute name="inLine" type="xs:boolean" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="marriageInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="info"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="termination">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="date"/>
+      </xs:sequence>
+      <xs:attribute name="reason">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="Divorce"/>
+            <xs:enumeration value="Seperation"/>
+            <xs:enumeration value="DeathOfHusband"/>
+            <xs:enumeration value="DeathOfWife"/>
+            <xs:enumeration value="NeverMarried"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="marriages">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="marriage"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="person">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="1" minOccurs="1" ref="personName" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="profession" type="xs:string" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="religion" type="xs:string" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="parents"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="birthInfo"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="chrInfo"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="deathInfo"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="burialInfo"/>
+        <xs:element minOccurs="0" maxOccurs="1" ref="eventGroup"/>
+      </xs:sequence>
+      <xs:attribute name="version" use="required"/>
+      <xs:attribute name="personId" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="relationshipToPrimary"/>
+      <xs:attribute name="afn"/>
+      <xs:attribute name="ssn"/>
+      <xs:attribute name="gender" type="gender" use="required" />
+      <xs:attribute name="living" type="xs:boolean" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="eventGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="event"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="event">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="eventTitle"/>
+        <xs:element minOccurs="0" ref="date"/>
+        <xs:element minOccurs="0" ref="place"/>
+        <xs:element ref="eventDescription"/>
+      </xs:sequence>
+      <xs:attribute name="tag" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="BornD"/>
+            <xs:enumeration value="BornP"/>
+            <xs:enumeration value="Born"/>
+            <xs:enumeration value="ChrD"/>
+            <xs:enumeration value="ChrP"/>
+            <xs:enumeration value="Chr"/>
+            <xs:enumeration value="DiedCause"/>
+            <xs:enumeration value="DiedD"/>
+            <xs:enumeration value="DiedP"/>
+            <xs:enumeration value="Died"/>
+            <xs:enumeration value="BurD"/>
+            <xs:enumeration value="BurP"/>
+            <xs:enumeration value="Bur"/>
+            <xs:enumeration value="Title"/>
+            <xs:enumeration value="Profession"/>
+            <xs:enumeration value="Religion"/>
+            <xs:enumeration value="LinkCToFather"/>
+            <xs:enumeration value="LinkCToMother"/>
+            <xs:enumeration value="LinkFToChildren"/>
+            <xs:enumeration value="LinkMToChildren"/>
+            <xs:enumeration value="Location"/>
+            <xs:enumeration value="Emigration"/>
+            <xs:enumeration value="Name"/>
+            <xs:enumeration value="Headstone"/>
+            <xs:enumeration value="WillAndTestament"/>
+            <xs:enumeration value="AgeInYear"/>
+            <xs:enumeration value="CemeteryName"/>
+            <xs:enumeration value="CemeteryPlot"/>
+            <xs:enumeration value="LinkPToDescendants"/>
+            <xs:enumeration value="Home"/>
+            <xs:enumeration value="OwnerOf"/>
+            <xs:enumeration value="Personality"/>
+            <xs:enumeration value="PersonComment"/>
+            <xs:enumeration value="Hobbies"/>
+            <xs:enumeration value="Education"/>
+            <xs:enumeration value="Siblings"/>
+            <xs:enumeration value="EditorNotes"/>
+            <xs:enumeration value="TimeLine"/>
+            <xs:enumeration value="BirthStats"/>
+            <xs:enumeration value="Trivia"/>
+            <xs:enumeration value="Obituary"/>
+            <xs:enumeration value="Marriage"/>
+            <xs:enumeration value="Uncategorized"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="eventTitle">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="eventDescription">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="birthInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="info"/>
+      </xs:sequence>
+      <xs:attribute name="hospital"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="chrInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="info"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="deathInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="info"/>
+      </xs:sequence>
+      <xs:attribute name="cause"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="burialInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="info"/>
+        <xs:element minOccurs="0" name="cemeteryName" type="xs:string" />
+        <xs:element minOccurs="0" name="cemeteryPlotAddress" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="persons">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="person"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="photo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="description"/>
+        <xs:element ref="fileList"/>
+        <xs:element ref="source"/>
+        <xs:element minOccurs="0" ref="seeAlso"/>
+      </xs:sequence>
+      <xs:attribute name="photoId" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="access">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="PUBLIC"/>
+            <xs:enumeration value="PRIVATE"/>
+            <xs:enumeration value="COPYRIGHTED"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="description">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="fileList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="file"/>
+      </xs:sequence>
+      <xs:attribute name="package" use="required"/>
+      <xs:attribute name="baseFileName" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="file">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="JPG"/>
+            <xs:enumeration value="PNG"/>
+            <xs:enumeration value="GIF"/>
+            <xs:enumeration value="BMP"/>
+            <xs:enumeration value="TIFF"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="quality" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="Lowest"/>
+            <xs:enumeration value="Low"/>
+            <xs:enumeration value="Medium"/>
+            <xs:enumeration value="High"/>
+            <xs:enumeration value="Highest"/>
+            <xs:enumeration value="Thumbnail"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="size" use="required"/>
+      <xs:attribute name="uniqueId" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="source">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="singleton"/>
+        <xs:element ref="publishedIn"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="singleton">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="date"/>
+        <xs:element minOccurs="0" ref="place"/>
+        <xs:element minOccurs="0" ref="caption"/>
+        <xs:element minOccurs="0" ref="photographer"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="owner"/>
+        <xs:element minOccurs="0" ref="transcription"/>
+        <xs:element minOccurs="0" ref="commentary"/>
+        <xs:element minOccurs="0" ref="tagGroup"/>
+      </xs:sequence>
+      <xs:attribute name="mediaType">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="DigitalPhoto"/>
+            <xs:enumeration value="Painting"/>
+            <xs:enumeration value="Photo"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="caption">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="photographer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="personName"/>
+        <xs:element minOccurs="0" ref="studioName"/>
+      </xs:sequence>
+      <xs:attribute name="personId" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="studioName" type="xs:string"/>
+  <xs:element name="owner">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="personName"/>
+        <xs:element minOccurs="0" ref="asOf"/>
+        <xs:element minOccurs="0" ref="address"/>
+      </xs:sequence>
+      <xs:attribute name="personId" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="asOf">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="address">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="commentary">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="transcription">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="publishedIn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="referenceEntryId"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="photos">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="photo"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="reference">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="citation"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="entry"/>
+      </xs:sequence>
+      <xs:attribute name="referenceId" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="citation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="authority"/>
+        <xs:element ref="place"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="dateRange"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="classification"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="authority">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element minOccurs="0" ref="author"/>
+        <xs:element minOccurs="0" ref="publisher"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="location"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="publisher">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="company"/>
+        <xs:element minOccurs="0" ref="date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="location">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="institution"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="callNumber"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="chapterNumbers" type="xs:string"/>
+  <xs:element name="pageNumbers" type="xs:string"/>
+  <xs:element name="volumeNumbers" type="xs:string"/>
+  <xs:element name="header">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="volumeNumbers"/>
+        <xs:element minOccurs="0" ref="chapterNumbers"/>
+        <xs:element minOccurs="0" ref="pageNumbers"/>
+        <xs:element minOccurs="0" ref="entryNumbers"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="institution">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="company">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="callNumber">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="author">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="personName"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="groupName"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="comment">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="body">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element ref="paragraph"/>
+         <xs:element ref="table"/>
+<!--
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="table"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+        </xs:sequence>
+-->
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="entryNumbers" type="xs:string"/>
+  <xs:element name="entryTitle">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="title">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="groupName">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="entry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="entryTitle"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="place"/>
+        <xs:element minOccurs="0" ref="header"/>
+        <xs:element minOccurs="0" ref="body"/>
+        <xs:element minOccurs="0" ref="comment"/>
+        <xs:element minOccurs="0" ref="tagGroup"/>
+        <xs:element minOccurs="0" ref="seeAlso"/>
+      </xs:sequence>
+      <xs:attribute name="access" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="PUBLIC"/>
+            <xs:enumeration value="PRIVATE"/>
+            <xs:enumeration value="COPYRIGHTED"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="entryId" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="classification">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="COMPILED"/>
+            <xs:enumeration value="ORIGINAL"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="subType">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="CivilRegistry"/>
+            <xs:enumeration value="Census"/>
+            <xs:enumeration value="Newspaper"/>
+            <xs:enumeration value="Gazetteer"/>
+            <xs:enumeration value="PersonalLetter"/>
+            <xs:enumeration value="LocationHistory"/>
+            <xs:enumeration value="FamilyHistory"/>
+            <xs:enumeration value="GeneralHistory"/>
+            <xs:enumeration value="PersonalExperience"/>
+            <xs:enumeration value="LandRecord"/>
+            <xs:enumeration value="CemeteryInscriptions"/>
+            <xs:enumeration value="ChurchRecord"/>
+            <xs:enumeration value="ProbateRecord"/>
+            <xs:enumeration value="CivilVitalRecord"/>
+            <xs:enumeration value="EmigrationRecord"/>
+            <xs:enumeration value="CemeteryRecords"/>
+            <xs:enumeration value="MilitaryRecords"/>
+            <xs:enumeration value="PhotoAlbum"/>
+            <xs:enumeration value="Directory"/>
+            <xs:enumeration value="AutoBiography"/>
+            <xs:enumeration value="Interview"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="references">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="reference"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="place">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="p1"/>
+        <xs:element minOccurs="0" ref="globalCoordinates"/>
+      </xs:sequence>
+      <xs:attribute name="modifier" type="placeModifiers" />
+      <xs:attribute name="country" use="required" type="country" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="p1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="p2"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="p2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="p3"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="p3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="p4"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="p4">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="globalCoordinates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="WGS84"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="WGS84">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="latitude"/>
+        <xs:element ref="longitude"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="latitude">
+    <xs:complexType mixed="true">
+      <xs:attribute name="hemisphere" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="N"/>
+            <xs:enumeration value="S"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="degrees" use="required"/>
+      <xs:attribute name="minutes" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="longitude">
+    <xs:complexType mixed="true">
+      <xs:attribute name="hemisphere" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="E"/>
+            <xs:enumeration value="W"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="degrees" use="required"/>
+      <xs:attribute name="minutes" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="date">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="dateRange"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="dateOr"/>
+      </xs:sequence>
+      <xs:attribute name="year" type="xs:short" />
+      <xs:attribute name="month" type="month" />
+      <xs:attribute name="day" type="day" />
+      <xs:attribute name="relativeTime" type="timeModifiers" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dateRange">
+    <xs:complexType mixed="true">
+      <xs:attribute name="yearBegin" type="xs:short" />
+      <xs:attribute name="monthBegin" type="month" />
+      <xs:attribute name="dayBegin" type="day" />
+      <xs:attribute name="relativeTimeBegin" type="timeModifiers" />
+      <xs:attribute name="yearEnd" type="xs:short" />
+      <xs:attribute name="monthEnd" type="month" />
+      <xs:attribute name="dayEnd" type="day" />
+      <xs:attribute name="relativeTimeEnd" type="timeModifiers" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dateOr">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="personName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="firstName"/>
+        <xs:element minOccurs="0" ref="middleName"/>
+        <xs:element minOccurs="0" ref="lastName"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="nickName" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="moniker" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="royalEnumeration" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="lastName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="altSpelling"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="middleName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="altSpelling"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="firstName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="altSpelling"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="altSpelling" type="xs:string"/>
+  <xs:element name="table">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="row"/>
+      </xs:sequence>
+      <xs:attribute name="rows" use="required"/>
+      <xs:attribute name="cols" use="required"/>
+      <xs:attribute name="border" default="SingleLine">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="None"/>
+            <xs:enumeration value="SingleLine"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="row">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="column"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="column">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="paragraph"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="paragraph">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="privateText"/>
+        <xs:element ref="formText"/>
+        <xs:element ref="editorComment"/>
+        <xs:element ref="space"/>
+        <xs:element ref="personId"/>
+        <xs:element ref="marriageId"/>
+        <xs:element ref="referenceId"/>
+        <xs:element ref="referenceEntryId"/>
+        <xs:element ref="photoId"/>
+        <xs:element ref="tag"/>
+      </xs:choice>
+      <xs:attribute name="indent" default="Yes">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="No"/>
+            <xs:enumeration value="Yes"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="lineEnd" default="HdRet">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="HdRet"/>
+            <xs:enumeration value="None"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="formText" type="xs:string"/>
+  <xs:element name="editorComment" type="xs:string"/>
+  <xs:element name="privateText" type="xs:string"/>
+  <xs:element name="space">
+    <xs:complexType mixed="true">
+      <xs:attribute name="count"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tagGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="marriageTag"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="personTag"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="marriageTag">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="marriageTagType"/>
+      </xs:sequence>
+      <xs:attribute name="marriageId" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="personTag">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="personTagType"/>
+      </xs:sequence>
+      <xs:attribute name="personId" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tag">
+    <xs:complexType mixed="true">
+      <xs:attribute name="personId" type="xs:unsignedInt" />
+      <xs:attribute name="marriageId" type="xs:unsignedInt" />
+      <xs:attribute name="type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="BornD"/>
+            <xs:enumeration value="BornP"/>
+            <xs:enumeration value="ChrD"/>
+            <xs:enumeration value="ChrP"/>
+            <xs:enumeration value="DiedCause"/>
+            <xs:enumeration value="DiedD"/>
+            <xs:enumeration value="DiedP"/>
+            <xs:enumeration value="BurD"/>
+            <xs:enumeration value="BurP"/>
+            <xs:enumeration value="Title"/>
+            <xs:enumeration value="Profession"/>
+            <xs:enumeration value="Religion"/>
+            <xs:enumeration value="LinkCToFather"/>
+            <xs:enumeration value="LinkCToMother"/>
+            <xs:enumeration value="LinkFToChildren"/>
+            <xs:enumeration value="LinkMToChildren"/>
+            <xs:enumeration value="Location"/>
+            <xs:enumeration value="Emigration"/>
+            <xs:enumeration value="Name"/>
+            <xs:enumeration value="Headstone"/>
+            <xs:enumeration value="WillAndTestament"/>
+            <xs:enumeration value="AgeInYear"/>
+            <xs:enumeration value="CemeteryName"/>
+            <xs:enumeration value="Trivia"/>
+            <xs:enumeration value="CemeteryPlot"/>
+            <xs:enumeration value="LinkPToDescendants"/>
+            <xs:enumeration value="Portrait"/>
+            <xs:enumeration value="Home"/>
+            <xs:enumeration value="PictureOf"/>
+            <xs:enumeration value="OwnerOf"/>
+            <xs:enumeration value="MarrD"/>
+            <xs:enumeration value="MarrP"/>
+            <xs:enumeration value="LinkMarriage"/>
+            <xs:enumeration value="TermD"/>
+            <xs:enumeration value="TermReason"/>
+            <xs:enumeration value="FamilyPortrait"/>
+            <xs:enumeration value="ExtFamilyPortrait"/>
+            <xs:enumeration value="ExtFamilyPicture"/>
+            <xs:enumeration value="CouplePortrait"/>
+            <xs:enumeration value="ChildrenPortrait"/>
+            <xs:enumeration value="FamilyBurialPlot"/>
+            <xs:enumeration value="ThreeGeneration"/>
+            <xs:enumeration value="FourGeneration"/>
+            <xs:enumeration value="FiveGeneration"/>
+            <xs:enumeration value="Obituary"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="quality" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="HIGH"/>
+            <xs:enumeration value="MEDIUM"/>
+            <xs:enumeration value="LOW"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="marriageTagType">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="MarrD"/>
+            <xs:enumeration value="MarrP"/>
+            <xs:enumeration value="LinkMarriage"/>
+            <xs:enumeration value="TermD"/>
+            <xs:enumeration value="TermReason"/>
+            <xs:enumeration value="ExtFamilyPortrait"/>
+            <xs:enumeration value="ExtFamilyPicture"/>
+            <xs:enumeration value="FamilyPortrait"/>
+            <xs:enumeration value="CouplePortrait"/>
+            <xs:enumeration value="ChildrenPortrait"/>
+            <xs:enumeration value="Home"/>
+            <xs:enumeration value="Headstone"/>
+            <xs:enumeration value="FamilyBurialPlot"/>
+            <xs:enumeration value="Location"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="quality" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="HIGH"/>
+            <xs:enumeration value="MEDIUM"/>
+            <xs:enumeration value="LOW"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="personTagType">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="BornD"/>
+            <xs:enumeration value="BornP"/>
+            <xs:enumeration value="ChrD"/>
+            <xs:enumeration value="ChrP"/>
+            <xs:enumeration value="DiedCause"/>
+            <xs:enumeration value="DiedD"/>
+            <xs:enumeration value="DiedP"/>
+            <xs:enumeration value="BurD"/>
+            <xs:enumeration value="BurP"/>
+            <xs:enumeration value="Title"/>
+            <xs:enumeration value="Profession"/>
+            <xs:enumeration value="Religion"/>
+            <xs:enumeration value="LinkCToFather"/>
+            <xs:enumeration value="LinkCToMother"/>
+            <xs:enumeration value="LinkFToChildren"/>
+            <xs:enumeration value="LinkMToChildren"/>
+            <xs:enumeration value="Location"/>
+            <xs:enumeration value="Emigration"/>
+            <xs:enumeration value="Name"/>
+            <xs:enumeration value="Headstone"/>
+            <xs:enumeration value="WillAndTestament"/>
+            <xs:enumeration value="AgeInYear"/>
+            <xs:enumeration value="CemeteryName"/>
+            <xs:enumeration value="Trivia"/>
+            <xs:enumeration value="CemeteryPlot"/>
+            <xs:enumeration value="LinkPToDescendants"/>
+            <xs:enumeration value="Portrait"/>
+            <xs:enumeration value="Home"/>
+            <xs:enumeration value="PictureOf"/>
+            <xs:enumeration value="OwnerOf"/>
+            <xs:enumeration value="ExtFamilyPicture"/>
+            <xs:enumeration value="ThreeGeneration"/>
+            <xs:enumeration value="FourGeneration"/>
+            <xs:enumeration value="FiveGeneration"/>
+            <xs:enumeration value="Obituary"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="quality" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="HIGH"/>
+            <xs:enumeration value="MEDIUM"/>
+            <xs:enumeration value="LOW"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="marriageId">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="personId">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="referenceId">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="referenceEntryId">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="entryId" use="required" type="xs:unsignedInt" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="photoId">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" use="required" type="xs:unsignedInt" />
+      <xs:attribute name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="EMBEDDED"/>
+            <xs:enumeration value="LINKED"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="info">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="date"/>
+        <xs:element minOccurs="0" ref="place"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="seeAlso">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="personId" />
+        <xs:element ref="marriageId" />
+        <xs:element ref="referenceId" />
+        <xs:element ref="referenceEntryId" />
+        <xs:element ref="photoId" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
