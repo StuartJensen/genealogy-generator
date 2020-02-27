@@ -837,7 +837,9 @@ public class CommandLineParameters
 		System.out.println("      to read and write the opposite, flip the soure and destination values");
 		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt");
 		System.out.println("      to validate all lists and direct the output (validation results) to the specified log file");
-
+		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt " + COMMAND_LINE_PARAM_LOG_FILE_ECHO + "=true " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET + "=all");
+		System.out.println("      to generate all HTML forms, populate the lists from individual XML files, log the output to a file, and echo the logged output to Standard Out");
+		
 		System.exit(1);
 	}
 
