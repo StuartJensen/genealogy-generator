@@ -80,6 +80,7 @@ public class CommandLineParameters
 	private static Collection<String> VALID_HTTPVALIDATE_TARGETS;
 	private static Collection<String> VALID_SUPPRESS_LIVING;
 	private static Collection<String> VALID_GENERATIONS_TYPE;
+	private static Collection<String> GENERATIONS_INTEGERS;
 	
 	static
 	{
@@ -103,6 +104,7 @@ public class CommandLineParameters
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_LOG_FILE_FILENAME);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_LOG_FILE_ECHO);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING);
+		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET);
 
 		REQUIRED_PARAMETER_NAMES = new ArrayList<String>();
 		REQUIRED_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_CONFIG);
@@ -169,6 +171,11 @@ public class CommandLineParameters
 		VALID_GENERATIONS_TYPE.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_ALL);
 		VALID_GENERATIONS_TYPE.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_LIVING);
 		VALID_GENERATIONS_TYPE.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_DEAD);
+		
+		GENERATIONS_INTEGERS = new ArrayList<String>();
+		GENERATIONS_INTEGERS.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_GENERATION_NTH);
+		GENERATIONS_INTEGERS.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_GENERATION_RANGE_START);
+		GENERATIONS_INTEGERS.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_GENERATION_RANGE_END);
 	}
 
 	public CommandLineParameters(String[] args)
@@ -211,19 +218,31 @@ public class CommandLineParameters
 		strValidated = validateXmlFormat(m_listCLP.getValue(COMMAND_LINE_PARAM_XML_FORMAT));
 		m_listCLP.set(COMMAND_LINE_PARAM_XML_FORMAT, strValidated);
 		
-		strValidated = validateValidateTargets(m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION),
-											   m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET));
-		m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET, strValidated);
-		
-		strValidated = validateHtmlFormTargets(m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION),
-											   m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET));
-		m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET, strValidated);
-		
-		strValidated = validateHttpTargets(m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION),
-										   m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TARGET));
-		m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TARGET, strValidated);
-		
+		// Since the same command line parameter "target" is shared
+		// between multiple actions, we must only validate it for the
+		// action being executed.
+		String strAction = m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION);
+		if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE))
+		{
+			strValidated = validateValidateTargets(strAction,
+												   m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET));
+			m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET, strValidated);
+		}
+		if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM))
+		{
+			strValidated = validateHtmlFormTargets(strAction,
+												   m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET));
+			m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET, strValidated);
+		}
+		if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE))
+		{
+			strValidated = validateHttpTargets(strAction,
+											   m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TARGET));
+			m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TARGET, strValidated);
+		}
+
 		validateSuppessLiving();
+		validateGenerationIntegers();
 		
 		strValidated = validateGenerationsType(m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE));
 		m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE, strValidated);
@@ -727,6 +746,26 @@ public class CommandLineParameters
 		return strResult;
 	}
 	
+	private void validateGenerationIntegers()
+		throws UsageException
+	{
+		for (String strToken : GENERATIONS_INTEGERS)
+		{
+			String strCandidate = m_listCLP.getValue(strToken);
+			if (StringUtil.exists(strCandidate))
+			{
+				try
+				{
+					Integer.parseInt(strCandidate);
+				}
+				catch (NumberFormatException nfe)
+				{
+					throw new UsageException("Invalid value for command line parameter generations " + strToken + "\n");
+				}
+			}
+		}
+	}
+	
 	private void validateSuppessLiving()
 		throws UsageException
 	{
@@ -766,7 +805,7 @@ public class CommandLineParameters
 		System.out.println("       only applicable when Standard Out logging is specified, if true will echo logged data to Standard Out");
 		System.out.println(" Possible Actions");
 		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE);
-		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME + "=1 (days, -1 for no time limits)");
+		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME + "=[integer (days, -1 for no time limits)]");
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET + "=" +COMMAND_LINE_PARAM_TARGET_PERSONS + "," + COMMAND_LINE_PARAM_TARGET_MARRIAGES + " (also: \"" + COMMAND_LINE_PARAM_TARGET_REFERENCES + "\", \"" + COMMAND_LINE_PARAM_TARGET_PHOTOS + "\", default is all");	
 		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM);
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET + "=[specifier for which forms to generate]");
@@ -777,8 +816,8 @@ public class CommandLineParameters
 		System.out.println("       " + COMMAND_LINE_PARAM_TARGET_PHOTOLIST + " for Photo List Index only");
 		System.out.println("       " + COMMAND_LINE_PARAM_TARGET_REFERENCELIST + " for Reference List Index only");
 		System.out.println("       " + COMMAND_LINE_PARAM_TARGET_ALL + " for all targets");
-		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING + "=true/false");
-		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLDS + "=true/false");
+		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING + "=[true or false]");
+		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLDS + "=[true or false]");
 
 		System.out.println("   " + COMMAND_LINE_PARAM_SOURCE + "=[source: all*.XML files OR individual XML files]");
 		System.out.println("     " + COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML + " for populating lists from the all*.xml files");
@@ -787,7 +826,7 @@ public class CommandLineParameters
 		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML + " for writing lists to the all*.xml files");
 		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML + " for writing lists to individual xml files");
 
-		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT + " to read all lists from a source and write to a destination");
+		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT + " to read all lists from a source and write all lists to a destination");
 		System.out.println("     " + COMMAND_LINE_PARAM_XML_FORMAT + "=[XML Output Format]");
 		System.out.println("       " + COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY + " for line ends and indented XML (default)");
 		System.out.println("       " + COMMAND_LINE_PARAM_XML_FORMAT_VALUE_COMPACT + " for unformatted small XML");
@@ -797,7 +836,7 @@ public class CommandLineParameters
 		System.out.println("      to read all lists from individual xml files and write all list content to their respective all*.xml files");
 		System.out.println("      to read and write the opposite, flip the soure and destination values");
 		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt");
-		System.out.println("      to validate all lists and direct the output (validation results) to a specified log file");
+		System.out.println("      to validate all lists and direct the output (validation results) to the specified log file");
 
 		System.exit(1);
 	}

@@ -51,6 +51,26 @@ public class Genealogy
 			}
 			
 			String strAction = commandLineParameters.getAction();
+			
+			// Load all lists unless the action does not need ANY lists
+			PersonList personList = null;
+			PhotoList photoList = null;
+			MarriageList marriageList = null;
+			ReferenceList referenceList = null;
+			if (!strAction.equals(commandLineParameters.isActionValidate()))
+			{
+				outputStream.output("Initiating Lists Load:\n");
+				personList = new PersonList(family, commandLineParameters);
+				outputStream.output("Person List: Count: " + personList.size() + "\n");
+				photoList = new PhotoList(family, commandLineParameters);
+				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
+				marriageList = new MarriageList(family, commandLineParameters);
+				marriageList.setInLineFlags(family, personList);
+				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
+				referenceList = new ReferenceList(family, commandLineParameters);
+				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
+			}
+			
 			if (strAction.equals(commandLineParameters.isActionValidate()))
 			{
 				GenealogyValidator validator = new GenealogyValidator(family, commandLineParameters, outputStream);
@@ -58,25 +78,13 @@ public class Genealogy
 			}
 			else if (commandLineParameters.isActionConvert())
 			{
-				String strSource = commandLineParameters.getSource();
-				String strDestination = commandLineParameters.getDestination();
-				PersonList personList = new PersonList(family, commandLineParameters);
-				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, commandLineParameters);
-				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, commandLineParameters);
-				marriageList.setInLineFlags(family, personList);
-				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, commandLineParameters);
-				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
-				
 				boolean bFormattedOutput = true;
 				String strFormat = commandLineParameters.getXmlFormat();
 				if (CommandLineParameters.COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY.equals(strFormat))
 				{
 					bFormattedOutput = true;
 				}
-				
+				String strDestination = commandLineParameters.getDestination();
 				if (strDestination.equalsIgnoreCase(CommandLineParameters.COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML))
 				{
 					personList.marshallAllFile(family, bFormattedOutput);
@@ -101,17 +109,7 @@ public class Genealogy
 				}
 			}
 			else if (commandLineParameters.isActionHtmlForm())
-			{
-				PersonList personList = new PersonList(family, commandLineParameters);
-				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, commandLineParameters);
-				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, commandLineParameters);
-				marriageList.setInLineFlags(family, personList);
-				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, commandLineParameters);
-				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
-				// Set relationships in the personList
+			{	// Set relationships in the personList
 				IndexMarriageToSpouses idxMarrToSpouses = new IndexMarriageToSpouses(family, marriageList);
 				IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(family, marriageList);
 				IndexMarriageToChildren idxMarToChild = new IndexMarriageToChildren(family, commandLineParameters, personList);
@@ -135,14 +133,14 @@ public class Genealogy
 					HTMLPersonListForm form = new HTMLPersonListForm(family, personList, marriageList, bSuppressLiving, outputStream);
 					form.create();
 				}
-				else if ((commandLineParameters.isHtmlFormTargetPersonInfo()) ||
-						  commandLineParameters.isHtmlFormTargetAll())
+				if ((commandLineParameters.isHtmlFormTargetPersonInfo()) ||
+					 commandLineParameters.isHtmlFormTargetAll())
 				{
 					HTMLPersonInfoForm form = new HTMLPersonInfoForm(family, personList, marriageList, referenceList, photoList, bSuppressLiving, bSuppressLds, commandLineParameters, outputStream);
 					form.create();
 				}
-				else if ((commandLineParameters.isHtmlFormTargetReferenceList()) ||
-						  commandLineParameters.isHtmlFormTargetAll())
+				if ((commandLineParameters.isHtmlFormTargetReferenceList()) ||
+					 commandLineParameters.isHtmlFormTargetAll())
 				{
 					HTMLReferenceListForm form = new HTMLReferenceListForm(family, personList,
 						     											   marriageList, referenceList,
@@ -151,8 +149,8 @@ public class Genealogy
 						     											   commandLineParameters, outputStream);
 					form.create();
 				}
-				else if ((commandLineParameters.isHtmlFormTargetPhotos()) ||
-						  commandLineParameters.isHtmlFormTargetAll())
+				if ((commandLineParameters.isHtmlFormTargetPhotos()) ||
+					 commandLineParameters.isHtmlFormTargetAll())
 				{
 					HTMLPhotoForm form = new HTMLPhotoForm(family, personList,
 							   marriageList, referenceList,
@@ -161,20 +159,20 @@ public class Genealogy
 							   commandLineParameters, outputStream);
 					form.create();
 				}
-				else if ((commandLineParameters.isHtmlFormTargetPhotoList()) ||
-						  commandLineParameters.isHtmlFormTargetAll())
+				if ((commandLineParameters.isHtmlFormTargetPhotoList()) ||
+					 commandLineParameters.isHtmlFormTargetAll())
 				{
 					HTMLPhotoListForm form = new HTMLPhotoListForm(family, personList, marriageList, referenceList, photoList, idxMarrToSpouses, bSuppressLiving, commandLineParameters, outputStream);
 					form.create();
 				}
-				else if ((commandLineParameters.isHtmlFormTargetReferences()) ||
-						  commandLineParameters.isHtmlFormTargetAll())
+				if ((commandLineParameters.isHtmlFormTargetReferences()) ||
+					 commandLineParameters.isHtmlFormTargetAll())
 				{
 					HTMLReferenceForm form = new HTMLReferenceForm(family, personList, marriageList, referenceList, photoList, bSuppressLiving, bSuppressLds, commandLineParameters, outputStream);
 					form.create();
 				}
-				else if ((commandLineParameters.isHtmlFormTargetFGS()) ||
-						  commandLineParameters.isHtmlFormTargetAll())
+				if ((commandLineParameters.isHtmlFormTargetFGS()) ||
+					 commandLineParameters.isHtmlFormTargetAll())
 				{
 					HTMLFGSForm form = new HTMLFGSForm(family, personList, marriageList, referenceList, photoList, bSuppressLiving, bSuppressLds, commandLineParameters, outputStream);
 					form.create();
@@ -182,31 +180,12 @@ public class Genealogy
 			}
 			else if (commandLineParameters.isActionErrorCheck())
 			{
-				PersonList personList = new PersonList(family, commandLineParameters);
-				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family, commandLineParameters);
-				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family, commandLineParameters);
-				marriageList.setInLineFlags(family, personList);
-				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family, commandLineParameters);
-				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
-				
 				ErrorChecker errorChecker = new ErrorChecker(family, personList, marriageList, referenceList, photoList, commandLineParameters, outputStream);
 				errorChecker.check();
 			}
 /*			
 			else if (commandLineParameters.isActionGenerations())
 			{
-				PersonList personList = new PersonList(family);
-				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family);
-				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family);
-				marriageList.setInLineFlags(family, personList);
-				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family);
-				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				// Set relationships in the personList
 				IndexMarriageToSpouses idxMarrToSpouses = new IndexMarriageToSpouses(family, marriageList);
 				IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(family, marriageList);
@@ -223,16 +202,6 @@ public class Genealogy
 				{
 					throw new UsageException("No \"" + COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE + "\" Command Line Parameter!");
 				}
-				
-				PersonList personList = new PersonList(family);
-				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				PhotoList photoList = new PhotoList(family);
-				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				MarriageList marriageList = new MarriageList(family);
-				marriageList.setInLineFlags(family, personList);
-				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				ReferenceList referenceList = new ReferenceList(family);
-				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
 				WebSiteValidator validator = new WebSiteValidator(family, personList, marriageList, referenceList, photoList, listCLP, strType, outputStream);
 				validator.validate();
 			}

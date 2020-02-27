@@ -42,10 +42,11 @@ public class CommandLineParameterList
 	public void set(String strKey, String strValue)
 	{
 		for (CommandLineParameter clp : m_alCommandLineParameters)
-		{
+		{	// If the key exists in the list, remove it.
 			if (clp.getKey().equalsIgnoreCase(strKey))
 			{
 				m_alCommandLineParameters.remove(clp);
+				break;
 			}
 		}
 		m_alCommandLineParameters.add(new CommandLineParameter(strKey, strValue));
