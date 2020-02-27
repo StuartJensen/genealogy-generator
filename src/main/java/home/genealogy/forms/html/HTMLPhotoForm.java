@@ -1,5 +1,10 @@
 package home.genealogy.forms.html;
 
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexPersonToMarriages;
@@ -42,11 +47,6 @@ import home.genealogy.schema.all.helpers.ReferenceEntryIdHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
 import home.genealogy.schema.all.helpers.ReferenceIdHelper;
 import home.genealogy.schema.all.helpers.SingletonHelper;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
 
 public class HTMLPhotoForm 
 {
@@ -59,7 +59,7 @@ public class HTMLPhotoForm
 	private PhotoList m_photoList;
 	private IndexMarriageToSpouses m_indexMarrToSpouses;
 	private boolean m_bSuppressLiving;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLPhotoForm(CFGFamily family,
@@ -69,7 +69,7 @@ public class HTMLPhotoForm
 							  PhotoList photoList,
 							  IndexMarriageToSpouses indexMarrToSpouses,
 							  boolean bSuppressLiving,
-							  CommandLineParameterList listCLP,
+							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
@@ -79,7 +79,7 @@ public class HTMLPhotoForm
 		m_photoList = photoList;
 		m_indexMarrToSpouses = indexMarrToSpouses;
 		m_bSuppressLiving = bSuppressLiving;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
 	
@@ -149,7 +149,7 @@ public class HTMLPhotoForm
 		List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
 		for (int i=0; i<lDescription.size(); i++)
 		{
-			String strParagraph = HTMLShared.buildParagraphString(m_family, m_listCLP,
+			String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
 					lDescription.get(i), m_personList, m_marriageList,
                     m_referenceList, m_photoList,
                     m_indexMarrToSpouses,
@@ -297,7 +297,7 @@ public class HTMLPhotoForm
 									for (int t=0; t<iTitleParagraphCount; t++)
 									{
 										Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);					
-										String strParagraph = HTMLShared.buildParagraphString(m_family, m_listCLP,
+										String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
 												  paragraph, m_personList, m_marriageList,
 					                            m_referenceList, m_photoList,
 					                            m_indexMarrToSpouses,
@@ -345,7 +345,7 @@ public class HTMLPhotoForm
 				{
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Inscription on the backside of the photo:");
 					output.outputBR();
-					String strCaption = HTMLShared.buildParagraphListObject(m_family, m_listCLP,
+					String strCaption = HTMLShared.buildParagraphListObject(m_family, m_commandLineParameters,
 							  CaptionHelper.getParagraphs(caption), m_personList, m_marriageList,
 							  m_referenceList, m_photoList,
 							  m_indexMarrToSpouses,
@@ -387,7 +387,7 @@ public class HTMLPhotoForm
 				{
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Editor's Comments:");
 					output.outputBR();
-					String strCommentary = HTMLShared.buildParagraphListObject(m_family, m_listCLP,
+					String strCommentary = HTMLShared.buildParagraphListObject(m_family, m_commandLineParameters,
 							  CommentaryHelper.getParagraphs(commentary), m_personList, m_marriageList,
 							  m_referenceList, m_photoList,
 							  m_indexMarrToSpouses,
@@ -409,7 +409,7 @@ public class HTMLPhotoForm
 				// Output the SeeAlso
 				if (0 != PhotoHelper.getSeeAlsoObjectCount(photo))
 				{
-					String strSeeAlso = HTMLShared.buildSeeAlsoString(PhotoHelper.getSeeAlso(photo), family, m_listCLP,
+					String strSeeAlso = HTMLShared.buildSeeAlsoString(PhotoHelper.getSeeAlso(photo), family, m_commandLineParameters,
 																	  m_personList, m_marriageList, m_referenceList,
 																	  m_photoList, null, m_indexMarrToSpouses);
 					if (0 != strSeeAlso.length())

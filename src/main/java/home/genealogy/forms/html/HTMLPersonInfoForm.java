@@ -1,7 +1,12 @@
 package home.genealogy.forms.html;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
-import home.genealogy.indexes.ContainerDescriptor;
 import home.genealogy.indexes.IndexMarriageToPhotos;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexMarriagesToReferences;
@@ -22,7 +27,6 @@ import home.genealogy.schema.all.Paragraph;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Reference;
-import home.genealogy.schema.all.helpers.CaptionHelper;
 import home.genealogy.schema.all.helpers.EntryHelper;
 import home.genealogy.schema.all.helpers.EventHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
@@ -30,16 +34,12 @@ import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class HTMLPersonInfoForm
 {
 	public static final String PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY = "perinfo";
+
+	private static final CommandLineParameters commandLineParameters = null;
 	
 	private CFGFamily m_family;
 	private PersonList m_personList;
@@ -48,7 +48,7 @@ public class HTMLPersonInfoForm
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
 	private boolean m_bSuppressLds;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLPersonInfoForm(CFGFamily family,
@@ -58,7 +58,7 @@ public class HTMLPersonInfoForm
 							  PhotoList photoList,
 							  boolean bSuppressLiving,
 							  boolean bSuppressLds,
-							  CommandLineParameterList listCLP,
+							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
@@ -68,7 +68,7 @@ public class HTMLPersonInfoForm
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
 		m_bSuppressLds = bSuppressLds;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
 	
@@ -399,7 +399,7 @@ public class HTMLPersonInfoForm
 						String strUrl = family.getUrlPrefix() + "/" + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
 						// Photos
 						output.outputStandardBracketedLink(strUrl, "View Photo");
-						String strDescription = HTMLShared.buildParagraphListObject(m_family, m_listCLP,
+						String strDescription = HTMLShared.buildParagraphListObject(m_family, commandLineParameters,
 								  PhotoHelper.getDescription(photo), m_personList, m_marriageList,
 								  m_referenceList, m_photoList,
 								  idxMarToSpouses,
@@ -460,7 +460,7 @@ public class HTMLPersonInfoForm
 										String strUrl = family.getUrlPrefix() + "/" + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
 										// Photos
 										output.outputStandardBracketedLink(strUrl, "View Photo");
-										String strDescription = HTMLShared.buildParagraphListObject(m_family, m_listCLP,
+										String strDescription = HTMLShared.buildParagraphListObject(m_family, commandLineParameters,
 												  PhotoHelper.getDescription(photo), m_personList, m_marriageList,
 												  m_referenceList, m_photoList,
 												  idxMarToSpouses,
@@ -533,7 +533,7 @@ public class HTMLPersonInfoForm
 								for (int t=0; t<iTitleParagraphCount; t++)
 								{
 									Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);
-									String strEntryTitle = HTMLShared.buildParagraphString(family, m_listCLP,
+									String strEntryTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
 											paragraph, personList, marriageList, referenceList, photoList,
 					                        idxMarToSpouses, true, true, bSuppressLiving, null,
 					                        iReferenceId, iEntryId);
@@ -606,7 +606,7 @@ public class HTMLPersonInfoForm
 												for (int t=0; t<iTitleParagraphCount; t++)
 												{
 													Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);
-													String strEntryTitle = HTMLShared.buildParagraphString(family, m_listCLP,
+													String strEntryTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
 															paragraph, personList, marriageList, referenceList, photoList,
 									                        idxMarToSpouses, true, true, bSuppressLiving, null,
 									                        iReferenceId, iEntryId);
@@ -820,7 +820,7 @@ public class HTMLPersonInfoForm
 					Paragraph paraTitle = eventHelper.getEventTitleParagraph();
 					if (null != paraTitle)
 					{
-						String strEventTitle = HTMLShared.buildParagraphString(family, m_listCLP,
+						String strEventTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
 								paraTitle, personList, marriageList, referenceList, photoList,
                                 idxMarToSpouses, false, false, bSuppressLiving, null, -1, -1);
 						if (0 != strEventTitle.length())
@@ -869,7 +869,7 @@ public class HTMLPersonInfoForm
 							if (null != paraDescription)
 							{
 								String strEventDescriptionParagraph = HTMLShared.buildParagraphString(family,
-										m_listCLP, paraDescription, personList, marriageList, referenceList,
+										commandLineParameters, paraDescription, personList, marriageList, referenceList,
 										photoList, idxMarToSpouses, true, true, bSuppressLiving, null, -1, -1);
 								if (0 != strEventDescriptionParagraph.length())
 								{

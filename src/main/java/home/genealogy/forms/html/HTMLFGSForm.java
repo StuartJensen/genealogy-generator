@@ -1,5 +1,10 @@
 package home.genealogy.forms.html;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToChildren;
 import home.genealogy.indexes.IndexMarriageToSpouses;
@@ -15,17 +20,10 @@ import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.Person;
-import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
-import home.genealogy.schema.all.helpers.ReferenceHelper;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 public class HTMLFGSForm
 {
@@ -38,7 +36,7 @@ public class HTMLFGSForm
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
 	private boolean m_bSuppressLds;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLFGSForm(CFGFamily family,
@@ -48,7 +46,7 @@ public class HTMLFGSForm
 							  PhotoList photoList,
 							  boolean bSuppressLiving,
 							  boolean bSuppressLds,
-							  CommandLineParameterList listCLP,
+							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
@@ -58,7 +56,7 @@ public class HTMLFGSForm
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
 		m_bSuppressLds = bSuppressLds;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
 	
@@ -89,7 +87,7 @@ public class HTMLFGSForm
 		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_family, m_marriageList);
 		IndexPersonsToReferences idxPerToRef = new IndexPersonsToReferences(m_family, m_personList, m_referenceList);
 		IndexMarriagesToReferences idxMarToRef = new IndexMarriagesToReferences(m_family, m_personList, m_marriageList, m_referenceList);
-		IndexMarriageToChildren idxMarToChildren = new IndexMarriageToChildren(m_family, m_listCLP, m_personList);
+		IndexMarriageToChildren idxMarToChildren = new IndexMarriageToChildren(m_family, m_commandLineParameters, m_personList);
 		
 		Iterator<Marriage> iter = m_marriageList.getMarriages();
 		while (iter.hasNext())

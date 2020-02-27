@@ -1,5 +1,6 @@
 package home.genealogy.forms.html;
 
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.lists.MarriageList;
@@ -31,7 +32,7 @@ public class HTMLReferenceListForm
 	private PhotoList m_photoList;
 	private IndexMarriageToSpouses m_indexMarrToSpouses;
 	private boolean m_bSuppressLiving;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLReferenceListForm(CFGFamily family,
@@ -41,7 +42,7 @@ public class HTMLReferenceListForm
 							     PhotoList photoList,
 							     IndexMarriageToSpouses indexMarrToSpouses,
 							     boolean bSuppressLiving,
-							     CommandLineParameterList listCLP,
+							     CommandLineParameters commandLineParameters,
 							     IOutputStream outputStream)
 	{
 		m_family = family;
@@ -51,7 +52,7 @@ public class HTMLReferenceListForm
 		m_photoList = photoList;
 		m_indexMarrToSpouses = indexMarrToSpouses;
 		m_bSuppressLiving = bSuppressLiving;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
 	
@@ -143,7 +144,7 @@ public class HTMLReferenceListForm
 				for (int t=0; t<iTitleParagraphCount; t++)
 				{
 					Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);					
-					String strParagraph = HTMLShared.buildParagraphString(m_family, m_listCLP,
+					String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
 							  paragraph, m_personList, m_marriageList,
                             m_referenceList, m_photoList,
                             m_indexMarrToSpouses,

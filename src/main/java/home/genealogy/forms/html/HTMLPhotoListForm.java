@@ -1,5 +1,12 @@
 package home.genealogy.forms.html;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToPhotos;
 import home.genealogy.indexes.IndexMarriageToSpouses;
@@ -23,13 +30,6 @@ import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.PhotoIdHelper;
 import home.genealogy.schema.all.helpers.SingletonHelper;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 public class HTMLPhotoListForm
 {
@@ -41,7 +41,7 @@ public class HTMLPhotoListForm
 	private ReferenceList m_referenceList;
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	private IndexMarriageToSpouses m_indexMarrToSpouses;
 	private IndexPersonToPhotos m_idxPersonToPhotos;
@@ -54,7 +54,7 @@ public class HTMLPhotoListForm
 							     PhotoList photoList,
 							     IndexMarriageToSpouses indexMarrToSpouses,
 							     boolean bSuppressLiving,
-							     CommandLineParameterList listCLP,
+							     CommandLineParameters commandLineParameters,
 							     IOutputStream outputStream)
 	{
 		m_family = family;
@@ -63,7 +63,7 @@ public class HTMLPhotoListForm
 		m_referenceList = referenceList;
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 		m_indexMarrToSpouses = indexMarrToSpouses;
 		m_idxPersonToPhotos = new IndexPersonToPhotos(m_family, m_personList, m_photoList);
@@ -231,7 +231,7 @@ public class HTMLPhotoListForm
 			List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
 			for (int i=0; i<lDescription.size(); i++)
 			{
-				String strParagraph = HTMLShared.buildParagraphString(m_family, m_listCLP,
+				String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
 						lDescription.get(i), m_personList, m_marriageList,
 	                    m_referenceList, m_photoList,
 	                    m_indexMarrToSpouses,

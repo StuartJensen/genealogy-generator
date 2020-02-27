@@ -1,5 +1,6 @@
 package home.genealogy.forms.html;
 
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexPersonToMarriages;
@@ -58,7 +59,7 @@ public class HTMLReferenceForm
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
 	private boolean m_bSuppressLds;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLReferenceForm(CFGFamily family,
@@ -68,7 +69,7 @@ public class HTMLReferenceForm
 							  PhotoList photoList,
 							  boolean bSuppressLiving,
 							  boolean bSuppressLds,
-							  CommandLineParameterList listCLP,
+							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
@@ -78,7 +79,7 @@ public class HTMLReferenceForm
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
 		m_bSuppressLds = bSuppressLds;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
 	
@@ -272,7 +273,7 @@ public class HTMLReferenceForm
 				for (int i=0; i<iTitleParagraphCount; i++)
 				{
 					Paragraph paragraph = EntryHelper.getTitleParagraph(entry, i);
-					String strEventTitle = HTMLShared.buildParagraphString(family, m_listCLP,
+					String strEventTitle = HTMLShared.buildParagraphString(family, m_commandLineParameters,
 							paragraph, personList, marriageList, referenceList, photoList,
 	                        idxMarToSpouses, true, true, bSuppressLiving, paragraphFormat, -1, -1);
 					if (0 != strEventTitle.length())
@@ -365,7 +366,7 @@ public class HTMLReferenceForm
 				for(int i=0; i<iHeaderParagraphCount; i++)
 				{
 					Paragraph paragraph = EntryHelper.getHeaderParagraph(entry, i);
-					String strParagraph = HTMLShared.buildParagraphString(family, m_listCLP,
+					String strParagraph = HTMLShared.buildParagraphString(family, m_commandLineParameters,
 							paragraph, personList, marriageList, referenceList, photoList,
 	                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 					if (0 != strParagraph.length())
@@ -395,7 +396,7 @@ public class HTMLReferenceForm
 					else if (oo instanceof Paragraph)
 					{
 						Paragraph paragraph = (Paragraph)oo;
-						String strParagraph = HTMLShared.buildParagraphString(family, m_listCLP,
+						String strParagraph = HTMLShared.buildParagraphString(family, m_commandLineParameters,
 								paragraph, personList, marriageList, referenceList, photoList,
 		                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 						if (0 != strParagraph.length())
@@ -407,7 +408,7 @@ public class HTMLReferenceForm
 					else if (oo instanceof Table)
 					{
 						Table table = (Table)oo;
-						String strTable = HTMLShared.buildTableString(family, m_listCLP,
+						String strTable = HTMLShared.buildTableString(family, m_commandLineParameters,
 								table, personList, marriageList, referenceList, photoList,
 		                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 						if (0 != strTable.length())
@@ -432,7 +433,7 @@ public class HTMLReferenceForm
 				for (int p=0; p<iCommentParagraphCount; p++)
 				{
 					Paragraph paragraph =  EntryHelper.getCommentParagraph(entry, p);
-					String strParagraph = HTMLShared.buildParagraphString(family, m_listCLP,
+					String strParagraph = HTMLShared.buildParagraphString(family, m_commandLineParameters,
 							paragraph, personList, marriageList, referenceList, photoList,
 	                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 					if (0 != strParagraph.length())
@@ -448,7 +449,7 @@ public class HTMLReferenceForm
 			// SeeAlso
 			if (0 != EntryHelper.getSeeAlsoObjectCount(entry))
 			{
-				String strSeeAlso = HTMLShared.buildSeeAlsoString(entry.getSeeAlso(), family, m_listCLP,
+				String strSeeAlso = HTMLShared.buildSeeAlsoString(entry.getSeeAlso(), family, m_commandLineParameters,
 																  personList, marriageList, referenceList,
 																  photoList, null, idxMarToSpouses);
 				if (0 != strSeeAlso.length())

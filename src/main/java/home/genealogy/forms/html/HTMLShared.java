@@ -1,6 +1,11 @@
 package home.genealogy.forms.html;
 
-import home.genealogy.Genealogy;
+import java.util.List;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.TaggedContainerDescriptor;
@@ -9,8 +14,6 @@ import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.schema.all.Column;
-import home.genealogy.schema.all.Entry;
-import home.genealogy.schema.all.Family;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.Paragraph;
@@ -30,10 +33,12 @@ import home.genealogy.schema.all.helpers.ColumnHelper;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.ParagraphHelper;
+import home.genealogy.schema.all.helpers.ParagraphHelper.eParagraphLineEnd;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.PhotoIdHelper;
+import home.genealogy.schema.all.helpers.PhotoIdHelper.ePhotoIdType;
 import home.genealogy.schema.all.helpers.ReferenceEntryIdHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
 import home.genealogy.schema.all.helpers.ReferenceIdHelper;
@@ -42,16 +47,6 @@ import home.genealogy.schema.all.helpers.SeeAlsoHelper;
 import home.genealogy.schema.all.helpers.SpaceHelper;
 import home.genealogy.schema.all.helpers.TableHelper;
 import home.genealogy.schema.all.helpers.TagHelper;
-import home.genealogy.schema.all.helpers.ParagraphHelper.eParagraphLineEnd;
-import home.genealogy.schema.all.helpers.PhotoIdHelper.ePhotoIdType;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 
 public class HTMLShared
 {
@@ -78,7 +73,7 @@ public class HTMLShared
 	public static final String IGNOREAREA_END = "<!-- IGNORE AREA END -->";
 
 	
-	public static String buildParagraphString(CFGFamily family, CommandLineParameterList listCLP,
+	public static String buildParagraphString(CFGFamily family, CommandLineParameters commandLineParameters,
 											  Paragraph paragraph, PersonList personList, MarriageList marriageList,
 			                                  ReferenceList referenceList, PhotoList photoList,
 			                                  IndexMarriageToSpouses indexMarrToSpouses,
@@ -208,7 +203,7 @@ public class HTMLShared
 						sb.append("<a href=\"").append(strUrl).append("\">[Photo]:</a>&nbsp;&nbsp;");
 						
 						List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
-						sb.append(buildParagraphListObject(family, listCLP, lDescription, personList, marriageList,
+						sb.append(buildParagraphListObject(family, commandLineParameters, lDescription, personList, marriageList,
 		                           	 	 	  	 	 	   referenceList, photoList, indexMarrToSpouses, false,
 		                           						   false, bSuppressLiving, paragraphFormat,
 		                           						   ReferenceIdHelper.REFERENCEID_INVALID,
@@ -322,7 +317,7 @@ public class HTMLShared
 		return sb.toString();
 	}
 	
-	public static String buildParagraphListObject(CFGFamily family, CommandLineParameterList listCLP,
+	public static String buildParagraphListObject(CFGFamily family, CommandLineParameters commandLineParameters,
 			  									  List<Paragraph> lParagraph, PersonList personList, MarriageList marriageList,
 			  									  ReferenceList referenceList, PhotoList photoList,
 			  									  IndexMarriageToSpouses indexMarrToSpouses,
@@ -337,7 +332,7 @@ public class HTMLShared
 		for (int i=0; i<lParagraph.size(); i++)
 		{
 			Paragraph paragraph =lParagraph.get(i);
-			sb.append(buildParagraphString(family, listCLP, paragraph, personList, marriageList,
+			sb.append(buildParagraphString(family, commandLineParameters, paragraph, personList, marriageList,
 						                referenceList, photoList,
 						                indexMarrToSpouses,
 						                bIndentIfIndicated,
@@ -410,7 +405,7 @@ public class HTMLShared
 		return(sb.toString());
 	}
 	
-	public static String buildSeeAlsoString(SeeAlso seeAlso, CFGFamily family, CommandLineParameterList listCLP,
+	public static String buildSeeAlsoString(SeeAlso seeAlso, CFGFamily family, CommandLineParameters commandLineParameters,
 			                                PersonList personList, MarriageList marriageList, ReferenceList referenceList,
 			                                PhotoList photoList, HTMLParagraphFormat paragraphFormat, IndexMarriageToSpouses indexMarrToSpouses)
 	{
@@ -420,7 +415,7 @@ public class HTMLShared
 			paragraphFormat = new HTMLParagraphFormat();
 		}
 		
-		boolean bSuppressLiving = listCLP.getBooleanValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING);
+		boolean bSuppressLiving = commandLineParameters.getSuppressLiving();
 		StringBuffer sb = new StringBuffer(256);
 		
 		int iSeeAlsoObjectCount = SeeAlsoHelper.getObjectCount(seeAlso);
@@ -505,7 +500,7 @@ public class HTMLShared
 				if (null != photo)
 				{
 					List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
-					String strDescription = buildParagraphListObject(family, listCLP, lDescription, personList, marriageList,
+					String strDescription = buildParagraphListObject(family, commandLineParameters, lDescription, personList, marriageList,
 	                           referenceList, photoList, indexMarrToSpouses, false,
 	                           false, bSuppressLiving, paragraphFormat,
 	                           ReferenceIdHelper.REFERENCEID_INVALID,
@@ -562,7 +557,7 @@ public class HTMLShared
 	}
 
 	
-	public static String buildTableString(CFGFamily family, CommandLineParameterList listCLP,
+	public static String buildTableString(CFGFamily family, CommandLineParameters commandLineParameters,
 			  							  Table table, PersonList personList, MarriageList marriageList,
 			  							  ReferenceList referenceList, PhotoList photoList,
 			  							  IndexMarriageToSpouses indexMarrToSpouses,
@@ -596,7 +591,7 @@ public class HTMLShared
 				for (int p=0; p<iParagraphCount; p++)
 				{
 					Paragraph paragraph = ColumnHelper.getParagraph(column, p);
-					String strParagraph = HTMLShared.buildParagraphString(family, listCLP,
+					String strParagraph = HTMLShared.buildParagraphString(family, commandLineParameters,
 							paragraph, personList, marriageList, referenceList, photoList,
 							indexMarrToSpouses, true, true, bSuppressLiving, null, lContainerId,
 	                        lSubContainerId);

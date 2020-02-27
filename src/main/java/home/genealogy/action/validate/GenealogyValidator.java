@@ -1,9 +1,8 @@
 package home.genealogy.action.validate;
 
-import home.genealogy.Genealogy;
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.output.IOutputStream;
-import home.genealogy.util.CommandLineParameterList;
 
 import java.io.File;
 
@@ -16,13 +15,13 @@ public class GenealogyValidator
 {
 	private static final long MILLISECONDS_ONE_DAY = (60 * 60 * 24 * 1000);
 	private CFGFamily m_family;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	
-	public GenealogyValidator(CFGFamily family, CommandLineParameterList listCLP, IOutputStream outputStream)
+	public GenealogyValidator(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 	{
 		m_family = family;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
 	
@@ -37,41 +36,19 @@ public class GenealogyValidator
 		Validator v = s.newValidator();
 		
 		// Get any time limit the user may have applied to the validate
-		long lTimeLimitDays = 0;
-		String strTimeLimit = m_listCLP.getValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME);
-		if (null != strTimeLimit)
-		{
-			lTimeLimitDays = Long.parseLong(strTimeLimit);
-		}
+		long lTimeLimitDays = m_commandLineParameters.getValidateTimeLimit();
 		
 		// Get any target the user may have specified
-		boolean bValidatePersons = true;
-		boolean bValidateMarriages = true;
-		boolean bValidateReferences = true;
-		boolean bValidatePhotos = true;
-		String strTarget = m_listCLP.getValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET);
-		if (null != strTarget)
+		boolean bValidatePersons = m_commandLineParameters.isValidateTargetPersons();
+		boolean bValidateMarriages = m_commandLineParameters.isValidateTargetMarriages();
+		boolean bValidateReferences = m_commandLineParameters.isValidateTargetReferences();
+		boolean bValidatePhotos = m_commandLineParameters.isValidateTargetPhotos();
+		if (m_commandLineParameters.isValidateTargetAll())
 		{
-			bValidatePersons = false;
-			bValidateMarriages = false;
-			bValidateReferences = false;
-			bValidatePhotos = false;
-			if (-1 != strTarget.indexOf(Genealogy.COMMAND_LINE_PARAM_TARGET_PERSONS))
-			{
-				bValidatePersons = true;
-			}
-			if (-1 != strTarget.indexOf(Genealogy.COMMAND_LINE_PARAM_TARGET_MARRIAGES))
-			{
-				bValidateMarriages = true;
-			}
-			if (-1 != strTarget.indexOf(Genealogy.COMMAND_LINE_PARAM_TARGET_REFERENCES))
-			{
-				bValidateReferences = true;
-			}
-			if (-1 != strTarget.indexOf(Genealogy.COMMAND_LINE_PARAM_TARGET_PHOTOS))
-			{
-				bValidatePhotos = true;
-			}
+			bValidatePersons = true;
+			bValidateMarriages = true;
+			bValidateReferences = true;
+			bValidatePhotos = true;
 		}
 		
 		long lPersonsErrors = 0;

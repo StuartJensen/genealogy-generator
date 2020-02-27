@@ -6,9 +6,8 @@ import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
 
-import home.genealogy.Genealogy;
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
-import home.genealogy.forms.html.HTMLFormOutput;
 import home.genealogy.forms.html.HTMLShared;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
@@ -24,7 +23,6 @@ import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
-import home.genealogy.util.CommandLineParameterList;
 
 public class WebSiteValidator
 {
@@ -33,7 +31,7 @@ public class WebSiteValidator
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
 	private PhotoList m_photoList;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private String m_strType;
 	private IOutputStream m_outputStream;
 	
@@ -44,7 +42,7 @@ public class WebSiteValidator
 							MarriageList marriageList,
 							ReferenceList referenceList,
 							PhotoList photoList,
-							CommandLineParameterList listCLP,
+							CommandLineParameters commandLineParameters,
 							String strType,
 							IOutputStream outputStream)
 	{
@@ -53,7 +51,7 @@ public class WebSiteValidator
 		m_marriageList = marriageList;
 		m_referenceList = referenceList;
 		m_photoList = photoList;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_strType = strType;
 		m_outputStream = outputStream;
 	}
@@ -61,8 +59,8 @@ public class WebSiteValidator
 	public void validate()
 		throws Exception
 	{	
-		if ((m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_ALL)) ||
-			(m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_FGS)))
+		if (m_commandLineParameters.isHttpValidateTargetAll() ||
+			m_commandLineParameters.isHttpValidateTargetFGS())
 		{	// Validate that all required FGS exist
 			int iFGSCount = 0;
 			m_outputStream.output("Validating that all the Family Group Sheet Pages exist!\n");
@@ -86,8 +84,8 @@ public class WebSiteValidator
 			m_outputStream.output("Validated " + iFGSCount + " Family Group Sheet Pages.\n");
 		}
 		
-		if ((m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_ALL)) ||
-			(m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_PERSONINFO)))
+		if (m_commandLineParameters.isHttpValidateTargetAll() ||
+			m_commandLineParameters.isHttpValidateTargetPersonInfo())
 		{	// Validate that all required Person Infos exist
 			int iPersonInfoCount = 0;
 			m_outputStream.output("Validating the all Person Information Pages exist!");
@@ -111,8 +109,8 @@ public class WebSiteValidator
 			m_outputStream.output("Validated " + iPersonInfoCount + " Person Information Pages.\n");
 		}
 		
-		if ((m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_ALL)) ||
-			(m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_REFERENCES)))
+		if (m_commandLineParameters.isHttpValidateTargetAll() ||
+			m_commandLineParameters.isHttpValidateTargetReferences())
 		{	// Validate that all required References exist
 			int iReferenceCount = 0;		
 			m_outputStream.output("Validating that all the Reference Pages exist!\n");
@@ -136,8 +134,8 @@ public class WebSiteValidator
 			m_outputStream.output("Validated " + iReferenceCount + " Reference Pages.\n");
 		}
 
-		if ((m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_ALL)) ||
-			(m_strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TYPE_PHOTOS)))
+		if (m_commandLineParameters.isHttpValidateTargetAll() ||
+			m_commandLineParameters.isHttpValidateTargetPhotos())
 		{		// Validate that all required Photo Wrappers and Photos exist
 			int iPhotoWrappersCount = 0;
 			int iPhotoCount = 0;

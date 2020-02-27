@@ -10,4 +10,9 @@ public class StringUtil
 		}
 		return strSource;
 	}
+	
+	public static boolean exists(String strCandidate)
+	{
+		return ((null != strCandidate) && (0 != strCandidate.length()));
+	}
 }

@@ -1,6 +1,17 @@
 package home.genealogy.lists;
 
-import home.genealogy.Genealogy;
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import org.xml.sax.SAXException;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageId;
@@ -13,37 +24,18 @@ import home.genealogy.schema.all.helpers.PersonIdHelper;
 import home.genealogy.util.FileNameFileFilter;
 import home.genealogy.util.MarshallUtil;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
-import org.xml.sax.SAXException;
-
 public class MarriageList
 {
 	private Marriage[] m_arMarriageList;
 	
-	public MarriageList(CFGFamily family)
+	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters)
 		throws Exception
 	{
-		this(family, Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML);
-	}
-	
-	public MarriageList(CFGFamily family, String strSource)
-		throws Exception
-	{
-		if ((null == strSource) ||
-			(0 == strSource.length()) ||
-			strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML))
+		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);
 		}
-		else if (strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML))
+		else if (commandLineParameters.isSourceAllXMLs())
 		{
 			unMarshallAllFile(family);
 		}

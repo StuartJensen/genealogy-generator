@@ -1,21 +1,20 @@
 package home.genealogy.action.generations;
 
-import home.genealogy.Genealogy;
+import java.util.Iterator;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.PersonList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.PersonHelper;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.util.Iterator;
 
 public class GenerationManager
 {
 	private CFGFamily m_family;
 	private PersonList m_personList;
 	private IOutputStream m_outputStream;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	
 	private int m_iGenerationNth;
 	private int m_iGenerationStart;
@@ -28,27 +27,24 @@ public class GenerationManager
 	
 	private boolean m_bIsRange = false;
 	
-	public GenerationManager(CFGFamily family, PersonList personList, CommandLineParameterList listCLP, IOutputStream outputStream)
+	public GenerationManager(CFGFamily family, PersonList personList, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 	{
 		m_family = family;
 		m_personList = personList;
 		m_outputStream = outputStream;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		
-		m_iGenerationNth = m_listCLP.getIntegerValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_GENERATION_NTH, PersonHelper.GENERATION_UNKNOWN);
-		m_iGenerationStart = m_listCLP.getIntegerValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_GENERATION_RANGE_START, PersonHelper.GENERATION_UNKNOWN);
-		m_iGenerationEnd = m_listCLP.getIntegerValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_GENERATION_RANGE_END, PersonHelper.GENERATION_UNKNOWN);
-		String strType = m_listCLP.getValue(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE);
-		if (null != strType)
+		m_iGenerationNth = m_commandLineParameters.getGenerationsNth(PersonHelper.GENERATION_UNKNOWN);
+		m_iGenerationStart = m_commandLineParameters.getGenerationsRangeStart(PersonHelper.GENERATION_UNKNOWN);
+		m_iGenerationEnd = m_commandLineParameters.getGenerationsRangeEnd(PersonHelper.GENERATION_UNKNOWN);
+		
+		if (m_commandLineParameters.isGenerationsTypeLiving())
 		{
-			if (strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_LIVING))
-			{
-				m_iType = TYPE_LIVING;
-			}
-			else if (strType.equals(Genealogy.COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_DEAD))
-			{
-				m_iType = TYPE_DEAD;
-			}
+			m_iType = TYPE_LIVING;
+		}
+		else if (m_commandLineParameters.isGenerationsTypeDead())
+		{
+			m_iType = TYPE_DEAD;
 		}
 		if ((PersonHelper.GENERATION_UNKNOWN == m_iGenerationNth) &&
 			(PersonHelper.GENERATION_UNKNOWN != m_iGenerationStart) &&

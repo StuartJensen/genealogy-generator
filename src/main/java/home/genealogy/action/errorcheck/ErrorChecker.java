@@ -1,5 +1,9 @@
 package home.genealogy.action.errorcheck;
 
+import java.util.Iterator;
+import java.util.List;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
@@ -23,10 +27,6 @@ import home.genealogy.schema.all.helpers.PersonIdHelper;
 import home.genealogy.schema.all.helpers.PersonTagHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
-import home.genealogy.util.CommandLineParameterList;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class ErrorChecker
 {
@@ -35,15 +35,15 @@ public class ErrorChecker
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
 	private PhotoList m_photoList;
-	private CommandLineParameterList m_listCLP;
+	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	
 	public ErrorChecker(CFGFamily family, PersonList personList, MarriageList marriageList,
-			            ReferenceList referenceList, PhotoList photoList, CommandLineParameterList listCLP,
+			            ReferenceList referenceList, PhotoList photoList, CommandLineParameters commandLineParameters,
 			            IOutputStream outputStream)
 	{
 		m_family = family;
-		m_listCLP = listCLP;
+		m_commandLineParameters = commandLineParameters;
 		m_personList = personList;
 		m_marriageList =  marriageList;
 		m_referenceList = referenceList;

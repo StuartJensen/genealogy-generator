@@ -1,19 +1,17 @@
 package home.genealogy.indexes;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.PersonList;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
-import home.genealogy.util.CommandLineParameterList;
 import home.genealogy.util.Sorters;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import javax.xml.crypto.dsig.spec.HMACParameterSpec;
 
 public class IndexMarriageToChildren
 {
@@ -21,7 +19,7 @@ public class IndexMarriageToChildren
 	// Value = List of Person Ids representing children for that person
 	private HashMap<Integer, ArrayList<Integer>> m_hmIndex;
 	
-	public IndexMarriageToChildren(CFGFamily family, CommandLineParameterList listCLP, PersonList personList)
+	public IndexMarriageToChildren(CFGFamily family, CommandLineParameters commandLineParameters, PersonList personList)
 	{
 		m_hmIndex = new HashMap<Integer, ArrayList<Integer>>();
 		Iterator<Person> iter = personList.getPersons();

@@ -1,14 +1,5 @@
 package home.genealogy.lists;
 
-import home.genealogy.Genealogy;
-import home.genealogy.configuration.CFGFamily;
-import home.genealogy.schema.all.Photo;
-import home.genealogy.schema.all.Photos;
-import home.genealogy.schema.all.helpers.PhotoHelper;
-import home.genealogy.schema.all.helpers.PhotoIdHelper;
-import home.genealogy.util.FileNameFileFilter;
-import home.genealogy.util.MarshallUtil;
-
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Iterator;
@@ -20,26 +11,27 @@ import javax.xml.bind.Unmarshaller;
 
 import org.xml.sax.SAXException;
 
+import home.genealogy.CommandLineParameters;
+import home.genealogy.configuration.CFGFamily;
+import home.genealogy.schema.all.Photo;
+import home.genealogy.schema.all.Photos;
+import home.genealogy.schema.all.helpers.PhotoHelper;
+import home.genealogy.schema.all.helpers.PhotoIdHelper;
+import home.genealogy.util.FileNameFileFilter;
+import home.genealogy.util.MarshallUtil;
+
 public class PhotoList
 {
 	private Photo[] m_arPhotoList;
 	
-	public PhotoList(CFGFamily family)
+	public PhotoList(CFGFamily family, CommandLineParameters commandLineParameters)
 		throws Exception
 	{
-		this(family, Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML);
-	}
-	
-	public PhotoList(CFGFamily family, String strSource)
-		throws Exception
-	{
-		if ((null == strSource) ||
-			(0 == strSource.length()) ||
-			strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML))
+		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);
 		}
-		else if (strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML))
+		else if (commandLineParameters.isSourceAllXMLs())
 		{
 			unMarshallAllFile(family);
 		}

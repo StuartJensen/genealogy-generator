@@ -1,14 +1,5 @@
 package home.genealogy.lists;
 
-import home.genealogy.Genealogy;
-import home.genealogy.configuration.CFGFamily;
-import home.genealogy.schema.all.Reference;
-import home.genealogy.schema.all.References;
-import home.genealogy.schema.all.helpers.ReferenceHelper;
-import home.genealogy.schema.all.helpers.ReferenceIdHelper;
-import home.genealogy.util.FileNameFileFilter;
-import home.genealogy.util.MarshallUtil;
-
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Iterator;
@@ -20,26 +11,27 @@ import javax.xml.bind.Unmarshaller;
 
 import org.xml.sax.SAXException;
 
+import home.genealogy.CommandLineParameters;
+import home.genealogy.configuration.CFGFamily;
+import home.genealogy.schema.all.Reference;
+import home.genealogy.schema.all.References;
+import home.genealogy.schema.all.helpers.ReferenceHelper;
+import home.genealogy.schema.all.helpers.ReferenceIdHelper;
+import home.genealogy.util.FileNameFileFilter;
+import home.genealogy.util.MarshallUtil;
+
 public class ReferenceList
 {
 	private Reference[] m_arReferenceList;
 
-	public ReferenceList(CFGFamily family)
+	public ReferenceList(CFGFamily family, CommandLineParameters commandLineParameters)
 		throws Exception
 	{
-		this(family, Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML);
-	}
-	
-	public ReferenceList(CFGFamily family, String strSource)
-		throws Exception
-	{
-		if ((null == strSource) ||
-			(0 == strSource.length()) ||
-			strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML))
+		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);
 		}
-		else if (strSource.equalsIgnoreCase(Genealogy.COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML))
+		else if (commandLineParameters.isSourceAllXMLs())
 		{
 			unMarshallAllFile(family);
 		}

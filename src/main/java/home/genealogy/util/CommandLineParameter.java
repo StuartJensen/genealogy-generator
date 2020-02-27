@@ -10,6 +10,12 @@ public class CommandLineParameter
 	private String m_strKey;
 	public String m_strValue;
 	
+	public CommandLineParameter(String strKey, String strValue)
+	{
+		m_strKey = strKey;
+		m_strValue = strValue;
+	}
+	
 	public CommandLineParameter(String strParameter)
 		throws InvalidParameterException
 	{
@@ -32,6 +38,7 @@ public class CommandLineParameter
 		{
 			throw new InvalidParameterException("Null or Empty Command Line Parameter Value: " + strParameter);
 		}
+		m_strKey = m_strKey.toLowerCase();
 	}
 	
 	public String getKey()
