@@ -15,4 +15,12 @@ public class StringUtil
 	{
 		return ((null != strCandidate) && (0 != strCandidate.length()));
 	}
+	
+	public static void commaTerminateExisting(StringBuilder sb)
+	{
+		if (0 != sb.length())
+		{
+			sb.append(", ");
+		}
+	}
 }
