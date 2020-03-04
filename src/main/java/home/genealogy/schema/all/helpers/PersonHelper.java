@@ -1,5 +1,10 @@
 package home.genealogy.schema.all.helpers;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.RelationshipManager;
 import home.genealogy.schema.all.BirthInfo;
 import home.genealogy.schema.all.BurialInfo;
@@ -8,16 +13,10 @@ import home.genealogy.schema.all.Date;
 import home.genealogy.schema.all.DeathInfo;
 import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.EventGroup;
-import home.genealogy.schema.all.LdsInfo;
 import home.genealogy.schema.all.Person;
-import home.genealogy.schema.all.PersonIdentification;
 import home.genealogy.schema.all.PersonName;
 import home.genealogy.schema.all.Profession;
 import home.genealogy.schema.all.Religion;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
 public class PersonHelper
 {
@@ -26,11 +25,13 @@ public class PersonHelper
 	private Person m_person;
 	private boolean m_bIsPersonLiving;
 	private boolean m_bSuppressLiving;
+	private PlaceList m_placeList;
 	
-	public PersonHelper(Person person, boolean bSuppressLiving)
+	public PersonHelper(Person person, boolean bSuppressLiving, PlaceList placeList)
 	{
 		m_person = person;
-		m_bIsPersonLiving = PersonHelper.isLiving(person);
+		m_placeList = placeList;
+		m_bIsPersonLiving = PersonHelper.isLiving(person, m_placeList);
 		m_bSuppressLiving = bSuppressLiving;
 	}
 	
@@ -185,7 +186,7 @@ public class PersonHelper
 	
 	public String getBirthPlace()
 	{
-		String strBirthPlace = getBirthPlace(m_person);
+		String strBirthPlace = getBirthPlace(m_person, m_placeList);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
 			if (0 != strBirthPlace.length())
@@ -211,7 +212,7 @@ public class PersonHelper
 	
 	public String getChrPlace()
 	{
-		String strChrPlace = getChrPlace(m_person);
+		String strChrPlace = getChrPlace(m_person, m_placeList);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
 			if (0 != strChrPlace.length())
@@ -237,7 +238,7 @@ public class PersonHelper
 	
 	public String getDeathPlace()
 	{
-		String strDeathPlace = getDeathPlace(m_person);
+		String strDeathPlace = getDeathPlace(m_person, m_placeList);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
 			if (0 != strDeathPlace.length())
@@ -263,7 +264,7 @@ public class PersonHelper
 	
 	public String getBurialPlace()
 	{
-		String strBurialPlace = getBurialPlace(m_person);
+		String strBurialPlace = getBurialPlace(m_person, m_placeList);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
 			if (0 != strBurialPlace.length())
@@ -344,233 +345,7 @@ public class PersonHelper
 		}
 		return lNames;
 	}
-	
-	public String getBaptismDate()
-	{
-		String strBaptismDate = getBaptismDate(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strBaptismDate.length())
-			{
-				return LIVING;
-			}
-		}
-		return strBaptismDate;
-	}
-	
-	public String getBaptismPlace()
-	{
-		String strBaptismPlace = getBaptismPlace(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strBaptismPlace.length())
-			{
-				return LIVING;
-			}
-		}
-		return strBaptismPlace;
-	}
-	
-	public String getBaptismTemple()
-	{
-		String strBaptismTemple = getBaptismTemple(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strBaptismTemple.length())
-			{
-				return LIVING;
-			}
-		}
-		return strBaptismTemple;
-	}
-	
-	public String getBaptismProxyName()
-	{
-		String strBaptismProxyName = getBaptismProxyName(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strBaptismProxyName.length())
-			{
-				return LIVING;
-			}
-		}
-		return strBaptismProxyName;
-	}
-	
-	public String getEndowmentDate()
-	{
-		String strEndowmentDate = getEndowmentDate(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strEndowmentDate.length())
-			{
-				return LIVING;
-			}
-		}
-		return strEndowmentDate;
-	}
-	
-	public String getEndowmentPlace()
-	{
-		String strEndowmentPlace = getEndowmentPlace(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strEndowmentPlace.length())
-			{
-				return LIVING;
-			}
-		}
-		return strEndowmentPlace;
-	}
-	
-	public String getEndowmentTemple()
-	{
-		String strEndowmentTemple = getEndowmentTemple(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strEndowmentTemple.length())
-			{
-				return LIVING;
-			}
-		}
-		return strEndowmentTemple;
-	}
-	
-	public String getEndowmentProxyName()
-	{
-		String strEndowmentProxyName = getEndowmentProxyName(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strEndowmentProxyName.length())
-			{
-				return LIVING;
-			}
-		}
-		return strEndowmentProxyName;
-	}
-	
-	public String getSealToParentsDate()
-	{
-		String strSealToParentsDate = getSealToParentsDate(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strSealToParentsDate.length())
-			{
-				return LIVING;
-			}
-		}
-		return strSealToParentsDate;
-	}
-	
-	public String getSealToParentsPlace()
-	{
-		String strSealToParentsPlace = getSealToParentsPlace(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strSealToParentsPlace.length())
-			{
-				return LIVING;
-			}
-		}
-		return strSealToParentsPlace;
-	}
-	
-	public String getSealToParentsTemple()
-	{
-		String strSealToParentsTemple = getSealToParentsTemple(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			if (0 != strSealToParentsTemple.length())
-			{
-				return LIVING;
-			}
-		}
-		return strSealToParentsTemple;
-	}
-	
-	public List<String> getSealToParentsProxies()
-	{
-		List<String> lSealToParentsProxies = getSealToParentsProxies(m_person);
-		if (m_bSuppressLiving && m_bIsPersonLiving)
-		{
-			ArrayList<String> alLiving = new ArrayList<String>();
-			for (int i=0; i<lSealToParentsProxies.size(); i++)
-			{
-				alLiving.add(LIVING);
-			}
-			return alLiving;
-		}
-		return lSealToParentsProxies;
-	}
-	
-/*	
-	// PersonIdentification Getter Methods
-	CString getFullBasicName();
-	CString getFullDecoratedName();
-	CString getRoyalEnumeration();
 
-	// Birth Info
-	CString getBirthDate();
-	CString getBirthPlace();
-	CString getBirthHospital();
-
-	// Chr Info
-	CString getChrDate();
-	CString getChrPlace();
-
-	// Death Info
-	CString getDeathDate();
-	CString getDeathPlace();
-	CString getDeathCause();
-
-	// Burial Info
-	CString getBurialDate();
-	CString getBurialPlace();
-	CString getBurialCemetery();
-	CString getBurialPlotAddress();
-
-	// LDS Info - Baptism Info
-	CString getBaptismDate();
-	CString getBaptismPlace();
-	CString getBaptismTemple();
-	CString getBaptismProxyName();
-	CString getBaptismProxyDecoratedName();
-
-	// LDS Info - Endowment Info
-	CString getEndowmentDate();
-	CString getEndowmentPlace();
-	CString getEndowmentTemple();
-	CString getEndowmentProxyName();
-	CString getEndowmentProxyDecoratedName();
-
-	// LDS Info - Seal To Parents Info
-	CString getSToPDate();
-	CString getSToPPlace();
-	CString getSToPTemple();
-	int getSToPProxyCount(){return m_pPerson->getSToPProxyCount();}
-	CString getSToPProxyName(int nth);
-	CString getSToPProxyDecoratedName(int nth);
-
-	bool ldsInfoExists(){return m_pPerson->ldsInfoExists();}
-
-	bool isInLine(){return m_pPerson->isInLine();}
-
-	// Relationship designator
-	CString getRelationship();
-
-	// Event group
-	long getPersonEventCount();
-	BOOL startPersonEventGroupEnum(long *pLCookie);
-	BOOL nextPersonEventGroupEnum(long *pLCookie, PersonEvent **pPersonEvent);
-
-
-private:
-
-	CString WhichString(CString str);
-
-*/
-	
-	
 	public static int getPersonId(Person person)
 	{
 		String strPersonId = person.getPersonId();
@@ -603,12 +378,7 @@ private:
 	
 	public static String getPersonName(Person person)
 	{
-		PersonIdentification identification = person.getPersonIdentification();
-		if (null == identification)
-		{
-			return ("");
-		}
-		PersonName personName = identification.getPersonName();
+		PersonName personName = person.getPersonName();
 		if (null == personName)
 		{
 			return ("<No Name>");
@@ -629,30 +399,30 @@ private:
 	
 	public static String getFirstName(Person person)
 	{
-		PersonIdentification pi = person.getPersonIdentification();
-		if (null != pi)
+		PersonName pn = person.getPersonName();
+		if (null != pn)
 		{
-			return PersonIdentificationHelper.getFirstName(pi);
+			return PersonNameHelper.getFirstName(pn);
 		}
 		return "";
 	}
 	
 	public static String getMiddleName(Person person)
 	{
-		PersonIdentification pi = person.getPersonIdentification();
-		if (null != pi)
+		PersonName pn = person.getPersonName();
+		if (null != pn)
 		{
-			return PersonIdentificationHelper.getMiddleName(pi);
+			return PersonNameHelper.getMiddleName(pn);
 		}
 		return "";
 	}
 	
 	public static String getLastName(Person person)
 	{
-		PersonIdentification pi = person.getPersonIdentification();
-		if (null != pi)
+		PersonName pn = person.getPersonName();
+		if (null != pn)
 		{
-			return PersonIdentificationHelper.getLastName(pi);
+			return PersonNameHelper.getLastName(pn);
 		}
 		return "";
 	}
@@ -711,11 +481,7 @@ private:
 	{
 		if (null != person)
 		{
-			PersonIdentification personIdentification = person.getPersonIdentification();
-			if (null != person)
-			{
-				return PersonIdentificationHelper.getNickNames(personIdentification);
-			}
+			return person.getNickName();
 		}
 		return (new ArrayList<String>());
 	}
@@ -759,14 +525,14 @@ private:
 		return null;
 	}
 	
-	public static String getBirthPlace(Person person)
+	public static String getBirthPlace(Person person, PlaceList placeList)
 	{
 		if (null != person)
 		{
 			BirthInfo birthInfo = person.getBirthInfo();
 			if (null != birthInfo)
 			{
-				return BirthInfoHelper.getBirthPlace(birthInfo);
+				return BirthInfoHelper.getBirthPlace(birthInfo, placeList);
 			}
 		}
 		return "";
@@ -811,14 +577,14 @@ private:
 		return null;
 	}
 	
-	public static String getChrPlace(Person person)
+	public static String getChrPlace(Person person, PlaceList placeList)
 	{
 		if (null != person)
 		{
 			ChrInfo chrInfo = person.getChrInfo();
 			if (null != chrInfo)
 			{
-				return ChrInfoHelper.getChrPlace(chrInfo);
+				return ChrInfoHelper.getChrPlace(chrInfo, placeList);
 			}
 		}
 		return "";
@@ -837,14 +603,14 @@ private:
 		return "";
 	}
 	
-	public static String getDeathPlace(Person person)
+	public static String getDeathPlace(Person person, PlaceList placeList)
 	{
 		if (null != person)
 		{
 			DeathInfo deathInfo = person.getDeathInfo();
 			if (null != deathInfo)
 			{
-				return DeathInfoHelper.getDeathPlace(deathInfo);
+				return DeathInfoHelper.getDeathPlace(deathInfo, placeList);
 			}
 		}
 		return "";
@@ -876,14 +642,14 @@ private:
 		return "";
 	}
 	
-	public static String getBurialPlace(Person person)
+	public static String getBurialPlace(Person person, PlaceList placeList)
 	{
 		if (null != person)
 		{
 			BurialInfo burialInfo = person.getBurialInfo();
 			if (null != burialInfo)
 			{
-				return BurialInfoHelper.getBurialPlace(burialInfo);
+				return BurialInfoHelper.getBurialPlace(burialInfo, placeList);
 			}
 		}
 		return "";
@@ -919,10 +685,10 @@ private:
 	{
 		if (null != person)
 		{
-			PersonIdentification personIdentification = person.getPersonIdentification();
-			if (null != personIdentification)
+			PersonName personName = person.getPersonName();
+			if (null != personName)
 			{
-				return PersonIdentificationHelper.getFirstNameAltSpellings(personIdentification);
+				return PersonNameHelper.getFirstNameAltSpellings(personName);
 			}
 		}
 		return (new ArrayList<String>());
@@ -932,10 +698,10 @@ private:
 	{
 		if (null != person)
 		{
-			PersonIdentification personIdentification = person.getPersonIdentification();
-			if (null != personIdentification)
+			PersonName personName = person.getPersonName();
+			if (null != personName)
 			{
-				return PersonIdentificationHelper.getMiddleNameAltSpellings(personIdentification);
+				return PersonNameHelper.getMiddleNameAltSpellings(personName);
 			}
 		}
 		return (new ArrayList<String>());
@@ -945,236 +711,15 @@ private:
 	{
 		if (null != person)
 		{
-			PersonIdentification personIdentification = person.getPersonIdentification();
-			if (null != personIdentification)
+			PersonName personName = person.getPersonName();
+			if (null != personName)
 			{
-				return PersonIdentificationHelper.getLastNameAltSpellings(personIdentification);
+				return PersonNameHelper.getLastNameAltSpellings(personName);
 			}
 		}
 		return (new ArrayList<String>());
 	}
-	
-	public static String getBaptismDate(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getBaptismDate(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static int[] getNumericBaptismDate(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getNumericBaptismDate(ldsInfo);
-			}
-		}
-		return InfoHelper.getNumericDate(null);
-	}
-	
-	public static String getBaptismPlace(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getBaptismPlace(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static String getBaptismTemple(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getBaptismTemple(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static String getBaptismProxyName(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getBaptismProxyName(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static int getBaptismProxyPersonId(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getBaptismProxyPersonId(ldsInfo);
-			}
-		}
-		return PersonIdHelper.PERSONID_INVALID;
-	}
 
-	public static String getEndowmentDate(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getEndowmentDate(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static int[] getNumericEndowmentDate(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getNumericEndowmentDate(ldsInfo);
-			}
-		}
-		return InfoHelper.getNumericDate(null);
-	}
-	
-	public static String getEndowmentPlace(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getEndowmentPlace(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static String getEndowmentTemple(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getEndowmentTemple(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static String getEndowmentProxyName(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getEndowmentProxyName(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static int getEndowmentProxyPersonId(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getEndowmentProxyPersonId(ldsInfo);
-			}
-		}
-		return PersonIdHelper.PERSONID_INVALID;
-	}
-	
-	public static String getSealToParentsDate(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getSealToParentsDate(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static int[] getNumericSealToParentsDate(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getNumericSealToParentsDate(ldsInfo);
-			}
-		}
-		return InfoHelper.getNumericDate(null);
-	}
-	
-	public static String getSealToParentsPlace(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getSealToParentsPlace(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static String getSealToParentsTemple(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getSealToParentsTemple(ldsInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static List<String> getSealToParentsProxies(Person person)
-	{
-		if (null != person)
-		{
-			LdsInfo ldsInfo = person.getLdsInfo();
-			if (null != ldsInfo)
-			{
-				return LdsInfoHelper.getSealToParentsProxies(ldsInfo);
-			}
-		}
-		return new ArrayList<String>();
-	}
-	
 	public static int getEventCount(Person person)
 	{
 		if (null != person)
@@ -1234,7 +779,7 @@ private:
 		return GENERATION_UNKNOWN;
 	}
 	
-	public static boolean isLiving(Person person)
+	public static boolean isLiving(Person person, PlaceList placeList)
 	{
 		String strLiving = person.getLiving();
 		if (null != strLiving)
@@ -1251,11 +796,11 @@ private:
 			}
         }
 		// "living" attribute not found, look for death information
-		if (hasAnyDeathInfo(person))
+		if (hasAnyDeathInfo(person, placeList))
 		{	// Has a death date, must be dead
 			return false;
 		}
-		if (hasAnyBurialInfo(person))
+		if (hasAnyBurialInfo(person, placeList))
 		{	// Has a burial date, must be dead
 			return false;
 		}
@@ -1308,14 +853,14 @@ private:
 		return false;
 	}
 	
-	public static boolean hasAnyDeathInfo(Person person)
+	public static boolean hasAnyDeathInfo(Person person, PlaceList placeList)
 	{
 		String strDeathDate = PersonHelper.getDeathDate(person);
 		if (0 != strDeathDate.length())
 		{	// Has a death date
 			return true;
 		}
-		String strDeathPlace = PersonHelper.getDeathPlace(person);
+		String strDeathPlace = PersonHelper.getDeathPlace(person, placeList);
 		if (0 != strDeathPlace.length())
 		{	// Has a death place
 			return true;
@@ -1328,14 +873,14 @@ private:
 		return false;
 	}
 	
-	public static boolean hasAnyBurialInfo(Person person)
+	public static boolean hasAnyBurialInfo(Person person, PlaceList placeList)
 	{
 		String strBurialDate = PersonHelper.getBurialDate(person);
 		if (0 != strBurialDate.length())
 		{	// Has a burial date
 			return true;
 		}
-		String strBurialPlace = PersonHelper.getBurialPlace(person);
+		String strBurialPlace = PersonHelper.getBurialPlace(person, placeList);
 		if (0 != strBurialPlace.length())
 		{	// Has a burial place
 			return true;
@@ -1371,9 +916,4 @@ private:
 		}
 		return -1;
 	}
-	
-	
-	
-	
-
 }

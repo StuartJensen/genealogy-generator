@@ -5,6 +5,7 @@ import java.util.Iterator;
 import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.PersonList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.PersonHelper;
@@ -12,6 +13,7 @@ import home.genealogy.schema.all.helpers.PersonHelper;
 public class GenerationManager
 {
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private IOutputStream m_outputStream;
 	private CommandLineParameters m_commandLineParameters;
@@ -27,9 +29,10 @@ public class GenerationManager
 	
 	private boolean m_bIsRange = false;
 	
-	public GenerationManager(CFGFamily family, PersonList personList, CommandLineParameters commandLineParameters, IOutputStream outputStream)
+	public GenerationManager(CFGFamily family, PlaceList placeList, PersonList personList, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_outputStream = outputStream;
 		m_commandLineParameters = commandLineParameters;
@@ -91,11 +94,11 @@ public class GenerationManager
 			{	// This person is within the generations that must be checked.
 				iInGeneration++;
 				boolean bShowPerson = false;
-				if ((m_iType == TYPE_LIVING) && PersonHelper.isLiving(person))
+				if ((m_iType == TYPE_LIVING) && PersonHelper.isLiving(person, m_placeList))
 				{
 					bShowPerson = true;
 				}
-				else if ((m_iType == TYPE_DEAD) && !PersonHelper.isLiving(person))
+				else if ((m_iType == TYPE_DEAD) && !PersonHelper.isLiving(person, m_placeList))
 				{
 					bShowPerson = true;
 				}
@@ -106,7 +109,7 @@ public class GenerationManager
 				if (bShowPerson)
 				{
 					iInGenerationShown++;
-					String strMortality = (PersonHelper.isLiving(person)? "Living" : "Dead");
+					String strMortality = (PersonHelper.isLiving(person, m_placeList)? "Living" : "Dead");
 					m_outputStream.output("Person Id#" + person.getPersonId() + ", " + PersonHelper.getPersonName(person)  + ", Generation: " + iGeneration + ", Mortality: \"" + strMortality + "\".\n");
 				}
 			}

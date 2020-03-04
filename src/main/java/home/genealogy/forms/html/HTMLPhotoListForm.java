@@ -15,6 +15,7 @@ import home.genealogy.indexes.TaggedContainerDescriptor;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
@@ -36,6 +37,7 @@ public class HTMLPhotoListForm
 	public static final String PHOTO_INDEX_FILE_SYSTEM_SUBDIRECTORY = "index";
 	
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
@@ -48,6 +50,7 @@ public class HTMLPhotoListForm
 	private IndexMarriageToPhotos m_idxMarriageToPhotos;
 	  
 	public HTMLPhotoListForm(CFGFamily family,
+								 PlaceList placeList,
 							     PersonList personList,
 							     MarriageList marriageList,
 							     ReferenceList referenceList,
@@ -58,6 +61,7 @@ public class HTMLPhotoListForm
 							     IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_referenceList = referenceList;
@@ -141,7 +145,7 @@ public class HTMLPhotoListForm
 			ArrayList<TaggedContainerDescriptor> alPhotoDescriptors = m_idxPersonToPhotos.getPhotosForPerson(PersonHelper.getPersonId(personByName.getPerson()));
 			if ((null != alPhotoDescriptors) && (0 != alPhotoDescriptors.size()))
 			{
-				PersonHelper personHelper = new PersonHelper(personByName.getPerson(), m_bSuppressLiving);
+				PersonHelper personHelper = new PersonHelper(personByName.getPerson(), m_bSuppressLiving, m_placeList);
 				String strPersonName = personHelper.getPersonName();
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, strPersonName);
 				output.outputBR(2);
@@ -176,7 +180,7 @@ public class HTMLPhotoListForm
 			ArrayList<TaggedContainerDescriptor> alPhotoDescriptors = m_idxMarriageToPhotos.getPhotosForMarriage(MarriageHelper.getMarriageId(marriage));
 			if ((null != alPhotoDescriptors) && (0 != alPhotoDescriptors.size()))
 			{
-				String strMarriageName = HTMLShared.buildSimpleMarriageNameString(m_personList, m_indexMarrToSpouses, MarriageHelper.getMarriageId(marriage), m_bSuppressLiving, "%s and %s");
+				String strMarriageName = HTMLShared.buildSimpleMarriageNameString(m_placeList, m_personList, m_indexMarrToSpouses, MarriageHelper.getMarriageId(marriage), m_bSuppressLiving, "%s and %s");
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, strMarriageName);
 				output.outputBR(2);
 				output.outputCRLF();
@@ -232,7 +236,7 @@ public class HTMLPhotoListForm
 			for (int i=0; i<lDescription.size(); i++)
 			{
 				String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-						lDescription.get(i), m_personList, m_marriageList,
+						lDescription.get(i), m_placeList, m_personList, m_marriageList,
 	                    m_referenceList, m_photoList,
 	                    m_indexMarrToSpouses,
 	                    true,
@@ -256,7 +260,7 @@ public class HTMLPhotoListForm
 			{
 				Singleton singleton = PhotoHelper.getSingleton(photo);
 				String strDate = SingletonHelper.getDate(singleton);
-				String strPlace = SingletonHelper.getPlace(singleton);
+				String strPlace = SingletonHelper.getPlace(singleton, m_placeList);
 				boolean bDateEmpty = ((null == strDate) || (0 == strDate.length()));
 				boolean bPlaceEmpty = ((null == strPlace) || (0 == strPlace.length()));
 				if (!bDateEmpty)

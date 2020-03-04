@@ -22,6 +22,13 @@
       <xs:attribute name="formsCounterHome"/>
     </xs:complexType>
   </xs:element>
+    <xs:element name="placeNames">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="placeName"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="marriage">
     <xs:complexType>
       <xs:sequence>
@@ -85,15 +92,17 @@
   </xs:element>
   <xs:element name="person">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="personIdentification" maxOccurs="1" minOccurs="1"/>
+     <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" ref="personName"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="nickName" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="moniker" type="xs:string"/>
+        <xs:element minOccurs="0" maxOccurs="1" name="royalEnumeration" type="xs:string"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="profession"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="religion"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="birthInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="chrInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="deathInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="burialInfo"/>
-        <xs:element minOccurs="0" maxOccurs="1" ref="ldsInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="eventGroup"/>
       </xs:sequence>
       <xs:attribute name="version" use="required"/>
@@ -245,22 +254,6 @@
       <xs:attribute name="cause"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="personIdentification">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="personName"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="nickName"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="moniker"/>
-      </xs:sequence>
-      <xs:attribute name="royalEnumeration"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="nickName">
-    <xs:complexType mixed="true">
-      <xs:attribute name="name"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="moniker" type="xs:string"/>
   <xs:element name="religion">
     <xs:complexType mixed="true">
       <xs:attribute name="name"/>
@@ -278,39 +271,6 @@
       </xs:sequence>
       <xs:attribute name="cemeteryName"/>
       <xs:attribute name="cemeteryPlotAddress"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="ldsInfo">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="baptismInfo"/>
-        <xs:element minOccurs="0" ref="endowmentInfo"/>
-        <xs:element minOccurs="0" ref="sealToParentsInfo"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="endowmentInfo">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="info"/>
-        <xs:element minOccurs="0" ref="proxy"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="baptismInfo">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="info"/>
-        <xs:element minOccurs="0" ref="proxy"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="sealToParentsInfo">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="info"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="proxy"/>
-      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="persons">
@@ -675,12 +635,27 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  
+    <xs:element name="placeName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="date"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="altPlaceNameIdRef" type="xs:string"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:string"/>
+      <xs:attribute name="parentIdRef" type="xs:string" />
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+  
   <xs:element name="place">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="place1Level"/>
         <xs:element minOccurs="0" ref="globalCoordinates"/>
+        <xs:element minOccurs="0" name="street" type="xs:string"/>
+        <xs:element minOccurs="0" name="spot" type="xs:string" />
       </xs:sequence>
+      <xs:attribute name="idRef" type="xs:string"/>
       <xs:attribute name="modifier">
         <xs:simpleType>
           <xs:restriction base="xs:token">
@@ -690,7 +665,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="country" use="required">
+      <xs:attribute name="country">
         <xs:simpleType>
           <xs:restriction base="xs:token">
             <xs:enumeration value="USA"/>
@@ -748,179 +723,6 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="temple">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="ABA"/>
-            <xs:enumeration value="ACCRA"/>
-            <xs:enumeration value="ADELA"/>
-            <xs:enumeration value="ALBER"/>
-            <xs:enumeration value="ALBUQ"/>
-            <xs:enumeration value="ANCHO"/>
-            <xs:enumeration value="ANTON"/>
-            <xs:enumeration value="APIA"/>
-            <xs:enumeration value="ARIZO"/>
-            <xs:enumeration value="ASUNC"/>
-            <xs:enumeration value="ATLAN"/>
-            <xs:enumeration value="BAIRE"/>
-            <xs:enumeration value="BILLI"/>
-            <xs:enumeration value="BIRMI"/>
-            <xs:enumeration value="BISMA"/>
-            <xs:enumeration value="BOGOT"/>
-            <xs:enumeration value="BOISE"/>
-            <xs:enumeration value="BOSTO"/>
-            <xs:enumeration value="BOUNT"/>
-            <xs:enumeration value="BRISB"/>
-            <xs:enumeration value="BROUG"/>
-            <xs:enumeration value="CAMPI"/>
-            <xs:enumeration value="CARAC"/>
-            <xs:enumeration value="CHICA"/>
-            <xs:enumeration value="CIUJU"/>
-            <xs:enumeration value="COCHA"/>
-            <xs:enumeration value="COLJU"/>
-            <xs:enumeration value="COLSC"/>
-            <xs:enumeration value="COLUM"/>
-            <xs:enumeration value="COPEN"/>
-            <xs:enumeration value="CRIVE"/>
-            <xs:enumeration value="CURIT"/>
-            <xs:enumeration value="DALLA"/>
-            <xs:enumeration value="DENVE"/>
-            <xs:enumeration value="DETRO"/>
-            <xs:enumeration value="EDMON"/>
-            <xs:enumeration value="EHOUS"/>
-            <xs:enumeration value="FRANK"/>
-            <xs:enumeration value="FREIB"/>
-            <xs:enumeration value="FRESN"/>
-            <xs:enumeration value="FUKUO"/>
-            <xs:enumeration value="GUADA"/>
-            <xs:enumeration value="GUATE"/>
-            <xs:enumeration value="GUAYA"/>
-            <xs:enumeration value="HAGUE"/>
-            <xs:enumeration value="HALIF"/>
-            <xs:enumeration value="HARRI"/>
-            <xs:enumeration value="HAWAI"/>
-            <xs:enumeration value="HELSI"/>
-            <xs:enumeration value="HERMO"/>
-            <xs:enumeration value="HKONG"/>
-            <xs:enumeration value="HOUST"/>
-            <xs:enumeration value="IFALL"/>
-            <xs:enumeration value="JOHAN"/>
-            <xs:enumeration value="JRIVE"/>
-            <xs:enumeration value="KIEV"/>
-            <xs:enumeration value="KIRTL"/>
-            <xs:enumeration value="KONA"/>
-            <xs:enumeration value="LANGE"/>
-            <xs:enumeration value="LIMA"/>
-            <xs:enumeration value="LOGAN"/>
-            <xs:enumeration value="LONDO"/>
-            <xs:enumeration value="LOUIS"/>
-            <xs:enumeration value="LUBBO"/>
-            <xs:enumeration value="LVEGA"/>
-            <xs:enumeration value="MADRI"/>
-            <xs:enumeration value="MANIL"/>
-            <xs:enumeration value="MANHA"/>
-            <xs:enumeration value="MANTI"/>
-            <xs:enumeration value="MEDFO"/>
-            <xs:enumeration value="MELBO"/>
-            <xs:enumeration value="MEMPH"/>
-            <xs:enumeration value="MERID"/>
-            <xs:enumeration value="MEXIC"/>
-            <xs:enumeration value="MNTVD"/>
-            <xs:enumeration value="MONTE"/>
-            <xs:enumeration value="MONTI"/>
-            <xs:enumeration value="MONTR"/>
-            <xs:enumeration value="MTIMP"/>
-            <xs:enumeration value="NASHV"/>
-            <xs:enumeration value="NAUV2"/>
-            <xs:enumeration value="NAUVO"/>
-            <xs:enumeration value="NBEAC"/>
-            <xs:enumeration value="NUKUA"/>
-            <xs:enumeration value="NYORK"/>
-            <xs:enumeration value="NZEAL"/>
-            <xs:enumeration value="OAKLA"/>
-            <xs:enumeration value="OAXAC"/>
-            <xs:enumeration value="OGDEN"/>
-            <xs:enumeration value="OKLAH"/>
-            <xs:enumeration value="ORLAN"/>
-            <xs:enumeration value="PALEG"/>
-            <xs:enumeration value="PALMY"/>
-            <xs:enumeration value="PAPEE"/>
-            <xs:enumeration value="PCITY"/>
-            <xs:enumeration value="PERTH"/>
-            <xs:enumeration value="POFFI"/>
-            <xs:enumeration value="PORTL"/>
-            <xs:enumeration value="PREST"/>
-            <xs:enumeration value="PROVO"/>
-            <xs:enumeration value="RALEI"/>
-            <xs:enumeration value="RECIF"/>
-            <xs:enumeration value="REDLA"/>
-            <xs:enumeration value="REGIN"/>
-            <xs:enumeration value="RENO"/>
-            <xs:enumeration value="REXBU"/>
-            <xs:enumeration value="SACRA"/>
-            <xs:enumeration value="SAMOA"/>
-            <xs:enumeration value="SANTI"/>
-            <xs:enumeration value="SANTO"/>
-            <xs:enumeration value="SDIEG"/>
-            <xs:enumeration value="SDOMI"/>
-            <xs:enumeration value="SEATT"/>
-            <xs:enumeration value="SEOUL"/>
-            <xs:enumeration value="SGEOR"/>
-            <xs:enumeration value="SJOSE"/>
-            <xs:enumeration value="SLAKE"/>
-            <xs:enumeration value="SLOUI"/>
-            <xs:enumeration value="SNOWF"/>
-            <xs:enumeration value="SPAUL"/>
-            <xs:enumeration value="SPMIN"/>
-            <xs:enumeration value="SPOKA"/>
-            <xs:enumeration value="STOCK"/>
-            <xs:enumeration value="SUVA"/>
-            <xs:enumeration value="SWISS"/>
-            <xs:enumeration value="SYDNE"/>
-            <xs:enumeration value="TAIPE"/>
-            <xs:enumeration value="TAMPI"/>
-            <xs:enumeration value="TGUTI"/>
-            <xs:enumeration value="TOKYO"/>
-            <xs:enumeration value="TORON"/>
-            <xs:enumeration value="TRICI"/>
-            <xs:enumeration value="VERAC"/>
-            <xs:enumeration value="VERNA"/>
-            <xs:enumeration value="VILLA"/>
-            <xs:enumeration value="WASHI"/>
-            <xs:enumeration value="WINTE"/>
-            <xs:enumeration value="WQUAR"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="place1Level">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="place2Level"/>
-      </xs:sequence>
-      <xs:attribute name="name" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="place2Level">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="place3Level"/>
-      </xs:sequence>
-      <xs:attribute name="name" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="place3Level">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" ref="place4Level"/>
-      </xs:sequence>
-      <xs:attribute name="name" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="place4Level">
-    <xs:complexType mixed="true">
-      <xs:attribute name="name" use="required"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="globalCoordinates">
@@ -1037,19 +839,6 @@
             <xs:enumeration value="CALC"/>
             <xs:enumeration value="PROBABLY"/>
             <xs:enumeration value="CHRISTENING"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="ldsModifiers">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="CHILD"/>
-            <xs:enumeration value="BIC"/>
-            <xs:enumeration value="CLEARED"/>
-            <xs:enumeration value="UNCLEARED"/>
-            <xs:enumeration value="SUBMITTED"/>
-            <xs:enumeration value="SEALEDFORTIME"/>
-            <xs:enumeration value="DONOTSEAL"/>
             <xs:enumeration value="NEVER"/>
           </xs:restriction>
         </xs:simpleType>

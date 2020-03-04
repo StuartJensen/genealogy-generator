@@ -40,24 +40,44 @@
             <version>2.5.0</version>
             <executions>
                 <execution>
-                    <id>xjc</id>
+                    <id>forVersionThree</id>
                     <goals>
                         <goal>xjc</goal>
                     </goals>
+                    <configuration>
+		                <!-- Set the package of the generated code -->
+		                <packageName>home.genealogy.schema.all</packageName>
+		
+		                <!-- Indicate that we should use DTD input instead of XSDs -->
+		                <sourceType>XmlSchema</sourceType>
+		
+		                <!-- Define the directory where we should find the DTD files -->
+		                <sources>
+		                    <source>schemaV3.0i/genealogy.xsd</source>
+		                </sources>
+		            </configuration>
+                </execution>
+                <execution>
+                    <id>forVersionFour</id>
+                    <goals>
+                        <goal>xjc</goal>
+                    </goals>
+                    <configuration>
+		                <!-- Set the package of the generated code -->
+		                <packageName>home.genealogy.schema.all.four.zero</packageName>
+		
+		                <!-- Indicate that we should use DTD input instead of XSDs -->
+		                <sourceType>XmlSchema</sourceType>
+		
+		                <!-- Define the directory where we should find the DTD files -->
+		                <sources>
+		                    <source>schemaV4.0/genealogy.xsd</source>
+		                </sources>
+		                <clearOutputDir>false</clearOutputDir>
+		            </configuration>
                 </execution>
             </executions>
-            <configuration>
-                <!-- Set the package of the generated code -->
-                <packageName>home.genealogy.schema.all</packageName>
 
-                <!-- Indicate that we should use DTD input instead of XSDs -->
-                <sourceType>XmlSchema</sourceType>
-
-                <!-- Define the directory where we should find the DTD files -->
-                <sources>
-                    <source>schemaV3.0/genealogy.xsd</source>
-                </sources>
-            </configuration>
         </plugin>
         
 			<plugin>

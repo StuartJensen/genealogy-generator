@@ -167,11 +167,7 @@ public class DateHelper
 		{
 			return "";
 		}
-		String strDate = date.getLdsModifiers();
-		if (null == strDate)
-		{
-			strDate = "";
-		}
+		String strDate = "";
 		String strRelativeTime = date.getRelativeTime();
 		String strYear = date.getYear();
 		String strMonth = date.getMonth();

@@ -9,6 +9,7 @@ import home.genealogy.indexes.IndexPersonsToReferences;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Body;
@@ -53,32 +54,32 @@ import java.util.List;
 public class HTMLReferenceForm
 {
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
-	private boolean m_bSuppressLds;
 	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLReferenceForm(CFGFamily family,
+							  PlaceList placeList,
 							  PersonList personList,
 							  MarriageList marriageList,
 							  ReferenceList referenceList,
 							  PhotoList photoList,
 							  boolean bSuppressLiving,
-							  boolean bSuppressLds,
 							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_referenceList = referenceList;
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
-		m_bSuppressLds = bSuppressLds;
 		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
@@ -114,7 +115,7 @@ public class HTMLReferenceForm
 		while (iter.hasNext())
 		{
 			Reference thisReference = iter.next();
-			createReference(m_family, m_personList, m_marriageList, m_referenceList,
+			createReference(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
  					         m_photoList, m_bSuppressLiving, idxPerToParentMar,
  					         idxPerToMar, idxMarToSpouses, strOutputPath, thisReference);
 		}
@@ -123,6 +124,7 @@ public class HTMLReferenceForm
 	
 	
 	private void createReference(CFGFamily family,
+				 PlaceList placeList,
 				 PersonList personList,
 				 MarriageList marriageList,
 				 ReferenceList referenceList,
@@ -220,7 +222,7 @@ public class HTMLReferenceForm
 		}		
 
 		// Primary Geography
-		String strCitationPlace = ReferenceHelper.getCitationPlace(reference);
+		String strCitationPlace = ReferenceHelper.getCitationPlace(reference, m_placeList);
 		if ((null != strCitationPlace) &&(0 != strCitationPlace.length()))
 		{
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Location:");
@@ -274,7 +276,7 @@ public class HTMLReferenceForm
 				{
 					Paragraph paragraph = EntryHelper.getTitleParagraph(entry, i);
 					String strEventTitle = HTMLShared.buildParagraphString(family, m_commandLineParameters,
-							paragraph, personList, marriageList, referenceList, photoList,
+							paragraph, placeList, personList, marriageList, referenceList, photoList,
 	                        idxMarToSpouses, true, true, bSuppressLiving, paragraphFormat, -1, -1);
 					if (0 != strEventTitle.length())
 					{
@@ -367,7 +369,7 @@ public class HTMLReferenceForm
 				{
 					Paragraph paragraph = EntryHelper.getHeaderParagraph(entry, i);
 					String strParagraph = HTMLShared.buildParagraphString(family, m_commandLineParameters,
-							paragraph, personList, marriageList, referenceList, photoList,
+							paragraph, placeList, personList, marriageList, referenceList, photoList,
 	                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 					if (0 != strParagraph.length())
 					{
@@ -397,7 +399,7 @@ public class HTMLReferenceForm
 					{
 						Paragraph paragraph = (Paragraph)oo;
 						String strParagraph = HTMLShared.buildParagraphString(family, m_commandLineParameters,
-								paragraph, personList, marriageList, referenceList, photoList,
+								paragraph, placeList, personList, marriageList, referenceList, photoList,
 		                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 						if (0 != strParagraph.length())
 						{
@@ -409,7 +411,7 @@ public class HTMLReferenceForm
 					{
 						Table table = (Table)oo;
 						String strTable = HTMLShared.buildTableString(family, m_commandLineParameters,
-								table, personList, marriageList, referenceList, photoList,
+								table, placeList, personList, marriageList, referenceList, photoList,
 		                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 						if (0 != strTable.length())
 						{
@@ -434,7 +436,7 @@ public class HTMLReferenceForm
 				{
 					Paragraph paragraph =  EntryHelper.getCommentParagraph(entry, p);
 					String strParagraph = HTMLShared.buildParagraphString(family, m_commandLineParameters,
-							paragraph, personList, marriageList, referenceList, photoList,
+							paragraph, placeList, personList, marriageList, referenceList, photoList,
 	                        idxMarToSpouses, true, true, bSuppressLiving, null, iReferenceId, iReferenceEntryId);
 					if (0 != strParagraph.length())
 					{
@@ -450,7 +452,7 @@ public class HTMLReferenceForm
 			if (0 != EntryHelper.getSeeAlsoObjectCount(entry))
 			{
 				String strSeeAlso = HTMLShared.buildSeeAlsoString(entry.getSeeAlso(), family, m_commandLineParameters,
-																  personList, marriageList, referenceList,
+																  placeList, personList, marriageList, referenceList,
 																  photoList, null, idxMarToSpouses);
 				if (0 != strSeeAlso.length())
 				{
@@ -479,7 +481,7 @@ public class HTMLReferenceForm
 						Person taggedPerson = personList.get(iPersonId);
 						if (null != taggedPerson)
 						{
-							PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving);
+							PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving, m_placeList);
 							String strTaggedPersonName = taggedPersonHelper.getPersonName();
 							int iPersonTagCount = PersonTagHelper.getPersonTagTypeCount(personTag);
 							for (int t=0; t<iPersonTagCount; t++)
@@ -523,7 +525,7 @@ public class HTMLReferenceForm
 							{	// Sanity check on person id
 								System.out.println("ERROR: Unknown person id \"" + iPersonId + "\" in embedded tag in reference \"" + iReferenceId + "\" entry \"" + iReferenceEntryId + "\"");
 							}
-							PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving);
+							PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving, m_placeList);
 							String strTaggedPersonName = taggedPersonHelper.getPersonName();
 							String strQuality = tag.getQuality();
 							String strType = tag.getType();
@@ -567,9 +569,9 @@ public class HTMLReferenceForm
 							Person wife = personList.get(MarriageHelper.getWifePersonId(taggedMarriage));
 							if ((null != husband) && (null != wife))
 							{
-								PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving);
-								PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving);
-								MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving);
+								PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, m_placeList);
+								PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, m_placeList);
+								MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
 								String strTaggedMarriageName = taggedMarriageHelper.getMarriageName(personList);
 								int iMarriageTagCount = MarriageTagHelper.getMarriageTagTypeCount(marriageTag);
 								for (int t=0; t<iMarriageTagCount; t++)
@@ -628,9 +630,9 @@ public class HTMLReferenceForm
 								}
 								if ((null != husband) && (null != wife))
 								{
-									PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving);
-									PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving);
-									MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving);
+									PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, m_placeList);
+									PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, m_placeList);
+									MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
 									String strTaggedMarriageName = taggedMarriageHelper.getMarriageName(personList);
 									String strQuality = tag.getQuality();
 									String strType = tag.getType();

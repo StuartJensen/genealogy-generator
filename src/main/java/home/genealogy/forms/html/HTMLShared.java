@@ -12,6 +12,7 @@ import home.genealogy.indexes.TaggedContainerDescriptor;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.schema.all.Column;
 import home.genealogy.schema.all.Marriage;
@@ -74,7 +75,8 @@ public class HTMLShared
 
 	
 	public static String buildParagraphString(CFGFamily family, CommandLineParameters commandLineParameters,
-											  Paragraph paragraph, PersonList personList, MarriageList marriageList,
+											  Paragraph paragraph, PlaceList placeList, PersonList personList,
+											  MarriageList marriageList,
 			                                  ReferenceList referenceList, PhotoList photoList,
 			                                  IndexMarriageToSpouses indexMarrToSpouses,
 			                                  boolean bIndentIfIndicated,
@@ -115,7 +117,7 @@ public class HTMLShared
 				sb.append("<span class=\"").append(paragraphFormat.getPersonIdSpan()).append("\">");
 				if (null != person)
 				{
-					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving);
+					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, placeList);
 					String strUrl = family.getUrlPrefix() + PERINFODIR + "/" + PERINFOFILENAME +  iPersonId + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(personHelper.getPersonName());
@@ -138,7 +140,7 @@ public class HTMLShared
 				{
 					String strUrl = family.getUrlPrefix() + "fgs/" + FGSFILENAME + iMarriageId + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
-					sb.append(buildSimpleMarriageNameString(personList, indexMarrToSpouses, iMarriageId, bSuppressLiving, "%s and %s"));
+					sb.append(buildSimpleMarriageNameString(placeList, personList, indexMarrToSpouses, iMarriageId, bSuppressLiving, "%s and %s"));
 					sb.append("</a>");
 				}
 				else
@@ -203,7 +205,7 @@ public class HTMLShared
 						sb.append("<a href=\"").append(strUrl).append("\">[Photo]:</a>&nbsp;&nbsp;");
 						
 						List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
-						sb.append(buildParagraphListObject(family, commandLineParameters, lDescription, personList, marriageList,
+						sb.append(buildParagraphListObject(family, commandLineParameters, lDescription, placeList, personList, marriageList,
 		                           	 	 	  	 	 	   referenceList, photoList, indexMarrToSpouses, false,
 		                           						   false, bSuppressLiving, paragraphFormat,
 		                           						   ReferenceIdHelper.REFERENCEID_INVALID,
@@ -318,7 +320,8 @@ public class HTMLShared
 	}
 	
 	public static String buildParagraphListObject(CFGFamily family, CommandLineParameters commandLineParameters,
-			  									  List<Paragraph> lParagraph, PersonList personList, MarriageList marriageList,
+			  									  List<Paragraph> lParagraph, PlaceList placeList, PersonList personList,
+			  									  MarriageList marriageList,
 			  									  ReferenceList referenceList, PhotoList photoList,
 			  									  IndexMarriageToSpouses indexMarrToSpouses,
 			  									  boolean bIndentIfIndicated,
@@ -332,7 +335,7 @@ public class HTMLShared
 		for (int i=0; i<lParagraph.size(); i++)
 		{
 			Paragraph paragraph =lParagraph.get(i);
-			sb.append(buildParagraphString(family, commandLineParameters, paragraph, personList, marriageList,
+			sb.append(buildParagraphString(family, commandLineParameters, paragraph, placeList, personList, marriageList,
 						                referenceList, photoList,
 						                indexMarrToSpouses,
 						                bIndentIfIndicated,
@@ -358,7 +361,7 @@ public class HTMLShared
 		return(sb.toString());
 	}
 	
-	public static String buildSimpleMarriageNameString(PersonList personList, IndexMarriageToSpouses index,
+	public static String buildSimpleMarriageNameString(PlaceList placeList, PersonList personList, IndexMarriageToSpouses index,
 			                                           int iMarriageId, boolean bSupressLiving, String strTemplate)
 	{
 		int arSpouses[] = index.getSpouses(iMarriageId);
@@ -372,8 +375,8 @@ public class HTMLShared
 			Person wife = personList.get(iWifePersonId);
 			if ((null != husband) && (null != wife))
 			{
-				PersonHelper helperHusband = new PersonHelper(husband, bSupressLiving);
-				PersonHelper helperWife = new PersonHelper(wife, bSupressLiving);
+				PersonHelper helperHusband = new PersonHelper(husband, bSupressLiving, placeList);
+				PersonHelper helperWife = new PersonHelper(wife, bSupressLiving, placeList);
 				String strNames = String.format(strTemplate, helperHusband.getPersonName(), helperWife.getPersonName());
 				return strNames;
 			}
@@ -406,7 +409,7 @@ public class HTMLShared
 	}
 	
 	public static String buildSeeAlsoString(SeeAlso seeAlso, CFGFamily family, CommandLineParameters commandLineParameters,
-			                                PersonList personList, MarriageList marriageList, ReferenceList referenceList,
+			                                PlaceList placeList, PersonList personList, MarriageList marriageList, ReferenceList referenceList,
 			                                PhotoList photoList, HTMLParagraphFormat paragraphFormat, IndexMarriageToSpouses indexMarrToSpouses)
 	{
 		// Get the Paragraph format that will be used
@@ -430,7 +433,7 @@ public class HTMLShared
 				sb.append("<span class=\"").append(paragraphFormat.getPersonIdSpan()).append("\">");
 				if (null != person)
 				{
-					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving);
+					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, placeList);
 					String strUrl = family.getUrlPrefix() + PERINFODIR + "/" + PERINFOFILENAME + personHelper.getPersonId() + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(personHelper.getPersonName());
@@ -455,9 +458,9 @@ public class HTMLShared
 					Person wife = personList.get(MarriageHelper.getWifePersonId(marriage));
 					if ((null != husband) && (null != wife))
 					{
-						PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving);
-						PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving);
-						MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving);
+						PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, placeList);
+						PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, placeList);
+						MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, placeList);
 						String strUrl = family.getUrlPrefix() + FGSDIR + "/" + FGSFILENAME + MarriageHelper.getMarriageId(marriage) + ".htm";
 						sb.append("<a href=\"").append(strUrl).append("\">");
 						sb.append(marriageHelper.getMarriageName(personList));
@@ -500,7 +503,7 @@ public class HTMLShared
 				if (null != photo)
 				{
 					List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
-					String strDescription = buildParagraphListObject(family, commandLineParameters, lDescription, personList, marriageList,
+					String strDescription = buildParagraphListObject(family, commandLineParameters, lDescription, placeList, personList, marriageList,
 	                           referenceList, photoList, indexMarrToSpouses, false,
 	                           false, bSuppressLiving, paragraphFormat,
 	                           ReferenceIdHelper.REFERENCEID_INVALID,
@@ -558,7 +561,7 @@ public class HTMLShared
 
 	
 	public static String buildTableString(CFGFamily family, CommandLineParameters commandLineParameters,
-			  							  Table table, PersonList personList, MarriageList marriageList,
+			  							  Table table, PlaceList placeList, PersonList personList, MarriageList marriageList,
 			  							  ReferenceList referenceList, PhotoList photoList,
 			  							  IndexMarriageToSpouses indexMarrToSpouses,
 			  							  boolean bIndentIfIndicated,
@@ -592,7 +595,7 @@ public class HTMLShared
 				{
 					Paragraph paragraph = ColumnHelper.getParagraph(column, p);
 					String strParagraph = HTMLShared.buildParagraphString(family, commandLineParameters,
-							paragraph, personList, marriageList, referenceList, photoList,
+							paragraph, placeList, personList, marriageList, referenceList, photoList,
 							indexMarrToSpouses, true, true, bSuppressLiving, null, lContainerId,
 	                        lSubContainerId);
 					if (0 != strParagraph.length())

@@ -24,11 +24,11 @@ public class CommandLineParameters
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE = "validate";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME = "time";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET = "target";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_WRITE = "write";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT = "convert";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM = "htmlform";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET = "target";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING = "suppressliving";
-	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLDS = "suppresslds";
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_ERRORCHECK = "errorcheck";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_ERRORCHECK_TYPE = "type";
@@ -114,6 +114,7 @@ public class CommandLineParameters
 		
 		VALID_ACTIONS = new ArrayList<String>();
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE);
+		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_WRITE);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_ERRORCHECK);
@@ -292,6 +293,11 @@ public class CommandLineParameters
 	public boolean isActionConvert()
 	{
 		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT);
+	}
+	
+	public boolean isActionWrite()
+	{
+		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_WRITE);
 	}
 	
 	public boolean isActionHtmlForm()
@@ -818,7 +824,6 @@ public class CommandLineParameters
 		System.out.println("       " + COMMAND_LINE_PARAM_TARGET_REFERENCELIST + " for Reference List Index only");
 		System.out.println("       " + COMMAND_LINE_PARAM_TARGET_ALL + " for all targets");
 		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING + "=[true or false]");
-		System.out.println("     " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLDS + "=[true or false]");
 
 		System.out.println("   " + COMMAND_LINE_PARAM_SOURCE + "=[source: all*.XML files OR individual XML files]");
 		System.out.println("     " + COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML + " for populating lists from the all*.xml files");
@@ -827,13 +832,13 @@ public class CommandLineParameters
 		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML + " for writing lists to the all*.xml files");
 		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML + " for writing lists to individual xml files");
 
-		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT + " to read all lists from a source and write all lists to a destination");
+		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_WRITE + " to read all lists from a source and write all lists to a destination");
 		System.out.println("     " + COMMAND_LINE_PARAM_XML_FORMAT + "=[XML Output Format]");
 		System.out.println("       " + COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY + " for line ends and indented XML (default)");
 		System.out.println("       " + COMMAND_LINE_PARAM_XML_FORMAT_VALUE_COMPACT + " for unformatted small XML");
 
 		System.out.println(" Example Command Lines");
-		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT + " " + COMMAND_LINE_PARAM_SOURCE + "=" + COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML +" " + COMMAND_LINE_PARAM_DESTINATION + "=" + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML);
+		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_WRITE + " " + COMMAND_LINE_PARAM_SOURCE + "=" + COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML +" " + COMMAND_LINE_PARAM_DESTINATION + "=" + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML);
 		System.out.println("      to read all lists from individual xml files and write all list content to their respective all*.xml files");
 		System.out.println("      to read and write the opposite, flip the soure and destination values");
 		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt");

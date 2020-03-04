@@ -1,5 +1,6 @@
 package home.genealogy.schema.all.helpers;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.BirthInfo;
 import home.genealogy.schema.all.Date;
 import home.genealogy.schema.all.Info;
@@ -45,14 +46,14 @@ public class BirthInfoHelper
 		return null;
 	}
 	
-	public static String getBirthPlace(BirthInfo birthInfo)
+	public static String getBirthPlace(BirthInfo birthInfo, PlaceList placeList)
 	{
 		if (null != birthInfo)
 		{
 			Info info = birthInfo.getInfo();
 			if (null != info)
 			{
-				return InfoHelper.getPlace(info);
+				return InfoHelper.getPlace(info, placeList);
 			}
 		}
 		return "";

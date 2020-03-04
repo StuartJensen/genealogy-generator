@@ -1,5 +1,6 @@
 package home.genealogy.schema.all.helpers;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.BirthInfo;
 import home.genealogy.schema.all.ChrInfo;
 import home.genealogy.schema.all.Date;
@@ -46,14 +47,14 @@ public class ChrInfoHelper
 		return null;
 	}
 	
-	public static String getChrPlace(ChrInfo chrInfo)
+	public static String getChrPlace(ChrInfo chrInfo, PlaceList placeList)
 	{
 		if (null != chrInfo)
 		{
 			Info info = chrInfo.getInfo();
 			if (null != info)
 			{
-				return InfoHelper.getPlace(info);
+				return InfoHelper.getPlace(info, placeList);
 			}
 		}
 		return "";

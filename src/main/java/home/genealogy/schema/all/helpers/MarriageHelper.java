@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import home.genealogy.lists.PersonList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.Info;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageInfo;
@@ -16,13 +17,15 @@ public class MarriageHelper
 	private PersonHelper m_husband;
 	private PersonHelper m_wife;
 	private boolean m_bSuppressLiving;
+	private PlaceList m_placeList;
 	
-	public MarriageHelper(Marriage marriage, PersonHelper husband, PersonHelper wife, boolean bSuppressLiving)
+	public MarriageHelper(Marriage marriage, PersonHelper husband, PersonHelper wife, boolean bSuppressLiving, PlaceList placeList)
 	{
 		m_marriage = marriage;
 		m_husband = husband;
 		m_wife = wife;
 		m_bSuppressLiving = bSuppressLiving;
+		m_placeList = placeList;
 	}
 	
 	public String getMarriageName(PersonList personList)
@@ -83,7 +86,7 @@ public class MarriageHelper
 	
 	public String getPlace()
 	{
-		String strPlace = getPlace(m_marriage);
+		String strPlace = getPlace(m_marriage, m_placeList);
 		if (m_bSuppressLiving && (m_husband.getIsPersonLiving() || m_wife.getIsPersonLiving()))
 		{
 			if (0 != strPlace.length())
@@ -153,58 +156,19 @@ public class MarriageHelper
 		return "";
 	}
 	
-	public static String getPlace(Marriage marriage)
+	public static String getPlace(Marriage marriage, PlaceList placeList)
 	{
 		if (null != marriage)
 		{
 			MarriageInfo marriageInfo = marriage.getMarriageInfo();
 			if (null != marriageInfo)
 			{
-				return MarriageInfoHelper.getPlace(marriageInfo);
+				return MarriageInfoHelper.getPlace(marriageInfo, placeList);
 			}
 		}
 		return "";
 	}
-	
-	public static String getSealToSpouseDate(Marriage marriage)
-	{
-		if (null != marriage)
-		{
-			MarriageInfo marriageInfo = marriage.getMarriageInfo();
-			if (null != marriageInfo)
-			{
-				return MarriageInfoHelper.getSealToSpouseDate(marriageInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static String getSealToSpousePlace(Marriage marriage)
-	{
-		if (null != marriage)
-		{
-			MarriageInfo marriageInfo = marriage.getMarriageInfo();
-			if (null != marriageInfo)
-			{
-				return MarriageInfoHelper.getSealToSpousePlace(marriageInfo);
-			}
-		}
-		return "";
-	}
-	
-	public static List<String> getSealToSpouseProxies(Marriage marriage)
-	{
-		if (null != marriage)
-		{
-			MarriageInfo marriageInfo = marriage.getMarriageInfo();
-			if (null != marriageInfo)
-			{
-				return MarriageInfoHelper.getSealToSpouseProxies(marriageInfo);
-			}
-		}
-		return new ArrayList<String>();
-	}
-	
+		
 	public static boolean isInLine(Marriage marriage)
 	{
 		if (null != marriage)

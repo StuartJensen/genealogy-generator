@@ -3,6 +3,7 @@ package home.genealogy.schema.all.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.Authority;
 import home.genealogy.schema.all.Citation;
 import home.genealogy.schema.all.Classification;
@@ -43,14 +44,14 @@ public class ReferenceHelper
 		return "";
 	}
 	
-	public static String getCitationPlace(Reference reference)
+	public static String getCitationPlace(Reference reference, PlaceList placeList)
 	{
 		if (null != reference)
 		{
 			Citation citation = reference.getCitation();
 			if (null != citation)
 			{
-				return CitationHelper.getPlace(citation);
+				return CitationHelper.getPlace(citation, placeList);
 			}
 		}
 		return "";

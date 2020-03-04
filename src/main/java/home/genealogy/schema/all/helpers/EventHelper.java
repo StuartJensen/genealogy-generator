@@ -1,5 +1,6 @@
 package home.genealogy.schema.all.helpers;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.EventDescription;
 import home.genealogy.schema.all.EventTitle;
@@ -31,9 +32,9 @@ public class EventHelper
 		return strEventDate;
 	}
 	
-	public String getEventPlace()
+	public String getEventPlace(PlaceList placeList)
 	{
-		String strEventPlace = getEventPlace(m_event);
+		String strEventPlace = getEventPlace(m_event, placeList);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
 			if (0 != strEventPlace.length())
@@ -100,11 +101,11 @@ public class EventHelper
 		return "";
 	}
 	
-	public static String getEventPlace(Event event)
+	public static String getEventPlace(Event event, PlaceList placeList)
 	{
 		if (null != event)
 		{
-			return PlaceHelper.getPlace(event.getPlace());
+			return PlaceHelper.getPlace(event.getPlace(), placeList);
 		}
 		return "";
 	}

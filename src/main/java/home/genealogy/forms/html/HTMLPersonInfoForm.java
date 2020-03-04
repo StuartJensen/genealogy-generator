@@ -18,6 +18,7 @@ import home.genealogy.indexes.TaggedContainerDescriptor;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Entry;
@@ -42,32 +43,32 @@ public class HTMLPersonInfoForm
 	private static final CommandLineParameters commandLineParameters = null;
 	
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
-	private boolean m_bSuppressLds;
 	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLPersonInfoForm(CFGFamily family,
+							  PlaceList placeList,
 							  PersonList personList,
 							  MarriageList marriageList,
 							  ReferenceList referenceList,
 							  PhotoList photoList,
 							  boolean bSuppressLiving,
-							  boolean bSuppressLds,
 							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_referenceList = referenceList;
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
-		m_bSuppressLds = bSuppressLds;
 		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
@@ -107,7 +108,7 @@ public class HTMLPersonInfoForm
 		while (iter.hasNext())
 		{
 			Person thisPerson = iter.next();
-			createPersonInfo(m_family, m_personList, m_marriageList, m_referenceList,
+			createPersonInfo(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
  					         m_photoList, m_bSuppressLiving, idxPerToParentMar,
  					         idxPerToMar, idxMarToSpouses, idxPerToPhoto, idxMarToPhoto,
  					         idxPerToReference, idxMarToReference, strOutputPath, thisPerson);
@@ -116,6 +117,7 @@ public class HTMLPersonInfoForm
 	}
 	
 	private void createPersonInfo(CFGFamily family,
+								 PlaceList placelist,
 			  					 PersonList personList,
 			  					 MarriageList marriageList,
 			  					 ReferenceList referenceList,
@@ -132,7 +134,7 @@ public class HTMLPersonInfoForm
 			  					 Person person)
 		throws Exception
 	{
-		PersonHelper personHelper = new PersonHelper(person, bSuppressLiving);
+		PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, placelist);
 		String strFileName = strOutputPath + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + person.getPersonId() + ".htm";
 		m_outputStream.output("Generating Person Info File: " + strFileName+ "\n");
 		HTMLFormOutput output = new HTMLFormOutput(strFileName);
@@ -258,8 +260,8 @@ public class HTMLPersonInfoForm
 		output.outputCRLF();
 
 		
-		// Third Line "(events) - (lds)"
-		if (!personHelper.getIsPersonLiving() || !m_bSuppressLiving)
+		// Third Line "(events)"
+		if (!personHelper.getIsPersonLiving())
 		{
 			if (0 != PersonHelper.getEventCount(person))
 			{
@@ -267,20 +269,8 @@ public class HTMLPersonInfoForm
 				output.output("(Events)");	
 				output.outputEndAnchor();
 			}
-
-			if (!m_bSuppressLds /* && m_pFamily->doesLdsDataExist(pPerson) */)
-			{
-				if (0 != PersonHelper.getEventCount(person))
-				{
-					output.output(" - ");	
-				}
-				output.outputStartAnchor("#InfoLds");
-				output.output("(Lds)");	
-				output.outputEndAnchor();
-			}
 		}
 	
-		
 		output.output("</span></center>");
 		output.outputBR();
 		output.outputCRLF();
@@ -298,14 +288,14 @@ public class HTMLPersonInfoForm
 			output.outputBR(2);
 			output.outputCRLF();
 			// Father
-			PersonHelper fatherHelper = new PersonHelper(personFather, bSuppressLiving);
+			PersonHelper fatherHelper = new PersonHelper(personFather, bSuppressLiving, placelist);
 			String strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personFather.getPersonId() + ".htm";
 			output.outputStandardBracketedLink(strHRef, "View Father");
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, fatherHelper.getPersonName());
 			output.outputBR();
 			output.outputCRLF();
 			// Mother
-			PersonHelper motherHelper = new PersonHelper(personMother, bSuppressLiving);
+			PersonHelper motherHelper = new PersonHelper(personMother, bSuppressLiving, placelist);
 			strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personMother.getPersonId() + ".htm";
 			output.outputStandardBracketedLink(strHRef, "View Mother");
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, motherHelper.getPersonName());
@@ -356,8 +346,8 @@ public class HTMLPersonInfoForm
 					String strHRef = m_family.getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + alMarriageIds.get(m).intValue() + ".htm";
 					output.outputStandardBracketedLink(strHRef, "View Family");
 					// Setup helpers
-					PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving);
-					PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving);
+					PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, m_placeList);
+					PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, m_placeList);
 					// Show THIS person's name in the marriage
 					output.output("<span class=\"pageBodyNormalText\">");
 					output.output(husbandHelper.getPersonName() + " and ");
@@ -400,7 +390,7 @@ public class HTMLPersonInfoForm
 						// Photos
 						output.outputStandardBracketedLink(strUrl, "View Photo");
 						String strDescription = HTMLShared.buildParagraphListObject(m_family, commandLineParameters,
-								  PhotoHelper.getDescription(photo), m_personList, m_marriageList,
+								  PhotoHelper.getDescription(photo), placelist, personList, m_marriageList,
 								  m_referenceList, m_photoList,
 								  idxMarToSpouses,
 								  true,
@@ -461,7 +451,7 @@ public class HTMLPersonInfoForm
 										// Photos
 										output.outputStandardBracketedLink(strUrl, "View Photo");
 										String strDescription = HTMLShared.buildParagraphListObject(m_family, commandLineParameters,
-												  PhotoHelper.getDescription(photo), m_personList, m_marriageList,
+												  PhotoHelper.getDescription(photo), placelist, personList, m_marriageList,
 												  m_referenceList, m_photoList,
 												  idxMarToSpouses,
 												  true,
@@ -475,7 +465,7 @@ public class HTMLPersonInfoForm
 										output.outputCRLF();
 								
 										// Build "For Marriage..." string
-										String strForMarriage = HTMLShared.buildSimpleMarriageNameString(personList, idxMarToSpouses, iMarriageId, m_bSuppressLiving, "%s and %s");
+										String strForMarriage = HTMLShared.buildSimpleMarriageNameString(placelist, personList, idxMarToSpouses, iMarriageId, m_bSuppressLiving, "%s and %s");
 										output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallText, strForMarriage);
 										output.outputBR();
 										output.outputCRLF();
@@ -534,7 +524,7 @@ public class HTMLPersonInfoForm
 								{
 									Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);
 									String strEntryTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
-											paragraph, personList, marriageList, referenceList, photoList,
+											paragraph, placelist, personList, marriageList, referenceList, photoList,
 					                        idxMarToSpouses, true, true, bSuppressLiving, null,
 					                        iReferenceId, iEntryId);
 									output.output(strEntryTitle);
@@ -607,7 +597,7 @@ public class HTMLPersonInfoForm
 												{
 													Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);
 													String strEntryTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
-															paragraph, personList, marriageList, referenceList, photoList,
+															paragraph, placelist, personList, marriageList, referenceList, photoList,
 									                        idxMarToSpouses, true, true, bSuppressLiving, null,
 									                        iReferenceId, iEntryId);
 													output.output(strEntryTitle);
@@ -616,7 +606,7 @@ public class HTMLPersonInfoForm
 											}
 								
 											// Build "For Marriage..." string
-											String strForMarriage = HTMLShared.buildSimpleMarriageNameString(personList, idxMarToSpouses, iMarriageId, m_bSuppressLiving, "%s and %s");
+											String strForMarriage = HTMLShared.buildSimpleMarriageNameString(placelist, personList, idxMarToSpouses, iMarriageId, m_bSuppressLiving, "%s and %s");
 											output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallText, strForMarriage);
 											output.outputBR();
 											output.outputCRLF();
@@ -821,7 +811,7 @@ public class HTMLPersonInfoForm
 					if (null != paraTitle)
 					{
 						String strEventTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
-								paraTitle, personList, marriageList, referenceList, photoList,
+								paraTitle, placelist, personList, marriageList, referenceList, photoList,
                                 idxMarToSpouses, false, false, bSuppressLiving, null, -1, -1);
 						if (0 != strEventTitle.length())
 						{
@@ -833,7 +823,7 @@ public class HTMLPersonInfoForm
 					}
 					
 					String strEventDate = eventHelper.getEventDate();
-					String strEventPlace = eventHelper.getEventPlace();
+					String strEventPlace = eventHelper.getEventPlace(placelist);
 					String strEventTag = eventHelper.getEventTag();
 					if (0 != strEventTag.length())
 					{
@@ -869,7 +859,7 @@ public class HTMLPersonInfoForm
 							if (null != paraDescription)
 							{
 								String strEventDescriptionParagraph = HTMLShared.buildParagraphString(family,
-										commandLineParameters, paraDescription, personList, marriageList, referenceList,
+										commandLineParameters, paraDescription, placelist, personList, marriageList, referenceList,
 										photoList, idxMarToSpouses, true, true, bSuppressLiving, null, -1, -1);
 								if (0 != strEventDescriptionParagraph.length())
 								{
@@ -885,1390 +875,9 @@ public class HTMLPersonInfoForm
 			output.outputCRLF();
 		}
 		
-		if (!m_bSuppressLds)
-		{	// Show LDS Data
-			// Various and Sundries Internal Link Tag
-			output.output("<A name=InfoLds></A>");
-			output.outputCRLF();
-
-			// LDS Data Header
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyMediumHeader, "LDS Data:");
-			output.outputBR(2);
-			output.outputCRLF();
-
-			outputBaptism(person, personHelper, output);
-			outputEndowment(person, personHelper, output);
-			outputSealToParents(person, personHelper, output);
-//			OutputEndowment(pPerson, pOutputStream);
-//			OutputSealToParents(pPerson, pOutputStream);
-//			OutputSealToSpouse(pPerson, pOutputStream);
-		}
-
 		output.outputSidebarBackEnd();
 		
 		output.commit();
 		output = null;
 	}
-	
-	private void outputBaptism(Person person, PersonHelper personHelper, HTMLFormOutput output)
-	{
-//		FormsTagFinderHtml refFinder(m_pConfiguration);
-		String strDate = personHelper.getBaptismDate();
-		String strPlace = personHelper.getBaptismPlace();
-		String strTemple = personHelper.getBaptismTemple();
-		String strProxyName = personHelper.getBaptismProxyName();
-		if ((0 != strDate.length()) ||
-			(0 != strPlace.length()) ||
-			(0 != strTemple.length()) ||
-			(0 != strProxyName.length()))
-		{
-			if (0 != strDate.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapD");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Baptised:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strDate);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strPlace.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapP");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Baptised Place:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strPlace);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strTemple.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapTemple");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Baptised Temple:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strTemple);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strProxyName.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapProxy");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Baptised Proxy:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strProxyName);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-		}
-	}
-		
-	private void outputEndowment(Person person, PersonHelper personHelper, HTMLFormOutput output)
-	{
-//		FormsTagFinderHtml refFinder(m_pConfiguration);
-		String strDate = personHelper.getEndowmentDate();
-		String strPlace = personHelper.getEndowmentPlace();
-		String strTemple = personHelper.getEndowmentTemple();
-		String strProxyName = personHelper.getEndowmentProxyName();
-		if ((0 != strDate.length()) ||
-			(0 != strPlace.length()) ||
-			(0 != strTemple.length()) ||
-			(0 != strProxyName.length()))
-		{
-			if (0 != strDate.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndD");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Endowed:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strDate);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strPlace.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndP");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Endowed Place:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strPlace);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strTemple.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndTemple");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Endowed Temple:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strTemple);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strProxyName.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndProxy");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Endowed Proxy:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strProxyName);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-		}
-	}
-	
-	
-	private void outputSealToParents(Person person, PersonHelper personHelper, HTMLFormOutput output)
-	{
-//		FormsTagFinderHtml refFinder(m_pConfiguration);
-		String strDate = personHelper.getSealToParentsDate();
-		String strPlace = personHelper.getSealToParentsPlace();
-		String strTemple = personHelper.getSealToParentsTemple();
-		if ((0 != strDate.length()) ||
-			(0 != strPlace.length()) ||
-			(0 != strTemple.length()))
-		{
-			if (0 != strDate.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToPD");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Sealed To Parents Date:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strDate);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strPlace.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToPP");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Sealed To Parents Place:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strPlace);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-			if (0 != strTemple.length())
-			{
-//				refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToPTemple");
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Sealed To Parents Temple:&nbsp;");
-//				if (refFinder.Found())
-//				{
-//					output.outputStartAnchor(refFinder.GetHRef());
-//				}
-				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strTemple);
-//				if (refFinder.Found())
-//				{
-//					output.outputEndAnchor();
-//				}
-				output.outputBR();
-				output.outputCRLF();
-			}
-		}
-		List<String> lProxies = personHelper.getSealToParentsProxies();
-		if (0 != lProxies.size())
-		{
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Sealed To Parents Proxy:&nbsp;");
-			for (int i=0; i<lProxies.size(); i++)
-			{
-				String strProxy = lProxies.get(i);
-				if (0 != strProxy.length())
-				{
-					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strProxy);
-					output.outputBR();
-					output.outputCRLF();
-				}
-			}
-		}
-	}
-	
 }
-
-
-/*
-
-#include "stdafx.h"
-#include "Family.hpp"
-#include "FormsHtmlPersonInfo.hpp"
-#include "FormsHtmlShared.hpp"
-#include "FourGenerations.hpp"
-#include "FormsPersonAccessor.hpp"
-#include "FormsTagFinderHtml.hpp"
-#include "FormsMarriageAccessor.hpp"
-
-FormsHtmlPersonInfo::FormsHtmlPersonInfo(Family *pFamily, FormsHtmlConfiguration *pConfiguration, long lPersonId)
-{
-	m_pFamily = pFamily;
-	m_lPersonId = lPersonId;
-	m_pConfiguration = pConfiguration;
-	m_pPersonList = m_pFamily->getPersonList();
-	m_pMarriageList = m_pFamily->getMarriageList();
-	m_pReferenceList = m_pFamily->getReferenceList();
-	m_pPhotoList = m_pFamily->getPhotoList();
-	m_pIndex = m_pFamily->getFamilyIndex();
-	m_pStatus = pConfiguration->getStatus();
-}
-
-
-void FormsHtmlPersonInfo::Create()
-{
-	CString strHRef, strWork;
-	CString strFileName;
-	strFileName.Format("%s%s\\%s%d.htm", m_pConfiguration->getDestinationPath(), PERINFODIR, PERINFOFILENAME, m_lPersonId); 
-	m_pStatus->Log("Generating Person Info: " + strFileName, LogLevel_Finest);
-	m_pStatus->UpdateStatus("Generating Person Info: " + strFileName);
-	FormsHtmlOutputStream *pOutputStream = new FormsHtmlOutputStream(strFileName, m_pStatus);
-
-	Person *pPerson = m_pPersonList->get(m_lPersonId);
-	if (pPerson)
-	{
-		FormsPersonAccessor *pPersonAccessor = new FormsPersonAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-		CString strTitle = "Information for:" + pPersonAccessor->getFullBasicName();
-		pOutputStream->OutputSidebarFrontEnd(strTitle, m_pConfiguration);
-
-		IndexPersonToMarriages *pIndexPersonToMarriages = m_pIndex->GetIndexPersonToMarriages();
-		IndexMarriageToSpouses *pIndexMarriageToSpouses = m_pIndex->GetIndexMarriageToSpouses();
-		IndexTags *pIndexReferenceTags = m_pIndex->GetIndexReferenceTags();
-		IndexTags *pIndexPhotoTags = m_pIndex->GetIndexPhotoTags();
-		FourGenerations fourGeneration(m_pFamily, m_lPersonId);
-		Person *pFather = fourGeneration.getFather();
-		Person *pMother = fourGeneration.getMother();
-
-		long lPersonId = pPersonAccessor->getPersonIdAsLong();
-		long lMarriageCount = pIndexPersonToMarriages->GetMarriagesOfPersonCount(lPersonId);
-
-		// Get the count of references/photos for this person
-		long lReferencePersonTagCount = pIndexReferenceTags->GetPersonReferenceCount(lPersonId);
-		long lPhotoPersonTagCount = pIndexPhotoTags->GetPersonReferenceCount(lPersonId);
-
-		// Get the count of references/photos for all marriages
-		long lReferenceMarriageTagCount = 0;
-		long lPhotoMarriageTagCount = 0;
-		long lMarriageCookie;
-		MARRIAGEID mId;
-		if (pIndexPersonToMarriages->StartMarriagesOfPersonEnum(lPersonId, &lMarriageCookie))
-		{
-			while (pIndexPersonToMarriages->NextMarriagesOfPersonEnum(lPersonId, &lMarriageCookie, &mId))
-			{
-				lReferenceMarriageTagCount += pIndexReferenceTags->GetMarriageReferenceCount(mId);
-				lPhotoMarriageTagCount += pIndexPhotoTags->GetMarriageReferenceCount(mId);
-			}
-		}
-
-		// See if there are any person events to show
-		long lCookie;
-		BOOL bEventsExist = pPersonAccessor->startPersonEventGroupEnum(&lCookie);
-
-		// Top of Document Internal Link Tag
-		pOutputStream->Output("<A name=InfoTop></A>");
-		pOutputStream->OutputFormattingCRLF();
-
-		// Top of Page Title
-		pOutputStream->Output("<center>");
-		pOutputStream->OutputSpan(E_PageTopHeader, "Information for: " + pPersonAccessor->getFullBasicName());
-		pOutputStream->Output("</center>");
-		pOutputStream->OutputFormattingCRLF();
-		pOutputStream->Output("<hr width=\"100%\">");
-		pOutputStream->OutputFormattingCRLF();
-
-		// Small Links to Page Sections
-		pOutputStream->Output("<center><span class=\"pageBodySmallLink\">");
-		// First Line "(parents) - (marriages)"
-		if (pFather || pMother)
-		{
-			pOutputStream->OutputStartAnchor("#InfoParents");
-			pOutputStream->Output("(Parents)");
-			pOutputStream->OutputEndAnchor();
-			if (lMarriageCount >= 1)
-			{
-				pOutputStream->Output(" - ");
-			}
-		}
-		if (lMarriageCount >= 1)
-		{
-			pOutputStream->OutputStartAnchor("#InfoMarriages");
-			pOutputStream->Output("(Marriages)");
-			pOutputStream->OutputEndAnchor();
-		}
-		if (pFather || pMother || (lMarriageCount >= 1))
-		{
-			pOutputStream->OutputBR();
-		}
-		// Second Line "(photos) - (documentation) - (sundries)"
-		if (lPhotoPersonTagCount || lPhotoMarriageTagCount)
-		{
-			pOutputStream->OutputStartAnchor("#InfoPhotos");
-			pOutputStream->Output("(Photos) - ");	// dash here bacause sundries always exist
-			pOutputStream->OutputEndAnchor();
-		}
-		if (lReferencePersonTagCount ||	lReferenceMarriageTagCount)
-		{
-			pOutputStream->OutputStartAnchor("#InfoReferences");
-			pOutputStream->Output("(Documentation) - ");	// dash here bacause sundries always exist
-			pOutputStream->OutputEndAnchor();
-		}
-		pOutputStream->OutputStartAnchor("#InfoSundries");
-		pOutputStream->Output("(Sundries)");
-		pOutputStream->OutputEndAnchor();
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-
-		// Third Line "(events) - (lds)"
-		if (bEventsExist)
-		{
-			pOutputStream->OutputStartAnchor("#InfoEvents");
-			pOutputStream->Output("(Events)");	
-			pOutputStream->OutputEndAnchor();
-		}
-
-		if (m_pConfiguration->getIncludeLds() && m_pFamily->doesLdsDataExist(pPerson))
-		{
-			if (bEventsExist)
-			{
-				pOutputStream->Output(" - ");	
-			}
-			pOutputStream->OutputStartAnchor("#InfoLds");
-			pOutputStream->Output("(Lds)");	
-			pOutputStream->OutputEndAnchor();
-		}
-		pOutputStream->Output("</span></center>");
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-
-
-		// Show Parents
-		if (pFather && pMother)
-		{
-			// Parents Internal Link Tag
-			pOutputStream->Output("<A name=InfoParents></A>");
-			pOutputStream->OutputFormattingCRLF();
-
-			// Parents Header
-			pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Parents:");
-			pOutputStream->OutputBR(2);
-			pOutputStream->OutputFormattingCRLF();
-			// Father
-			FormsPersonAccessor fatherAccessor(pFather, m_pConfiguration->getSuppressLiving());
-			strHRef.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, pFather->getPersonIdAsLong());
-			pOutputStream->OutputStandardBracketedLink(strHRef, "View Father");
-			pOutputStream->OutputSpan(E_PageBodyNormalText, fatherAccessor.getFullBasicName());
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-			// Mother
-			FormsPersonAccessor motherAccessor(pMother, m_pConfiguration->getSuppressLiving());
-			strHRef.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, pMother->getPersonIdAsLong());
-			pOutputStream->OutputStandardBracketedLink(strHRef, "View Mother");
-			pOutputStream->OutputSpan(E_PageBodyNormalText, motherAccessor.getFullBasicName());
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-
-			// Show the link to the parent's FGS
-			MARRIAGEID mIdParents = fourGeneration.getFatherMarriageId();
-			if (mIdParents != MARRIAGEID_INVALID)
-			{	// Show the "[View Parents Family Group Sheet]" link
-				strHRef.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), FGSDIR, FGSFILENAME, mIdParents);
-				pOutputStream->OutputStandardBracketedLink(strHRef, "View Family");
-				// Show parent's name in the marriage
-				strWork.Format("%s and %s - MID# %d", fatherAccessor.getFullBasicName(), motherAccessor.getFullBasicName(), mIdParents);
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strWork);
-				pOutputStream->OutputBR();
-				pOutputStream->OutputFormattingCRLF();
-			}
-			pOutputStream->OutputBR();
-		}
-
-		// Show Marriages
-		if (lMarriageCount >= 1)
-		{
-			PERSONID husbandId, wifeId;
-			CString strText;
-
-			// Marriages Internal Link Tag
-			pOutputStream->Output("<A name=InfoMarriages></A>");
-			pOutputStream->OutputFormattingCRLF();
-
-			// Marriage Header
-			pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Marriages:");
-			pOutputStream->OutputBR(2);
-			pOutputStream->OutputFormattingCRLF();
-
-			if (pIndexPersonToMarriages->StartMarriagesOfPersonEnum(lPersonId, &lMarriageCookie))
-			{
-				while (pIndexPersonToMarriages->NextMarriagesOfPersonEnum(lPersonId, &lMarriageCookie, &mId))
-				{
-					if (pIndexMarriageToSpouses->FindSpousesGivenMarriageId(mId, &husbandId, &wifeId))
-					{
-						Person *pHusband = m_pPersonList->get(husbandId);
-						Person *pWife = m_pPersonList->get(wifeId);
-						if (pHusband && pWife)
-						{	// Find the spouse of THIS person
-							Person *pSpouse = pHusband;
-							if (pHusband->getPersonIdAsLong() == m_lPersonId)
-							{	// Nope, the spouse is the wife
-								pSpouse = pWife;
-							}
-							// Show the "[View Family]" link
-							strHRef.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), FGSDIR, FGSFILENAME, mId);
-							pOutputStream->OutputStandardBracketedLink(strHRef, "View Family");
-							// Show THIS person's name in the marriage
-							pOutputStream->Output("<span class=\"pageBodyNormalText\">");
-							pOutputStream->Output(pPersonAccessor->getFullBasicName() + " and ");
-							// Show SPOUSE's name in marriage with link to PERSONINFO
-							FormsPersonAccessor spouseAccessor(pSpouse, m_pConfiguration->getSuppressLiving());
-							strHRef.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, spouseAccessor.getPersonIdAsLong());
-							pOutputStream->OutputStartAnchor(strHRef);
-							pOutputStream->Output(spouseAccessor.getFullBasicName());
-							pOutputStream->OutputEndAnchor();
-							pOutputStream->Output("</span>");
-							// Show marriage ID
-							strText.Format(" - MID# %d", mId);
-							pOutputStream->OutputSpan(E_PageBodySmallText, strText);
-							pOutputStream->OutputBR();
-							pOutputStream->OutputFormattingCRLF();
-						}
-					}
-				}
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-
-		}
-
-		// Show photos if they exist
-		if (lPhotoPersonTagCount || lPhotoMarriageTagCount)
-		{
-			long lPhotoCookie;
-			long lPhotoId, lPhotoSubId;
-
-			// Photos Internal Link Tag
-			pOutputStream->Output("<A name=InfoPhotos></A>");
-			pOutputStream->OutputFormattingCRLF();
-			if (lPhotoPersonTagCount)
-			{
-				// Photos for Person Header
-				pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Photos for Person:");
-				pOutputStream->OutputBR(2);
-				pOutputStream->OutputFormattingCRLF();
-
-				CDWordArray arPhotos;
-				CString strHRef;
-				CString strText;
-
-				// Show Person Photos
-				if (pIndexPhotoTags->StartUniqueReferenceByPersonEnum(lPersonId, &lPhotoCookie, &arPhotos))
-				{
-					while (pIndexPhotoTags->NextUniqueReferenceByPersonEnum(&lPhotoId, &lPhotoSubId, lPersonId, &lPhotoCookie, &arPhotos))
-					{
-						Photo *pPhoto = m_pPhotoList->get(lPhotoId);
-						if (pPhoto)
-						{
-							long lPhotoId = pPhoto->getPhotoIdAsLong();
-
-							strHRef.Format("%sphotowrappers/%s%d.htm", m_pConfiguration->getBasePath(), PHOTOWRAPFILENAME, lPhotoId);
-							// Photos
-							pOutputStream->OutputStandardBracketedLink(strHRef, "View Photo");
-							FormsHtmlParagraphFormat titleFormat("pageBodyNormalText");
-							pOutputStream->OutputParagraphListObject(pPhoto->getPhotoTitle(), m_pConfiguration, &titleFormat);
-							pOutputStream->OutputFormattingCRLF();
-							// Build the Tag Types string for this photo
-							CString strTagTypes = pIndexPhotoTags->GetAllTagTypesStringForPersonAndEntry(lPersonId, lPhotoId, lPhotoSubId);
-							pOutputStream->OutputSpan(E_PageBodySmallText, "Information Types: " + strTagTypes);
-							pOutputStream->OutputBR(2);
-							pOutputStream->OutputFormattingCRLF();
-						}
-					}
-				}
-				if (lPhotoMarriageTagCount)
-				{
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-				}
-			}
-
-			if (lPhotoMarriageTagCount)
-			{
-				CDWordArray arPhotos;
-
-				// Photos for Marriages Header
-				pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Photos for Marriages:");
-				if (lPhotoPersonTagCount)
-				{
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					pOutputStream->OutputSpan(E_PageBodySmallHeader, "(May duplicate some of the photos listed above.)");
-				}
-				pOutputStream->OutputBR(2);
-				pOutputStream->OutputFormattingCRLF();
-
-				// Show Marriage Photos
-				if (pIndexPersonToMarriages->StartMarriagesOfPersonEnum(lPersonId, &lMarriageCookie))
-				{
-					while (pIndexPersonToMarriages->NextMarriagesOfPersonEnum(lPersonId, &lMarriageCookie, &mId))
-					{
-						if (pIndexPhotoTags->StartUniqueReferenceByMarriageEnum(mId, &lPhotoCookie, &arPhotos))
-						{
-							while (pIndexPhotoTags->NextUniqueReferenceByMarriageEnum(&lPhotoId, &lPhotoSubId, mId, &lPhotoCookie, &arPhotos))
-							{
-								Photo *pPhoto = m_pPhotoList->get(lPhotoId);
-								if (pPhoto)
-								{
-									long lPhotoId = pPhoto->getPhotoIdAsLong();
-
-									strHRef.Format("%sphotowrappers/%s%d.htm", m_pConfiguration->getBasePath(), PHOTOWRAPFILENAME, lPhotoId);
-
-									// Photos
-									pOutputStream->OutputStandardBracketedLink(strHRef, "View Photo");
-									FormsHtmlParagraphFormat titleFormat("pageBodyNormalText");
-									pOutputStream->OutputParagraphListObject(pPhoto->getPhotoTitle(), m_pConfiguration, &titleFormat);
-									pOutputStream->OutputFormattingCRLF();
-
-									// Build "For Marriage..." string
-									CString strForMarriage = FormsHtmlShared::BuildSimpleMarriageNameString(m_pConfiguration, mId, "For Marriage: %s and %s");
-									pOutputStream->OutputSpan(E_PageBodySmallText, strForMarriage);
-									pOutputStream->OutputBR();
-									pOutputStream->OutputFormattingCRLF();
-
-									// Build the Tag Types string for this photo entry
-									CString strTagTypes = pIndexPhotoTags->GetAllTagTypesStringForMarriageAndEntry(mId, lPhotoId, lPhotoSubId);
-									pOutputStream->OutputSpan(E_PageBodySmallText, "Information Types: " + strTagTypes);
-									pOutputStream->OutputBR(2);
-									pOutputStream->OutputFormattingCRLF();
-								}
-							}
-						}
-					}
-				}
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-
-		// Show references if they exist
-		if (lReferencePersonTagCount || lReferenceMarriageTagCount)
-		{
-			CDWordArray arReferences;
-			long lReferenceCookie;
-			long lReferenceId, lReferenceSubId;
-			CString strHRef;
-			CString strTitle, strDescription;
-
-			// References Internal Link Tag
-			pOutputStream->Output("<A name=InfoReferences></A>");
-			pOutputStream->OutputFormattingCRLF();
-
-			if (lReferencePersonTagCount)
-			{
-				// Person References Header
-				pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Documentation and Notes for Person:");
-				pOutputStream->OutputBR(2);
-				pOutputStream->OutputFormattingCRLF();
-
-				if (pIndexReferenceTags->StartUniqueReferenceByPersonEnum(lPersonId, &lReferenceCookie, &arReferences))
-				{
-					while (pIndexReferenceTags->NextUniqueReferenceByPersonEnum(&lReferenceId, &lReferenceSubId, lPersonId, &lReferenceCookie, &arReferences))
-					{
-						Reference *pReference = m_pReferenceList->get(lReferenceId);
-						if (pReference)
-						{
-							ReferenceEntry *pReferenceEntry = pReference->GetEntryWithId(lReferenceSubId);
-							if (pReferenceEntry)
-							{	// Show Reference Title
-								strHRef.Format("%sreferences/%s%d.htm", m_pConfiguration->getBasePath(), REFERENCEFILENAME, lReferenceId);
-								pOutputStream->OutputStandardBracketedLink(strHRef, "View Document");
-								pOutputStream->OutputSpan(E_PageBodyNormalText, pReference->getTitle());
-								pOutputStream->OutputBR();
-								pOutputStream->OutputFormattingCRLF();
-
-								// Show Entry Title/Description
-								ReferenceEntryTitle *pReferenceEntryTitle = pReferenceEntry->GetReferenceEntryTitle();
-								FormsHtmlParagraphFormat paragraphFormat("pageBodySmallText");
-								strHRef.Format("%sreferences/%s%d.htm#REF%dENT%d", m_pConfiguration->getBasePath(), REFERENCEFILENAME, pReference->getReferenceIdAsLong(), pReference->getReferenceIdAsLong(), pReferenceEntry->GetReferenceEntryIdAsLong());
-								pOutputStream->OutputStandardBracketedLink(strHRef, "View Entry");
-								for(WORD nth=1; nth <= pReferenceEntryTitle->getParagraphCount(); nth++)
-								{
-									Paragraph *pParagraph = pReferenceEntryTitle->getParagraph(nth);
-									if (pParagraph)
-									{
-										pOutputStream->OutputParagraph(m_pConfiguration, pParagraph, true, true, &paragraphFormat);
-									}
-								}
-								pOutputStream->OutputFormattingCRLF();
-
-								// Build the Tag Types string for this reference entry
-								CString strTagTypes = pIndexReferenceTags->GetAllTagTypesStringForPersonAndEntry(lPersonId, lReferenceId, lReferenceSubId);
-								pOutputStream->OutputSpan(E_PageBodySmallText, "Information Types: " + strTagTypes);
-								pOutputStream->OutputBR();
-								pOutputStream->OutputFormattingCRLF();
-							}
-						}
-						pOutputStream->OutputBR();
-						pOutputStream->OutputFormattingCRLF();
-					}
-				}
-				pOutputStream->OutputBR();
-				pOutputStream->OutputFormattingCRLF();
-			}
-			if (lReferenceMarriageTagCount)
-			{
-				// Marriages References Header
-				pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Documentation and Notes for Marriages:");
-				if (lReferencePersonTagCount)
-				{
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					pOutputStream->OutputSpan(E_PageBodySmallHeader, "(May duplicate some of the documents listed above.)");
-				}
-				pOutputStream->OutputBR(2);
-				pOutputStream->OutputFormattingCRLF();
-
-				if (pIndexPersonToMarriages->StartMarriagesOfPersonEnum(lPersonId, &lMarriageCookie))
-				{
-					while (pIndexPersonToMarriages->NextMarriagesOfPersonEnum(lPersonId, &lMarriageCookie, &mId))
-					{
-						if (pIndexReferenceTags->StartUniqueReferenceByMarriageEnum(mId, &lReferenceCookie, &arReferences))
-						{
-							while (pIndexReferenceTags->NextUniqueReferenceByMarriageEnum(&lReferenceId, &lReferenceSubId, mId, &lReferenceCookie, &arReferences))
-							{
-								Reference *pReference = m_pReferenceList->get(lReferenceId);
-								if (pReference)
-								{
-									ReferenceEntry *pReferenceEntry = pReference->GetEntryWithId(lReferenceSubId);
-									if (pReferenceEntry)
-									{	// Show Reference Title
-										strHRef.Format("%sreferences/%s%d.htm#REF%dENT%d", m_pConfiguration->getBasePath(), REFERENCEFILENAME, lReferenceId, lReferenceId, lReferenceSubId);
-										pOutputStream->OutputStandardBracketedLink(strHRef, "View Document");
-										pOutputStream->OutputSpan(E_PageBodyNormalText, pReference->getTitle());
-										pOutputStream->OutputBR();
-										pOutputStream->OutputFormattingCRLF();
-
-										// Show Entry Title/Description
-										ReferenceEntryTitle *pReferenceEntryTitle = pReferenceEntry->GetReferenceEntryTitle();
-										FormsHtmlParagraphFormat paragraphFormat("pageBodySmallText");
-										strHRef.Format("%sreferences/%s%d.htm#REF%dENT%d", m_pConfiguration->getBasePath(), REFERENCEFILENAME, pReference->getReferenceIdAsLong(), pReference->getReferenceIdAsLong(), pReferenceEntry->GetReferenceEntryIdAsLong());
-										pOutputStream->OutputStandardBracketedLink(strHRef, "View Entry");
-										for(WORD nth=1; nth <= pReferenceEntryTitle->getParagraphCount(); nth++)
-										{
-											Paragraph *pParagraph = pReferenceEntryTitle->getParagraph(nth);
-											if (pParagraph)
-											{
-												pOutputStream->OutputParagraph(m_pConfiguration, pParagraph, true, true, &paragraphFormat);
-											}
-										}
-										pOutputStream->OutputFormattingCRLF();
-
-										// Build "For Marriage..." string
-										CString strForMarriage = FormsHtmlShared::BuildSimpleMarriageNameString(m_pConfiguration, mId, "For Marriage: %s and %s");
-										pOutputStream->OutputSpan(E_PageBodySmallText, strForMarriage);
-										pOutputStream->OutputBR();
-										pOutputStream->OutputFormattingCRLF();
-
-										// Build the Tag Types string for this reference entry
-										CString strTagTypes = pIndexReferenceTags->GetAllTagTypesStringForMarriageAndEntry(mId, lReferenceId, lReferenceSubId);
-										pOutputStream->OutputSpan(E_PageBodySmallText, "Information Types: " + strTagTypes);
-										pOutputStream->OutputBR();
-										pOutputStream->OutputFormattingCRLF();
-									}
-								}
-								pOutputStream->OutputBR();
-								pOutputStream->OutputFormattingCRLF();
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Show Various and Sundries
-		// Various and Sundries Internal Link Tag
-		pOutputStream->Output("<A name=InfoSundries></A>");
-		pOutputStream->OutputFormattingCRLF();
-
-		// Various and Sundries Header
-		pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Various and Sundries:");
-		pOutputStream->OutputBR(2);
-		pOutputStream->OutputFormattingCRLF();
-
-		// Full Decorated Name
-		if (pPersonAccessor->getPersonIdAsLong() == 1207)
-		{
-			int y = 0;
-			y++;
-		}
-		if (0 != pPersonAccessor->getFullBasicName().Compare(pPersonAccessor->getFullDecoratedName()))
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Full Name: ");
-			pOutputStream->OutputSpan(E_PageBodyNormalText, pPersonAccessor->getFullDecoratedName());
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// First Name Alt Spellings
-		if (0 != pPersonAccessor->getFirstNameAltSpellingCount())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "First Name Alternate Spellings: ");
-			for (int iAlt=0; iAlt<pPersonAccessor->getFirstNameAltSpellingCount(); iAlt++)
-			{
-				CString strAlt = pPersonAccessor->getFirstNameAltSpelling(iAlt);
-				if (0 != iAlt)
-				{
-					pOutputStream->Output(", ");
-				}
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strAlt);
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// Middle Name Alt Spellings
-		if (0 != pPersonAccessor->getMiddleNameAltSpellingCount())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Middle Name Alternate Spellings: ");
-			for (int iAlt=0; iAlt<pPersonAccessor->getMiddleNameAltSpellingCount(); iAlt++)
-			{
-				CString strAlt = pPersonAccessor->getMiddleNameAltSpelling(iAlt);
-				if (0 != iAlt)
-				{
-					pOutputStream->Output(", ");
-				}
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strAlt);
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// Last Name Alt Spellings
-		if (0 != pPersonAccessor->getLastNameAltSpellingCount())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Last Name Alternate Spellings: ");
-			for (int iAlt=0; iAlt<pPersonAccessor->getLastNameAltSpellingCount(); iAlt++)
-			{
-				CString strAlt = pPersonAccessor->getLastNameAltSpelling(iAlt);
-				if (0 != iAlt)
-				{
-					pOutputStream->Output(", ");
-				}
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strAlt);
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// AFN Id
-		if (0 != pPersonAccessor->getAfn().GetLength())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "AFN: ");
-			pOutputStream->OutputSpan(E_PageBodyNormalText, pPersonAccessor->getAfn());
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// Relationship
-		pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Relationship: ");
-		pOutputStream->OutputSpan(E_PageBodyNormalText, pPersonAccessor->getRelationship());
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		
-		// NickNames
-		if (pPersonAccessor->getNickNameCount())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "NickNames: ");
-			for (int iNick=0; iNick<pPersonAccessor->getNickNameCount(); iNick++)
-			{
-				CString strNickName = pPersonAccessor->getNickName(iNick);
-				if (0 != iNick)
-				{
-					pOutputStream->Output(", ");
-				}
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strNickName);
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// Professions
-		if (pPersonAccessor->getProfessionCount())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Professions: ");
-			for (int iProf=0; iProf<pPersonAccessor->getProfessionCount(); iProf++)
-			{
-				CString strProfession = pPersonAccessor->getProfession(iProf);
-				if (0 != iProf)
-				{
-					pOutputStream->Output(", ");
-				}
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strProfession);
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// Religions
-		if (pPersonAccessor->getReligionCount())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Religions: ");
-			for (int iRelig=0; iRelig<pPersonAccessor->getReligionCount(); iRelig++)
-			{
-				CString strReligion = pPersonAccessor->getReligion(iRelig);
-				if (0 != iRelig)
-				{
-					pOutputStream->Output(", ");
-				}
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strReligion);
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-
-		// Cause of Death
-		if (0 != pPersonAccessor->getDeathCause().GetLength())
-		{
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Cause of Death: ");
-			pOutputStream->OutputSpan(E_PageBodyNormalText, pPersonAccessor->getDeathCause());
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		pOutputStream->OutputBR();
-
-		// Show Person Event Data
-		// Person Event Internal Link Tag
-		long lEventCookie;
-		if (pPersonAccessor->startPersonEventGroupEnum(&lEventCookie))
-		{
-			pOutputStream->Output("<A name=InfoEvents></A>");
-			pOutputStream->OutputFormattingCRLF();
-
-			// Person Event Header
-			pOutputStream->OutputSpan(E_PageBodyMediumHeader, "Events:");
-			pOutputStream->OutputBR(2);
-			pOutputStream->OutputFormattingCRLF();
-
-			PersonEvent *pPersonEvent;
-			while (pPersonAccessor->nextPersonEventGroupEnum(&lEventCookie, &pPersonEvent))
-			{
-				CString strTitle, strDescription = "";
-				Paragraph *pTitleParagraph = pPersonEvent->getEventTitle()->getParagraph();
-				if (pTitleParagraph)
-				{
-					strTitle = FormsHtmlShared::BuildParagraphString(m_pConfiguration, pTitleParagraph, false, false, NULL);
-				}
-				PersonEventDescription *pEventDescription = pPersonEvent->getEventDescription();
-				if (pEventDescription)
-				{
-					for (WORD i=1; true; i++)
-					{
-						Paragraph *pParagraph = pEventDescription->getNthParagraph(i);
-						if (NULL == pParagraph)
-						{
-							break;
-						}
-						strDescription += FormsHtmlShared::BuildParagraphString(m_pConfiguration, pParagraph, true, true, NULL); 
-					}
-				}
-				if (0 != strTitle.GetLength())
-				{
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Title: ");
-					pOutputStream->OutputSpan(E_PageBodyNormalText, strTitle);
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-				}
-
-				Date *pDate = pPersonEvent->getEventDate();
-				Place *pPlace = pPersonEvent->getEventPlace();
-				CString strTag = pPersonEvent->getTag();
-
-				if (0 != strTag.GetLength())
-				{
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Type: ");
-					pOutputStream->OutputSpan(E_PageBodyNormalText, strTag);
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-				}
-				if (!pDate->isEmpty())
-				{
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Date: ");
-					pOutputStream->OutputSpan(E_PageBodyNormalText, pDate->getDate());
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-				}
-				if (!pPlace->isEmpty())
-				{
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Place: ");
-					pOutputStream->OutputSpan(E_PageBodyNormalText, pPlace->getPlace());
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-				}
-
-				if (0 != strDescription.GetLength())
-				{
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Description: ");
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					pOutputStream->OutputSpan(E_PageBodyNormalText, strDescription);
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-				}
-			}
-			pOutputStream->OutputBR();
-		}
-
-
-		if (m_pConfiguration->getIncludeLds() && m_pFamily->doesLdsDataExist(pPerson))
-		{
-			// Show LDS Data
-			// Various and Sundries Internal Link Tag
-			pOutputStream->Output("<A name=InfoLds></A>");
-			pOutputStream->OutputFormattingCRLF();
-
-			// LDS Data Header
-			pOutputStream->OutputSpan(E_PageBodyMediumHeader, "LDS Data:");
-			pOutputStream->OutputBR(2);
-			pOutputStream->OutputFormattingCRLF();
-
-			OutputBaptism(pPerson, pOutputStream);
-			OutputEndowment(pPerson, pOutputStream);
-			OutputSealToParents(pPerson, pOutputStream);
-			OutputSealToSpouse(pPerson, pOutputStream);
-		}
-
-
-		pOutputStream->OutputSidebarBackEnd();
-
-		if (pPersonAccessor)
-		{
-			delete pPersonAccessor;
-		}
-	}
-	if (pOutputStream)
-	{
-		delete pOutputStream;
-	}
-	m_pStatus->UpdateStatus("Person Info: " + strFileName);
-}
-
-
-void FormsHtmlPersonInfo::OutputBaptism(Person *pPerson, FormsHtmlOutputStream *pOutputStream)
-{
-	FormsPersonAccessor personAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-	FormsTagFinderHtml refFinder(m_pConfiguration);
-	CString strDate = personAccessor.getBaptismDate();
-	CString strPlace = personAccessor.getBaptismPlace();
-	CString strTemple = personAccessor.getBaptismTemple();
-	CString strProxyName = personAccessor.getBaptismProxyName();
-	if ((0 != strDate.GetLength()) ||
-		(0 != strPlace.GetLength()) ||
-		(0 != strTemple.GetLength()) ||
-		(0 != strProxyName.GetLength()))
-	{
-		if (0 != strDate.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapD");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Baptised:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strDate);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strPlace.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapP");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Baptised Place:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strPlace);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strTemple.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapTemple");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Baptised Temple:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strTemple);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strProxyName.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "BapProxy");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Baptised Proxy:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strProxyName);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-	}
-}
-
-
-void FormsHtmlPersonInfo::OutputEndowment(Person *pPerson, FormsHtmlOutputStream *pOutputStream)
-{
-	FormsPersonAccessor personAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-	FormsTagFinderHtml refFinder(m_pConfiguration);
-	CString strDate = personAccessor.getEndowmentDate();
-	CString strPlace = personAccessor.getEndowmentPlace();
-	CString strTemple = personAccessor.getEndowmentTemple();
-	CString strProxyName = personAccessor.getEndowmentProxyName();
-	if ((0 != strDate.GetLength()) ||
-		(0 != strPlace.GetLength()) ||
-		(0 != strTemple.GetLength()) ||
-		(0 != strProxyName.GetLength()))
-	{
-		if (0 != strDate.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndD");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Endowed:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strDate);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strPlace.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndP");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Endowed Place:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strPlace);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strTemple.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndTemple");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Endowed Temple:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strTemple);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strProxyName.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "EndProxy");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Endowed Proxy:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strProxyName);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-	}
-}
-
-void FormsHtmlPersonInfo::OutputSealToParents(Person *pPerson, FormsHtmlOutputStream *pOutputStream)
-{
-	FormsPersonAccessor personAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-	FormsTagFinderHtml refFinder(m_pConfiguration);
-	CString strDate = personAccessor.getSToPDate();
-	CString strPlace = personAccessor.getSToPPlace();
-	CString strTemple = personAccessor.getSToPTemple();
-	if ((0 != strDate.GetLength()) ||
-		(0 != strPlace.GetLength()) ||
-		(0 != strTemple.GetLength()))
-	{
-		if (0 != strDate.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToPD");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Sealed To Parents Date:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strDate);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strPlace.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToPP");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Sealed To Parents Place:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strPlace);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-		if (0 != strTemple.GetLength())
-		{
-			refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToPTemple");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Sealed To Parents Temple:&nbsp;");
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-			}
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strTemple);
-			if (refFinder.Found())
-			{
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-		}
-	}
-	if (0 != personAccessor.getSToPProxyCount())
-	{
-		for (int i=0; i<personAccessor.getSToPProxyCount(); i++)
-		{
-			CString strProxy = personAccessor.getSToPProxyName(i);
-			if (0 != strProxy.GetLength())
-			{
-				pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Sealed To Parents Proxy:&nbsp;");
-				pOutputStream->OutputSpan(E_PageBodyNormalText, strProxy);
-				pOutputStream->OutputBR();
-				pOutputStream->OutputFormattingCRLF();
-			}
-		}
-	}
-}
-
-void FormsHtmlPersonInfo::OutputSealToSpouse(Person *pPerson, FormsHtmlOutputStream *pOutputStream)
-{
-	FormsPersonAccessor personAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-	IndexPersonToMarriages *pIndexPersonToMarriages = m_pIndex->GetIndexPersonToMarriages();
-	IndexMarriageToSpouses *pIndexMarriageToSpouses = m_pIndex->GetIndexMarriageToSpouses();
-	FormsTagFinderHtml refFinder(m_pConfiguration);
-	long lPersonId = pPerson->getPersonIdAsLong();
-	long lMarriageCookie;
-	MARRIAGEID mId;
-
-	if (pIndexPersonToMarriages->StartMarriagesOfPersonEnum(lPersonId, &lMarriageCookie))
-	{
-		while (pIndexPersonToMarriages->NextMarriagesOfPersonEnum(lPersonId, &lMarriageCookie, &mId))
-		{
-			Marriage *pMarriage = m_pMarriageList->get(mId);
-			if (pMarriage)
-			{
-				FormsMarriageAccessor marriageAccessor(pMarriage, m_pConfiguration->getSuppressLiving(), m_pFamily);
-				CString strDate = marriageAccessor.getSToSDate();
-				CString strPlace = marriageAccessor.getSToSPlace();
-				CString strTemple = marriageAccessor.getSToSTemple();
-				long lProxyCount = marriageAccessor.getSToSProxyCount();
-				if ((0 != strDate.GetLength()) ||
-					(0 != strPlace.GetLength()) ||
-					(0 != strTemple.GetLength()) ||
-					(0 != lProxyCount))
-				{
-					// Get Spouse's Name
-					CString strSpouse;
-					if (lPersonId == marriageAccessor.getHusbandIdAsLong())
-					{	// I am the husband, show my info sealed to the wife
-						Person *pSpouse = m_pPersonList->get(marriageAccessor.getWifeIdAsLong());
-						FormsPersonAccessor spouseAccessor(pSpouse, m_pConfiguration->getSuppressLiving());
-						strSpouse = spouseAccessor.getFullBasicName();
-					}
-					else
-					{	// I am the wife, show my info sealed to the husband
-						Person *pSpouse = m_pPersonList->get(marriageAccessor.getHusbandIdAsLong());
-						FormsPersonAccessor spouseAccessor(pSpouse, m_pConfiguration->getSuppressLiving());
-						strSpouse = spouseAccessor.getFullBasicName();
-					}
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Sealed to Spouse:&nbsp;");
-					pOutputStream->OutputSpan(E_PageBodyNormalText, strSpouse);
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					// Date
-					if (0 != strDate.GetLength())
-					{
-						refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToSD");
-						pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "&nbsp;&nbsp;Date:&nbsp;");
-						if (refFinder.Found())
-						{
-							pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-						}
-						pOutputStream->OutputSpan(E_PageBodyNormalText, strDate);
-						if (refFinder.Found())
-						{
-							pOutputStream->OutputEndAnchor();
-						}
-						pOutputStream->OutputBR();
-						pOutputStream->OutputFormattingCRLF();
-					}
-					// Place
-					if (0 != strPlace.GetLength())
-					{
-						refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToSP");
-						pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "&nbsp;&nbsp;Place:&nbsp;");
-						if (refFinder.Found())
-						{
-							pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-						}
-						pOutputStream->OutputSpan(E_PageBodyNormalText, strPlace);
-						if (refFinder.Found())
-						{
-							pOutputStream->OutputEndAnchor();
-						}
-						pOutputStream->OutputBR();
-						pOutputStream->OutputFormattingCRLF();
-					}
-					// Temple
-					if (0 != strTemple.GetLength())
-					{
-						refFinder.FindForPerson(pPerson->getPersonIdAsLong(), "SToSTemple");
-						pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "&nbsp;&nbsp;Temple:&nbsp;");
-						if (refFinder.Found())
-						{
-							pOutputStream->OutputStartAnchor(refFinder.GetHRef());
-						}
-						pOutputStream->OutputSpan(E_PageBodyNormalText, strTemple);
-						if (refFinder.Found())
-						{
-							pOutputStream->OutputEndAnchor();
-						}
-						pOutputStream->OutputBR();
-						pOutputStream->OutputFormattingCRLF();
-					}
-					if (0 != lProxyCount)
-					{
-						for (int i=0; i<lProxyCount; i++)
-						{
-							CString strProxy = marriageAccessor.getSToSProxyName(i);
-							if (0 != strProxy.GetLength())
-							{
-								pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "&nbsp;&nbsp;Proxy:&nbsp;");
-								pOutputStream->OutputSpan(E_PageBodyNormalText, strProxy);
-								pOutputStream->OutputBR();
-								pOutputStream->OutputFormattingCRLF();
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	pOutputStream->OutputBR();
-	pOutputStream->OutputFormattingCRLF();
-
-}
-
-
-
-
- 
- 
-*/

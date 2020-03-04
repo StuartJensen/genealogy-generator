@@ -8,6 +8,7 @@ import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Entry;
@@ -31,6 +32,7 @@ import home.genealogy.schema.all.helpers.ReferenceHelper;
 public class ErrorChecker
 {
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
@@ -38,12 +40,13 @@ public class ErrorChecker
 	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	
-	public ErrorChecker(CFGFamily family, PersonList personList, MarriageList marriageList,
+	public ErrorChecker(CFGFamily family, PlaceList placeList, PersonList personList, MarriageList marriageList,
 			            ReferenceList referenceList, PhotoList photoList, CommandLineParameters commandLineParameters,
 			            IOutputStream outputStream)
 	{
 		m_family = family;
 		m_commandLineParameters = commandLineParameters;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList =  marriageList;
 		m_referenceList = referenceList;
@@ -58,8 +61,8 @@ public class ErrorChecker
 		allHusbandsAreMale(m_personList, m_marriageList);
 		allWivesAreFemale(m_personList, m_marriageList);
         allReferenceTagsAreValid(m_personList, m_marriageList, m_referenceList);
-    	allLivingAreNotDead(m_personList);
-    	allDeadThatMayBeDeemedAsLiving(m_personList, m_marriageList);
+    	allLivingAreNotDead(m_placeList, m_personList);
+    	allDeadThatMayBeDeemedAsLiving(m_placeList, m_personList, m_marriageList);
     	allPhotosExist(m_family, m_photoList);
 	}
 	
@@ -180,7 +183,7 @@ public class ErrorChecker
 		}
     }
 	
-	public void allLivingAreNotDead(PersonList personList)
+	public void allLivingAreNotDead(PlaceList placeList, PersonList personList)
     {
 	    Iterator<Person> iter = personList.getPersons();
 		while (iter.hasNext())
@@ -189,8 +192,8 @@ public class ErrorChecker
 		    if (PersonHelper.isMarkedAsLiving(person))
 		    {	// The "living" attribute explicitly says this person is living
 				// Look for death information
-				if ((PersonHelper.hasAnyDeathInfo(person)) ||
-					(PersonHelper.hasAnyBurialInfo(person)))			
+				if ((PersonHelper.hasAnyDeathInfo(person, placeList)) ||
+					(PersonHelper.hasAnyBurialInfo(person, placeList)))
 				{	// Has a death/burial date, must be dead
 				    m_outputStream.output("ERROR: Person id [" + PersonHelper.getPersonId(person) + "] is explicitly marked as \"living\" but death information exists.\n");
 				}
@@ -204,14 +207,14 @@ public class ErrorChecker
 		}
     }
 	
-	public void allDeadThatMayBeDeemedAsLiving(PersonList personList, MarriageList marriageList)
+	public void allDeadThatMayBeDeemedAsLiving(PlaceList placeList, PersonList personList, MarriageList marriageList)
     {
 		int iCount = 0;
 	    Iterator<Person> iter = personList.getPersons();
 		while (iter.hasNext())
 		{
 		    Person person = iter.next();
-		    if (PersonHelper.isLiving(person))
+		    if (PersonHelper.isLiving(person, placeList))
 		    {	// We think this person is living. Was that due to an explicit mark?
 			    if (!PersonHelper.isMarkedAsLiving(person))
 			    {	// The "living" attribute does not explicitly says this person is living

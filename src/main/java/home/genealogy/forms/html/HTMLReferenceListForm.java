@@ -6,6 +6,7 @@ import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Entry;
@@ -14,7 +15,6 @@ import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.extensions.ReferenceSortableByPlaceName;
 import home.genealogy.schema.all.helpers.EntryHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
-import home.genealogy.util.CommandLineParameterList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,6 +26,7 @@ public class HTMLReferenceListForm
 	public static final String REFERENCE_INDEX_FILE_SYSTEM_SUBDIRECTORY = "index";
 	
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
@@ -36,6 +37,7 @@ public class HTMLReferenceListForm
 	private IOutputStream m_outputStream;
 	  
 	public HTMLReferenceListForm(CFGFamily family,
+								 PlaceList placeList,
 							     PersonList personList,
 							     MarriageList marriageList,
 							     ReferenceList referenceList,
@@ -46,6 +48,7 @@ public class HTMLReferenceListForm
 							     IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_referenceList =  referenceList;
@@ -103,7 +106,7 @@ public class HTMLReferenceListForm
 		while (iter.hasNext())
 		{
 			Reference reference = iter.next();
-			alReferences.add(new ReferenceSortableByPlaceName(reference));
+			alReferences.add(new ReferenceSortableByPlaceName(reference, m_placeList));
 		}
 		Collections.sort(alReferences);
 		String strCurrentPlaceName = "";
@@ -111,7 +114,7 @@ public class HTMLReferenceListForm
 		{
 			Reference reference = alReferences.get(i).getReference();
 			int iReferenceId = ReferenceHelper.getReferenceId(reference);
-			String strThisPlaceName = ReferenceHelper.getCitationPlace(reference);
+			String strThisPlaceName = ReferenceHelper.getCitationPlace(reference, m_placeList);
 			if (!strThisPlaceName.equals(strCurrentPlaceName))
 			{
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, strThisPlaceName);
@@ -145,7 +148,7 @@ public class HTMLReferenceListForm
 				{
 					Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);					
 					String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-							  paragraph, m_personList, m_marriageList,
+							paragraph, m_placeList, m_personList, m_marriageList,
                             m_referenceList, m_photoList,
                             m_indexMarrToSpouses,
                             true,

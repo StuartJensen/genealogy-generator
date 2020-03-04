@@ -16,6 +16,7 @@ import home.genealogy.indexes.TaggedContainerDescriptor;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
@@ -30,32 +31,32 @@ public class HTMLFGSForm
 	public static final String FGS_FILE_SYSTEM_SUBDIRECTORY = "fgs";
 	
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
 	private PhotoList m_photoList;
 	private boolean m_bSuppressLiving;
-	private boolean m_bSuppressLds;
 	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLFGSForm(CFGFamily family,
+							  PlaceList placeList,
 							  PersonList personList,
 							  MarriageList marriageList,
 							  ReferenceList referenceList,
 							  PhotoList photoList,
 							  boolean bSuppressLiving,
-							  boolean bSuppressLds,
 							  CommandLineParameters commandLineParameters,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_referenceList = referenceList;
 		m_photoList = photoList;
 		m_bSuppressLiving = bSuppressLiving;
-		m_bSuppressLds = bSuppressLds;
 		m_commandLineParameters = commandLineParameters;
 		m_outputStream = outputStream;
 	}
@@ -93,7 +94,7 @@ public class HTMLFGSForm
 		while (iter.hasNext())
 		{
 			Marriage thisMarriage = iter.next();
-			createFGS(m_family, m_personList, m_marriageList, m_referenceList,
+			createFGS(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
  					  m_photoList, m_bSuppressLiving, idxPerToParentMar,
  					  idxPerToMar, idxMarToSpouses, idxPerToRef, idxMarToRef,
  					  idxMarToChildren, strOutputPath, thisMarriage);
@@ -102,6 +103,7 @@ public class HTMLFGSForm
 	}
 	
 	private void createFGS(CFGFamily family,
+			 PlaceList placeList,
 			 PersonList personList,
 			 MarriageList marriageList,
 			 ReferenceList referenceList,
@@ -126,10 +128,10 @@ public class HTMLFGSForm
 		Person wife = personList.get(MarriageHelper.getWifePersonId(marriage));
 		if ((null != husband) && (null != wife))
 		{
-			PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving);
-			PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving);
-			MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving);
-			String strMarriageTitle = HTMLShared.buildSimpleMarriageNameString(personList, idxMarToSpouses, iMarriageId, bSuppressLiving, "{0} and {2}");
+			PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, placeList);
+			PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, placeList);
+			MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
+			String strMarriageTitle = HTMLShared.buildSimpleMarriageNameString(placeList, personList, idxMarToSpouses, iMarriageId, bSuppressLiving, "{0} and {2}");
 			output.outputSidebarFrontEnd("Family Group Sheet: " + strMarriageTitle, m_family, personList, marriageList);
 			
 			// Top of Document Internal Link Tag
@@ -200,7 +202,7 @@ public class HTMLFGSForm
 						Person child = personList.get(iChildId);
 						if (null != child)
 						{
-							PersonHelper childHelper = new PersonHelper(child, bSuppressLiving);
+							PersonHelper childHelper = new PersonHelper(child, bSuppressLiving, m_placeList);
 							// "Child #1 FEMALE"
 							String strGenderLine = "Child#&nbsp;" + iChildNumber + "&nbsp;" + PersonHelper.getGender(child);
 							output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, strGenderLine);
@@ -324,8 +326,8 @@ public class HTMLFGSForm
 		
 		if ((null != father) && (null != mother))
 		{
-			PersonHelper fatherHelper = new PersonHelper(father, bSuppressLiving);
-			PersonHelper motherHelper = new PersonHelper(mother, bSuppressLiving);
+			PersonHelper fatherHelper = new PersonHelper(father, bSuppressLiving, m_placeList);
+			PersonHelper motherHelper = new PersonHelper(mother, bSuppressLiving, m_placeList);
 			String strFatherName = fatherHelper.getPersonName();
 			String strMotherName = motherHelper.getPersonName();
 			if ((0 != strFatherName.length()) || (0 != strMotherName.length()))
@@ -592,7 +594,7 @@ public class HTMLFGSForm
 		Marriage marriage = marriageList.get(iMarriageId);
 		if (null != marriage)
 		{
-			MarriageHelper mh = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving);
+			MarriageHelper mh = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
 			String strDate = mh.getDate();
 			String strPlace = mh.getPlace();
 			if ((0 != strDate.length()) || (0 != strPlace.length()))
@@ -675,7 +677,7 @@ public class HTMLFGSForm
 				// Did we find the spouse?
 				if (null != spouse)
 				{	// Yes
-					PersonHelper spouseHelper = new PersonHelper(spouse, bSuppressLiving);
+					PersonHelper spouseHelper = new PersonHelper(spouse, bSuppressLiving, m_placeList);
 					String strSpouseName = spouseHelper.getPersonName();
 					if ((null != strSpouseName) && (0 != strSpouseName.length()))
 					{

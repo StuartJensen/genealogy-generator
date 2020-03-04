@@ -6,7 +6,6 @@ import java.util.List;
 import home.genealogy.schema.all.FirstName;
 import home.genealogy.schema.all.LastName;
 import home.genealogy.schema.all.MiddleName;
-import home.genealogy.schema.all.PersonIdentification;
 import home.genealogy.schema.all.PersonName;
 
 public class PersonNameHelper

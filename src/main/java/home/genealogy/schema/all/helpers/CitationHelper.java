@@ -1,5 +1,6 @@
 package home.genealogy.schema.all.helpers;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.Authority;
 import home.genealogy.schema.all.Citation;
 import home.genealogy.schema.all.Classification;
@@ -25,14 +26,14 @@ public class CitationHelper
 		return "";
 	}
 	
-	public static String getPlace(Citation citation)
+	public static String getPlace(Citation citation, PlaceList placeList)
 	{
 		if (null != citation)
 		{
 			Place place = citation.getPlace();
 			if (null != place)
 			{
-				return PlaceHelper.getPlace(place);
+				return PlaceHelper.getPlace(place, placeList);
 			}
 		}
 		return "";

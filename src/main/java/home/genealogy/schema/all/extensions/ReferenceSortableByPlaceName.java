@@ -1,5 +1,6 @@
 package home.genealogy.schema.all.extensions;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.DateRange;
 import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.helpers.DateHelper;
@@ -9,10 +10,12 @@ import home.genealogy.schema.all.helpers.ReferenceHelper;
 public class ReferenceSortableByPlaceName implements Comparable<ReferenceSortableByPlaceName>
 {
 	private Reference m_reference;
+	private PlaceList m_placeList;
 	
-	public ReferenceSortableByPlaceName(Reference reference)
+	public ReferenceSortableByPlaceName(Reference reference, PlaceList placeList)
 	{
 		m_reference = reference;
+		m_placeList = placeList;
 	}
 	
 	public Reference getReference()
@@ -22,8 +25,8 @@ public class ReferenceSortableByPlaceName implements Comparable<ReferenceSortabl
 	
 	public int compareTo(ReferenceSortableByPlaceName that)
 	{
-		String strThisPlace = ReferenceHelper.getCitationPlace(m_reference);
-		String strThatPlace = ReferenceHelper.getCitationPlace(that.getReference());
+		String strThisPlace = ReferenceHelper.getCitationPlace(m_reference, m_placeList);
+		String strThatPlace = ReferenceHelper.getCitationPlace(that.getReference(), m_placeList);
 		int iReturn = strThisPlace.compareTo(strThatPlace);
 		if (0 != iReturn)
 		{	// Place names are not equal

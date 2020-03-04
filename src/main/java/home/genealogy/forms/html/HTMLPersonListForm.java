@@ -3,6 +3,7 @@ package home.genealogy.forms.html;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.extensions.PersonSortableByName;
@@ -18,18 +19,21 @@ public class HTMLPersonListForm
 	public static final String PERSON_INDEX_FILE_SYSTEM_SUBDIRECTORY = "index";
 	
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private boolean m_bSuppressLiving;
 	private IOutputStream m_outputStream;
 	  
 	public HTMLPersonListForm(CFGFamily family,
+							  PlaceList placeList,
 							  PersonList personList,
 							  MarriageList marriageList,
 							  boolean bSuppressLiving,
 							  IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_bSuppressLiving = bSuppressLiving;
@@ -126,11 +130,11 @@ public class HTMLPersonListForm
 			{
 				Person thisPerson = alSortedPersons.get(iCurrentIndex).getPerson();
 				iCurrentIndex++;
-				if ((m_bSuppressLiving) && (PersonHelper.isLiving(thisPerson)))
+				if ((m_bSuppressLiving) && (PersonHelper.isLiving(thisPerson, m_placeList)))
 				{	// Do not include living persons in the list at all.
 					continue;
 				}
-				PersonHelper personHelper = new PersonHelper(thisPerson, m_bSuppressLiving);
+				PersonHelper personHelper = new PersonHelper(thisPerson, m_bSuppressLiving, m_placeList);
 				String strPersonName = personHelper.getPersonName();
 				if (-1 != iTerminatorIdx)
 				{

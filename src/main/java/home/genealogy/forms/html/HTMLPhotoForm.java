@@ -13,6 +13,7 @@ import home.genealogy.indexes.IndexPersonsToReferences;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
+import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Caption;
@@ -53,6 +54,7 @@ public class HTMLPhotoForm
 	public static final String PHOTOWRAPPER_FILE_SYSTEM_SUBDIRECTORY = "photowrappers";
 	
 	private CFGFamily m_family;
+	private PlaceList m_placeList;
 	private PersonList m_personList;
 	private MarriageList m_marriageList;
 	private ReferenceList m_referenceList;
@@ -63,6 +65,7 @@ public class HTMLPhotoForm
 	private IOutputStream m_outputStream;
 	  
 	public HTMLPhotoForm(CFGFamily family,
+							  PlaceList placeList,
 							  PersonList personList,
 							  MarriageList marriageList,
 							  ReferenceList referenceList,
@@ -73,6 +76,7 @@ public class HTMLPhotoForm
 							  IOutputStream outputStream)
 	{
 		m_family = family;
+		m_placeList = placeList;
 		m_personList = personList;
 		m_marriageList = marriageList;
 		m_referenceList = referenceList;
@@ -114,7 +118,7 @@ public class HTMLPhotoForm
 		while (iter.hasNext())
 		{
 			Photo thisPhoto = iter.next();
-			createPhoto(m_family, m_personList, m_marriageList, m_referenceList,
+			createPhoto(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
 						         m_photoList, m_bSuppressLiving, idxPerToParentMar,
 						         idxPerToMar, idxMarToSpouses, strOutputPath, thisPhoto);
 		}
@@ -123,6 +127,7 @@ public class HTMLPhotoForm
 
 
 	private void createPhoto(CFGFamily family,
+				 PlaceList placeList,
 				 PersonList personList,
 				 MarriageList marriageList,
 				 ReferenceList referenceList,
@@ -150,7 +155,7 @@ public class HTMLPhotoForm
 		for (int i=0; i<lDescription.size(); i++)
 		{
 			String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-					lDescription.get(i), m_personList, m_marriageList,
+					lDescription.get(i), placeList, m_personList, m_marriageList,
                     m_referenceList, m_photoList,
                     m_indexMarrToSpouses,
                     true,
@@ -298,7 +303,7 @@ public class HTMLPhotoForm
 									{
 										Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);					
 										String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-												  paragraph, m_personList, m_marriageList,
+												  paragraph, placeList, m_personList, m_marriageList,
 					                            m_referenceList, m_photoList,
 					                            m_indexMarrToSpouses,
 					                            true,
@@ -322,7 +327,7 @@ public class HTMLPhotoForm
 			{	// The photo has a singleton
 				Singleton singleton = PhotoHelper.getSingleton(photo);
 				String strDate = SingletonHelper.getDate(singleton);
-				String strPlace = SingletonHelper.getPlace(singleton);
+				String strPlace = SingletonHelper.getPlace(singleton, m_placeList);
 //				PhotoPhotographer *pPhotographer = pSingleton->GetPhotographer();
 				Caption caption = SingletonHelper.getCaption(singleton);
 				Commentary commentary = SingletonHelper.getCommentary(singleton);
@@ -346,7 +351,7 @@ public class HTMLPhotoForm
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Inscription on the backside of the photo:");
 					output.outputBR();
 					String strCaption = HTMLShared.buildParagraphListObject(m_family, m_commandLineParameters,
-							  CaptionHelper.getParagraphs(caption), m_personList, m_marriageList,
+							  CaptionHelper.getParagraphs(caption), placeList, m_personList, m_marriageList,
 							  m_referenceList, m_photoList,
 							  m_indexMarrToSpouses,
 							  true,
@@ -388,7 +393,7 @@ public class HTMLPhotoForm
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Editor's Comments:");
 					output.outputBR();
 					String strCommentary = HTMLShared.buildParagraphListObject(m_family, m_commandLineParameters,
-							  CommentaryHelper.getParagraphs(commentary), m_personList, m_marriageList,
+							  CommentaryHelper.getParagraphs(commentary), placeList, m_personList, m_marriageList,
 							  m_referenceList, m_photoList,
 							  m_indexMarrToSpouses,
 							  true,
@@ -410,7 +415,7 @@ public class HTMLPhotoForm
 				if (0 != PhotoHelper.getSeeAlsoObjectCount(photo))
 				{
 					String strSeeAlso = HTMLShared.buildSeeAlsoString(PhotoHelper.getSeeAlso(photo), family, m_commandLineParameters,
-																	  m_personList, m_marriageList, m_referenceList,
+																	  placeList, m_personList, m_marriageList, m_referenceList,
 																	  m_photoList, null, m_indexMarrToSpouses);
 					if (0 != strSeeAlso.length())
 					{
@@ -439,7 +444,7 @@ public class HTMLPhotoForm
 							Person taggedPerson = personList.get(iPersonId);
 							if (null != taggedPerson)
 							{
-								PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving);
+								PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving, m_placeList);
 								String strTaggedPersonName = taggedPersonHelper.getPersonName();
 								int iPersonTagCount = PersonTagHelper.getPersonTagTypeCount(personTag);
 								for (int t=0; t<iPersonTagCount; t++)
@@ -490,9 +495,9 @@ public class HTMLPhotoForm
 								Person wife = personList.get(MarriageHelper.getWifePersonId(taggedMarriage));
 								if ((null != husband) && (null != wife))
 								{
-									PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving);
-									PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving);
-									MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving);
+									PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, m_placeList);
+									PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, m_placeList);
+									MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
 									String strTaggedMarriageName = taggedMarriageHelper.getMarriageName(personList);
 									int iMarriageTagCount = MarriageTagHelper.getMarriageTagTypeCount(marriageTag);
 									for (int t=0; t<iMarriageTagCount; t++)

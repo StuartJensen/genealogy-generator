@@ -42,6 +42,7 @@ public class CFGFamily
 	public static final String MARRIAGES_ALL_FILENAME = "allMarriages" + DOTXML_FILE_POSTFIX;
 	public static final String PHOTOS_ALL_FILENAME = "allPhotos" + DOTXML_FILE_POSTFIX;
 	public static final String REFERENCES_ALL_FILENAME = "allReferences" + DOTXML_FILE_POSTFIX;
+	public static final String PLACES_ALL_FILENAME = "allPlaces" + DOTXML_FILE_POSTFIX;
 	
 	private String m_strFamilyIdentifier;
 	private String m_strSurname;

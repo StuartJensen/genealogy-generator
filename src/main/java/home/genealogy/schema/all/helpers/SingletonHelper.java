@@ -2,10 +2,10 @@ package home.genealogy.schema.all.helpers;
 
 import java.util.List;
 
+import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.Caption;
 import home.genealogy.schema.all.Commentary;
 import home.genealogy.schema.all.Date;
-import home.genealogy.schema.all.Entry;
 import home.genealogy.schema.all.MarriageTag;
 import home.genealogy.schema.all.PersonTag;
 import home.genealogy.schema.all.Place;
@@ -27,14 +27,14 @@ public class SingletonHelper
 		return "";
 	}
 	
-	public static String getPlace(Singleton singleton)
+	public static String getPlace(Singleton singleton, PlaceList placeList)
 	{
 		if (null != singleton)
 		{
 			Place place = singleton.getPlace();
 			if (null != place)
 			{
-				return PlaceHelper.getPlace(place);
+				return PlaceHelper.getPlace(place, placeList);
 			}
 		}
 		return "";
