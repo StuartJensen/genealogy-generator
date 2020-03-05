@@ -1,5 +1,9 @@
 package home.genealogy.schema.all.helpers;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.DeathInfo;
 import home.genealogy.schema.all.Info;
@@ -31,17 +35,17 @@ public class DeathInfoHelper
 		}
 		return "";
 	}
-	
-	public static String getCause(DeathInfo deathInfo)
+
+	public static List<String> getCause(DeathInfo deathInfo)
 	{
 		if (null != deathInfo)
 		{
-			String strCause = deathInfo.getCause();
-			if (null != strCause)
+			List<String> lCause = deathInfo.getCause();
+			if (null != lCause)
 			{
-				return strCause;
+				return lCause;
 			}
 		}
-		return "";
+		return Collections.emptyList();
 	}
 }

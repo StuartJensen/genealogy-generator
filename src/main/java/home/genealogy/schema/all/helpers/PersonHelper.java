@@ -2,6 +2,7 @@ package home.genealogy.schema.all.helpers;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import home.genealogy.lists.PlaceList;
@@ -15,8 +16,6 @@ import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.EventGroup;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonName;
-import home.genealogy.schema.all.Profession;
-import home.genealogy.schema.all.Religion;
 
 public class PersonHelper
 {
@@ -131,12 +130,7 @@ public class PersonHelper
 		List<String> lProfessions = getProfessions(m_person);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
-			ArrayList<String> alProfessions = new ArrayList<String>();
-			for (int i=0; i<lProfessions.size(); i++)
-			{
-				alProfessions.add(LIVING);
-			}
-			return alProfessions;
+			return Collections.singletonList(LIVING);
 		}
 		return lProfessions;
 	}
@@ -146,12 +140,7 @@ public class PersonHelper
 		List<String> lReligions = getReligions(m_person);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
-			ArrayList<String> alReligions = new ArrayList<String>();
-			for (int i=0; i<lReligions.size(); i++)
-			{
-				alReligions.add(LIVING);
-			}
-			return alReligions;
+			return Collections.singletonList(LIVING);
 		}
 		return lReligions;
 	}
@@ -161,12 +150,7 @@ public class PersonHelper
 		List<String> lNickNames = getNickNames(m_person);
 		if (m_bSuppressLiving && m_bIsPersonLiving)
 		{
-			ArrayList<String> alNickNames = new ArrayList<String>();
-			for (int i=0; i<lNickNames.size(); i++)
-			{
-				alNickNames.add(LIVING);
-			}
-			return alNickNames;
+			return Collections.singletonList(LIVING);
 		}
 		return lNickNames;
 	}
@@ -443,38 +427,22 @@ public class PersonHelper
 	{
 		if (null != person)
 		{
-			List<Profession> lProfession = person.getProfession();
-			if (null != lProfession)
-			{
-				ArrayList<String> alProfessions = new ArrayList<String>();
-				for (int i=0; i<lProfession.size(); i++)
-				{
-					Profession p = lProfession.get(i);
-					alProfessions.add(p.getName());
-				}
-				return alProfessions;
-			}
+			return person.getProfession();
 		}
-		return (new ArrayList<String>());
+		return Collections.emptyList();
 	}
 
 	public static List<String> getReligions(Person person)
 	{
 		if (null != person)
 		{
-			List<Religion> lReligion = person.getReligion();
+			List<String> lReligion = person.getReligion();
 			if (null != lReligion)
 			{
-				ArrayList<String> alReligions = new ArrayList<String>();
-				for (int i=0; i<lReligion.size(); i++)
-				{
-					Religion r = lReligion.get(i);
-					alReligions.add(r.getName());
-				}
-				return alReligions;
+				return lReligion;
 			}
 		}
-		return (new ArrayList<String>());
+		return Collections.emptyList();
 	}
 	
 	public static List<String> getNickNames(Person person)
@@ -616,7 +584,7 @@ public class PersonHelper
 		return "";
 	}
 	
-	public static String getDeathCause(Person person)
+	public static List<String> getDeathCause(Person person)
 	{
 		if (null != person)
 		{
@@ -626,7 +594,7 @@ public class PersonHelper
 				return DeathInfoHelper.getCause(deathInfo);
 			}
 		}
-		return "";
+		return Collections.emptyList();
 	}
 	
 	public static String getBurialDate(Person person)
@@ -865,8 +833,8 @@ public class PersonHelper
 		{	// Has a death place
 			return true;
 		}
-		String strDeathCause = PersonHelper.getDeathCause(person);
-		if (0 != strDeathCause.length())
+		List<String> lDeathCause = PersonHelper.getDeathCause(person);
+		if (!lDeathCause.isEmpty())
 		{	// Has a death cause
 			return true;
 		}

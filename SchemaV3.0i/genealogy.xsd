@@ -97,8 +97,8 @@
         <xs:element minOccurs="0" maxOccurs="unbounded" name="nickName" type="xs:string"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="moniker" type="xs:string"/>
         <xs:element minOccurs="0" maxOccurs="1" name="royalEnumeration" type="xs:string"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="profession"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="religion"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="profession" type="xs:string" />
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="religion" type="xs:string" />
         <xs:element minOccurs="0" maxOccurs="1" ref="birthInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="chrInfo"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="deathInfo"/>
@@ -250,27 +250,20 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="info"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="cause" type="xs:string" />
       </xs:sequence>
-      <xs:attribute name="cause"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="religion">
-    <xs:complexType mixed="true">
-      <xs:attribute name="name"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="profession">
-    <xs:complexType mixed="true">
-      <xs:attribute name="name"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="burialInfo">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="info"/>
+        <xs:element minOccurs="0" name="cemetery" type="xs:string" />
+        <xs:element minOccurs="0" name="cemeteryPlot" type="xs:string" />
       </xs:sequence>
       <xs:attribute name="cemeteryName"/>
       <xs:attribute name="cemeteryPlotAddress"/>
+      <xs:attribute name="cremated" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="persons">

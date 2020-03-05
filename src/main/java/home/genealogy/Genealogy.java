@@ -38,6 +38,7 @@ import home.genealogy.schema.all.Place;
 import home.genealogy.schema.all.PlaceName;
 import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.helpers.PlaceHelper;
+import home.genealogy.util.StringUtil;
 
 public class Genealogy
 {
@@ -191,7 +192,44 @@ public class Genealogy
 				errorChecker.check();
 			}
 			else if (commandLineParameters.isActionConvert())
-			{
+			{				
+				Iterator<Person> iter = personList.getPersons();
+				while (iter.hasNext())
+				{
+					Person p = iter.next();
+/*					
+					if ((null != p.getBurialInfo()) &&
+						(StringUtil.exists(p.getBurialInfo().getCemeteryName())))
+					{
+						p.getBurialInfo().setCemetery(p.getBurialInfo().getCemeteryName());
+						p.getBurialInfo().setCemeteryName(null);
+					}
+					if ((null != p.getBurialInfo()) &&
+						(StringUtil.exists(p.getBurialInfo().getCemeteryPlotAddress())))
+					{
+						p.getBurialInfo().setCemeteryPlot(p.getBurialInfo().getCemeteryPlotAddress());
+						p.getBurialInfo().setCemeteryPlotAddress(null);
+					}
+					List<Religion> lR = p.getReligion();
+					for (Religion r : lR)
+					{
+						if (StringUtil.exists(r.getName()))
+						{
+							r.setContent(r.getName());
+							r.setName(null);
+						}
+					}
+					if (null != p.getProfessionXX())
+					{
+						List<String> lCXX = p.getProfessionXX();
+						List<String> lC = p.getProfession();
+						lC.addAll(lCXX);
+						lCXX.clear();
+					}
+*/
+				}
+				personList.marshallAllFile(family, true);
+				outputStream.output("Stored Person List to destination: " + CFGFamily.PERSONS_ALL_FILENAME + " file\n");
 			}
 			if (null != outputStream)
 			{

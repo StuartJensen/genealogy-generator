@@ -746,7 +746,7 @@ public class HTMLPersonInfoForm
 		List<String> lProfessions = personHelper.getProfessions();
 		if (0 != lProfessions.size())
 		{
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Professions: ");
+			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Profession(s): ");
 			for (int iProf=0; iProf<lProfessions.size(); iProf++)
 			{
 				String strProfession = lProfessions.get(iProf);
@@ -764,7 +764,7 @@ public class HTMLPersonInfoForm
 		List<String> lReligions = personHelper.getReligions();
 		if (0 != lReligions.size())
 		{
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Religions: ");
+			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Religion(s): ");
 			for (int iRelig=0; iRelig<lReligions.size(); iRelig++)
 			{
 				String strReligion = lReligions.get(iRelig);
@@ -779,11 +779,15 @@ public class HTMLPersonInfoForm
 		}
 		
 		// Cause of Death
-		if (0 != PersonHelper.getDeathCause(person).length())
+		List<String> lCauseOfDeath = PersonHelper.getDeathCause(person);
+		if (!lCauseOfDeath.isEmpty())
 		{
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Cause of Death: ");
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, PersonHelper.getDeathCause(person));
-			output.outputBR();
+			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Cause(s) of Death: ");
+			for (String strCauseOfDeath : lCauseOfDeath)
+			{
+				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strCauseOfDeath);
+				output.outputBR();
+			}
 			output.outputCRLF();
 		}
 		output.outputBR();
