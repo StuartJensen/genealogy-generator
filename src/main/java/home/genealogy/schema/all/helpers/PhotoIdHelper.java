@@ -16,17 +16,7 @@ public class PhotoIdHelper
 	
 	public static int getPhotoId(PhotoId photoId)
 	{
-		String strId = photoId.getId();
-		if (null != strId)
-		{
-			try
-			{
-				return Integer.parseInt(strId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return PHOTOID_INVALID;
+		return photoId.getId();
 	}
 	
 	public static ePhotoIdType getType(PhotoId photoId)

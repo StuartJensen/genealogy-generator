@@ -18,17 +18,7 @@ public class ReferenceHelper
 {
 	public static int getReferenceId(Reference reference)
 	{
-		String strReferenceId = reference.getReferenceId();
-		if (null != strReferenceId)
-		{
-			try
-			{
-				return Integer.parseInt(strReferenceId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return ReferenceIdHelper.REFERENCEID_INVALID;
+		return reference.getReferenceId();
 	}
 	
 	public static String getTitle(Reference reference)

@@ -14,6 +14,7 @@ import home.genealogy.schema.all.Date;
 import home.genealogy.schema.all.DeathInfo;
 import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.EventGroup;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonName;
 
@@ -332,30 +333,15 @@ public class PersonHelper
 
 	public static int getPersonId(Person person)
 	{
-		String strPersonId = person.getPersonId();
-		if (null != strPersonId)
-		{
-			try
-			{
-				return Integer.parseInt(strPersonId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return PersonIdHelper.PERSONID_INVALID;
+		return person.getPersonId();
 	}
 	
 	public static int getParentId(Person person)
 	{
-		String strParentId = person.getParentId();
-		if (null != strParentId)
+		List<Parents> lParents = person.getParents();
+		if (!lParents.isEmpty())
 		{
-			try
-			{
-				return Integer.parseInt(strParentId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
+			return lParents.get(0).getMarriageId();
 		}
 		return MarriageIdHelper.MARRIAGEID_INVALID;
 	}

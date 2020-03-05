@@ -8,16 +8,6 @@ public class ReferenceIdHelper
 	
 	public static int getReferenceId(ReferenceId referenceId)
 	{
-		String strId = referenceId.getId();
-		if (null != strId)
-		{
-			try
-			{
-				return Integer.parseInt(strId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return REFERENCEID_INVALID;
+		return referenceId.getId();
 	}
 }

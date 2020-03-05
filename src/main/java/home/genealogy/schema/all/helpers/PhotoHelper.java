@@ -25,17 +25,7 @@ public class PhotoHelper
 	
 	public static int getPhotoId(Photo photo)
 	{
-		String strPhotoId = photo.getPhotoId();
-		if (null != strPhotoId)
-		{
-			try
-			{
-				return Integer.parseInt(strPhotoId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return PhotoIdHelper.PHOTOID_INVALID;
+		return photo.getPhotoId();
 	}
 	
 	public static String getAccess(Photo photo)

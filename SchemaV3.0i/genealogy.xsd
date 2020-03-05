@@ -22,7 +22,29 @@
       <xs:attribute name="formsCounterHome"/>
     </xs:complexType>
   </xs:element>
-    <xs:element name="placeNames">
+  
+  <xs:simpleType name="parentRelationshipType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="motherBlood"/>
+      <xs:enumeration value="fatherBlood"/>
+      <xs:enumeration value="motherAdopted"/>
+      <xs:enumeration value="fatherAdopted"/>
+      <xs:enumeration value="motherDeFacto"/>
+      <xs:enumeration value="fatherDeFacto"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="parents">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="parentRelationship" type="parentRelationshipType" />
+      </xs:sequence>
+      <xs:attribute name="marriageId" use="required" type="xs:int" />
+      <xs:attribute name="preferred" type="xs:boolean" />
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="placeNames">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="placeName"/>
@@ -35,9 +57,9 @@
         <xs:element minOccurs="0" ref="marriageInfo"/>
         <xs:element minOccurs="0" ref="termination"/>
       </xs:sequence>
-      <xs:attribute name="marriageId" use="required"/>
-      <xs:attribute name="husbandPersonId" use="required"/>
-      <xs:attribute name="wifePersonId" use="required"/>
+      <xs:attribute name="marriageId" use="required" type="xs:int" />
+      <xs:attribute name="husbandPersonId" use="required" type="xs:int" />
+      <xs:attribute name="wifePersonId" use="required" type="xs:int" />
       <xs:attribute name="version" use="required"/>
       <xs:attribute name="inLine">
         <xs:simpleType>
@@ -93,6 +115,7 @@
   <xs:element name="person">
     <xs:complexType>
      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="parents"/>
         <xs:element minOccurs="1" maxOccurs="1" ref="personName"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="nickName" type="xs:string"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="moniker" type="xs:string"/>
@@ -106,17 +129,8 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="eventGroup"/>
       </xs:sequence>
       <xs:attribute name="version" use="required"/>
-      <xs:attribute name="personId" use="required"/>
-      <xs:attribute name="parentId"/>
+      <xs:attribute name="personId" use="required" type="xs:int"/>
       <xs:attribute name="relationshipToPrimary"/>
-      <xs:attribute name="adopted">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="Yes"/>
-            <xs:enumeration value="No"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
       <xs:attribute name="afn"/>
       <xs:attribute name="ssn"/>
       <xs:attribute name="gender" use="required">
@@ -281,7 +295,7 @@
         <xs:element ref="source"/>
         <xs:element minOccurs="0" ref="seeAlso"/>
       </xs:sequence>
-      <xs:attribute name="photoId" use="required"/>
+      <xs:attribute name="photoId" use="required" type="xs:int" />
       <xs:attribute name="access">
         <xs:simpleType>
           <xs:restriction base="xs:token">
@@ -382,7 +396,7 @@
         <xs:element minOccurs="0" ref="personName"/>
         <xs:element minOccurs="0" ref="studioName"/>
       </xs:sequence>
-      <xs:attribute name="personId"/>
+      <xs:attribute name="personId" type="xs:int" />
     </xs:complexType>
   </xs:element>
   <xs:element name="studioName" type="xs:string"/>
@@ -393,7 +407,7 @@
         <xs:element minOccurs="0" ref="asOf"/>
         <xs:element minOccurs="0" ref="address"/>
       </xs:sequence>
-      <xs:attribute name="personId"/>
+      <xs:attribute name="personId" type="xs:int" />
     </xs:complexType>
   </xs:element>
   <xs:element name="asOf">
@@ -444,7 +458,7 @@
         <xs:element ref="citation"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="entry"/>
       </xs:sequence>
-      <xs:attribute name="referenceId" use="required"/>
+      <xs:attribute name="referenceId" use="required" type="xs:int" />
     </xs:complexType>
   </xs:element>
   <xs:element name="citation">
@@ -579,7 +593,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="entryId" use="required"/>
+      <xs:attribute name="entryId" use="required" type="xs:int" />
     </xs:complexType>
   </xs:element>
   <xs:element name="classification">
@@ -1229,18 +1243,18 @@
   </xs:element>
   <xs:element name="referenceId">
     <xs:complexType mixed="true">
-      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="id" use="required" type="xs:int" />
     </xs:complexType>
   </xs:element>
   <xs:element name="referenceEntryId">
     <xs:complexType mixed="true">
-      <xs:attribute name="id" use="required"/>
-      <xs:attribute name="entryId" use="required"/>
+      <xs:attribute name="id" use="required" type="xs:int" />
+      <xs:attribute name="entryId" use="required" type="xs:int" />
     </xs:complexType>
   </xs:element>
   <xs:element name="photoId">
     <xs:complexType mixed="true">
-      <xs:attribute name="id" use="required"/>
+      <xs:attribute name="id" use="required"  type="xs:int" />
       <xs:attribute name="type">
         <xs:simpleType>
           <xs:restriction base="xs:token">

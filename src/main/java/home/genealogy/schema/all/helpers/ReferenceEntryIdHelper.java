@@ -8,31 +8,11 @@ public class ReferenceEntryIdHelper
 	
 	public static int getReferenceId(ReferenceEntryId referenceEntryId)
 	{
-		String strId = referenceEntryId.getId();
-		if (null != strId)
-		{
-			try
-			{
-				return Integer.parseInt(strId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return ReferenceIdHelper.REFERENCEID_INVALID;
+		return referenceEntryId.getId();
 	}
 	
 	public static int getReferenceEntryId(ReferenceEntryId referenceEntryId)
 	{
-		String strId = referenceEntryId.getEntryId();
-		if (null != strId)
-		{
-			try
-			{
-				return Integer.parseInt(strId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return REFERENCEENTRYID_INVALID;
+		return referenceEntryId.getEntryId();
 	}
 }

@@ -99,47 +99,17 @@ public class MarriageHelper
 	
 	public static int getMarriageId(Marriage marriage)
 	{
-		String strMarriageId = marriage.getMarriageId();
-		if (null != strMarriageId)
-		{
-			try
-			{
-				return Integer.parseInt(strMarriageId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return MarriageIdHelper.MARRIAGEID_INVALID;
+		return marriage.getMarriageId();
 	}
 	
 	public static int getHusbandPersonId(Marriage marriage)
 	{
-		String strPersonId = marriage.getHusbandPersonId();
-		if (null != strPersonId)
-		{
-			try
-			{
-				return Integer.parseInt(strPersonId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return PersonIdHelper.PERSONID_INVALID;
+		return marriage.getHusbandPersonId();
 	}
 	
 	public static int getWifePersonId(Marriage marriage)
 	{
-		String strPersonId = marriage.getWifePersonId();
-		if (null != strPersonId)
-		{
-			try
-			{
-				return Integer.parseInt(strPersonId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return PersonIdHelper.PERSONID_INVALID;
+		return marriage.getWifePersonId();
 	}
 	
 	

@@ -21,17 +21,7 @@ public class EntryHelper
 	
 	public static int getEntryId(Entry entry)
 	{
-		String strEntryId = entry.getEntryId();
-		if (null != strEntryId)
-		{
-			try
-			{
-				return Integer.parseInt(strEntryId);
-			}
-			catch (Exception e)
-			{/* return invalid id */}
-		}
-		return REFERENCEID_INVALID;
+		return entry.getEntryId();
 	}
 	
 	public static boolean hasPrivateAccess(Entry entry)

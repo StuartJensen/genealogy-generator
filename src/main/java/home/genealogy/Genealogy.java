@@ -32,6 +32,7 @@ import home.genealogy.output.StdOutOutput;
 import home.genealogy.schema.all.BirthInfo;
 import home.genealogy.schema.all.Info;
 import home.genealogy.schema.all.Marriage;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Place;
@@ -225,6 +226,21 @@ public class Genealogy
 						List<String> lC = p.getProfession();
 						lC.addAll(lCXX);
 						lCXX.clear();
+					}
+					
+					if (StringUtil.exists(p.getParentId()))
+					{
+						int iParentId = 0;
+						try
+						{
+							iParentId = Integer.parseInt(p.getParentId());
+						}
+						catch (NumberFormatException nfe) {nfe.printStackTrace();}
+						List<Parents> lParents = p.getParents();
+						Parents pnew = new Parents();
+						pnew.setMarriageId(iParentId);
+						lParents.add(pnew);
+						p.setParentId(null);
 					}
 */
 				}
