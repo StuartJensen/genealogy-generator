@@ -142,14 +142,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="living">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="Yes"/>
-            <xs:enumeration value="No"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
+      <xs:attribute name="living" type="xs:boolean" />
     </xs:complexType>
   </xs:element>
   <xs:element name="eventGroup">

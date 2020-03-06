@@ -2,40 +2,53 @@ package home.genealogy.indexes;
 
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.PersonList;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
+import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
-import home.genealogy.schema.all.helpers.PersonIdHelper;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class IndexPersonToParentMarriage
 {
-	// Index into array = Person Id
-	// Value of array entry = Marriage Ids for that person's parents
-	private int[] m_arIndex;
+	// Key is the Person Id
+	// Value is the list of parents objects for that person
+	private Map<Integer, List<Parents>> m_mPersonIdToParents;
 	
 	public IndexPersonToParentMarriage(CFGFamily family, PersonList personList)
 	{
-		m_arIndex = new int[family.getPersonListMaxSize()];
-		for (int i=0; i<m_arIndex.length; i++)
-		{	// Init entire array of marriage ids to invalid
-			m_arIndex[i] = MarriageIdHelper.MARRIAGEID_INVALID;
-		}
+		m_mPersonIdToParents = new HashMap<Integer, List<Parents>>();
 		Iterator<Person> iter = personList.getPersons();
 		while (iter.hasNext())
 		{
 			Person person = iter.next();
 			int iPersonId = PersonHelper.getPersonId(person);
-			int iParentId = PersonHelper.getParentId(person);
-			if ((PersonIdHelper.PERSONID_INVALID != iPersonId) &&
-				(PersonIdHelper.PERSONID_INVALID != iParentId))
+			List<Parents> lParents = PersonHelper.getParents(person);
+			if (!lParents.isEmpty())
 			{
-				m_arIndex[iPersonId] = iParentId;
+				m_mPersonIdToParents.put(new Integer(iPersonId), lParents);
 			}
 		}
 	}
 	
+	public int getPreferredParentMarriageId(int iPersonId)
+	{
+		List<Parents> lParents = m_mPersonIdToParents.get(new Integer(iPersonId));
+		if (null != lParents)
+		{	// If parent list is in map, then it is not empty
+			Parents preferredParents = ParentsHelper.getPreferredParents(lParents);
+			if (null != preferredParents)
+			{
+				return preferredParents.getMarriageId();
+			}
+		}
+		return MarriageIdHelper.MARRIAGEID_INVALID;
+	}
+/*	
 	public int getParentMarriageId(int iPersonId)
 	{
 		if (iPersonId < m_arIndex.length)
@@ -44,5 +57,5 @@ public class IndexPersonToParentMarriage
 		}
 		return MarriageIdHelper.MARRIAGEID_INVALID;
 	}
-	
+*/	
 }

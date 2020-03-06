@@ -3,9 +3,11 @@ package home.genealogy.util;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.schema.all.Marriage;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
+import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
 
@@ -34,9 +36,10 @@ public class TwoGenerations
 			m_person = personList.get(m_iPersonPId);
 			if (null != m_person)
 			{
-				m_iParentsMId = PersonHelper.getParentId(m_person);
-				if (MarriageIdHelper.MARRIAGEID_INVALID != m_iParentsMId)
+				Parents parents = ParentsHelper.getPreferredBloodThenAnyParents(m_person.getParents());
+				if (null != parents)
 				{
+					m_iParentsMId = parents.getMarriageId();
 					m_parentMarriage = marriageList.get(m_iParentsMId);
 					if (null != m_parentMarriage)
 					{

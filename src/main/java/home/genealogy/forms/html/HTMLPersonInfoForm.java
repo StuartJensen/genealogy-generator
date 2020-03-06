@@ -25,12 +25,15 @@ import home.genealogy.schema.all.Entry;
 import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.Paragraph;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Reference;
+import home.genealogy.schema.all.ParentRelationshipType;
 import home.genealogy.schema.all.helpers.EntryHelper;
 import home.genealogy.schema.all.helpers.EventHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
+import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
@@ -141,6 +144,8 @@ public class HTMLPersonInfoForm
 		
 		// Discover relatives...
 		// .... parents
+		List<Parents> lParents = personHelper.getParents();
+/*
 		Person personFather = null;
 		Person personMother = null;
 		int iParentMarriageId = personHelper.getParentId();
@@ -156,6 +161,7 @@ public class HTMLPersonInfoForm
 				personMother = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX]);
 			}
 		}
+*/		
 		// .... marriages
 		int iMarriageCount = idxPerToMar.getMarriageCount(personHelper.getPersonId());
 		ArrayList<Integer> alMarriageIds = idxPerToMar.getMarriageIds(personHelper.getPersonId());
@@ -215,7 +221,7 @@ public class HTMLPersonInfoForm
 		// Small Links to Page Sections
 		output.output("<center><span class=\"pageBodySmallLink\">");
 		// First Line "(parents) - (marriages)"
-		if ((null != personFather) || (null != personMother))
+		if (!lParents.isEmpty())
 		{
 			output.outputStartAnchor("#InfoParents");
 			output.output("(Parents)");
@@ -231,7 +237,7 @@ public class HTMLPersonInfoForm
 			output.output("(Marriages)");
 			output.outputEndAnchor();
 		}
-		if (((null != personFather) || (null != personMother)) || (iMarriageCount >= 1))
+		if (!lParents.isEmpty() || (iMarriageCount >= 1))
 		{
 			output.outputBR();
 		}
@@ -277,7 +283,7 @@ public class HTMLPersonInfoForm
 	
 		
 		// Show Parents
-		if ((null != personFather) && (null != personMother))
+		if (!lParents.isEmpty())
 		{
 			// Parents Internal Link Tag
 			output.output("<A name=InfoParents></A>");
@@ -287,33 +293,57 @@ public class HTMLPersonInfoForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyMediumHeader, "Parents:");
 			output.outputBR(2);
 			output.outputCRLF();
-			// Father
-			PersonHelper fatherHelper = new PersonHelper(personFather, bSuppressLiving, placelist);
-			String strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personFather.getPersonId() + ".htm";
-			output.outputStandardBracketedLink(strHRef, "View Father");
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, fatherHelper.getPersonName());
-			output.outputBR();
-			output.outputCRLF();
-			// Mother
-			PersonHelper motherHelper = new PersonHelper(personMother, bSuppressLiving, placelist);
-			strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personMother.getPersonId() + ".htm";
-			output.outputStandardBracketedLink(strHRef, "View Mother");
-			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, motherHelper.getPersonName());
-			output.outputBR();
-			output.outputCRLF();
+			
+			for (Parents parents : lParents)
+			{
+				Person personFather = null;
+				Person personMother = null;
+				int[] arParentsIds = idxMarToSpouses.getSpouses(parents.getMarriageId());
+				if (PersonIdHelper.PERSONID_INVALID != arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX])
+				{
+					personFather = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX]);
+				}
+				if (PersonIdHelper.PERSONID_INVALID != arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX])
+				{
+					personMother = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX]);
+				}
+				
+				
+			
+				// Father
+				PersonHelper fatherHelper = new PersonHelper(personFather, bSuppressLiving, placelist);
+				String strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personFather.getPersonId() + ".htm";
+				output.outputStandardBracketedLink(strHRef, "View Father");
+				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, fatherHelper.getPersonName());
+				output.outputBR();
+				output.outputCRLF();
+				// Mother
+				PersonHelper motherHelper = new PersonHelper(personMother, bSuppressLiving, placelist);
+				strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personMother.getPersonId() + ".htm";
+				output.outputStandardBracketedLink(strHRef, "View Mother");
+				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, motherHelper.getPersonName());
+				output.outputBR();
+				output.outputCRLF();
 
-			// Show the link to the parent's FGS
-			if (MarriageIdHelper.MARRIAGEID_INVALID != iParentMarriageId)
-			{	// Show the "[View Parents Family Group Sheet]" link
-				strHRef = m_family.getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + iParentMarriageId + ".htm";
+				// Show the "[View Parents Family Group Sheet]" link
+				strHRef = m_family.getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + parents.getMarriageId() + ".htm";
 				output.outputStandardBracketedLink(strHRef, "View Family");
 				// Show parent's name in the marriage
-				String strWork = fatherHelper.getPersonName() + " and " + motherHelper.getPersonName() + " - MID# " + iParentMarriageId;
+				String strWork = fatherHelper.getPersonName() + " and " + motherHelper.getPersonName() + " - MID# " + parents.getMarriageId();
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strWork);
 				output.outputBR();
 				output.outputCRLF();
+				
+				// Show Parents Relationships
+				List<ParentRelationshipType> lParentsRelationships = parents.getParentRelationship();
+				if (!lParentsRelationships.isEmpty())
+				{
+					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallText, "Relationship Types: " + ParentsHelper.getConcatenatedRelationshipNames(parents));
+					output.outputBR(2);
+					output.outputCRLF();
+				}
+				output.outputBR();
 			}
-			output.outputBR();
 		}
 		
 		// Show Marriages

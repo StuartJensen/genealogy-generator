@@ -24,7 +24,7 @@ public class CommandLineParameters
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE = "validate";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME = "time";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET = "target";
-	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_WRITE = "write";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_TRANSFER = "transfer";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT = "convert";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM = "htmlform";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET = "target";
@@ -114,7 +114,7 @@ public class CommandLineParameters
 		
 		VALID_ACTIONS = new ArrayList<String>();
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE);
-		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_WRITE);
+		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_TRANSFER);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_ERRORCHECK);
@@ -295,9 +295,9 @@ public class CommandLineParameters
 		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_CONVERT);
 	}
 	
-	public boolean isActionWrite()
+	public boolean isActionTransfer()
 	{
-		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_WRITE);
+		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_TRANSFER);
 	}
 	
 	public boolean isActionHtmlForm()
@@ -832,14 +832,14 @@ public class CommandLineParameters
 		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML + " for writing lists to the all*.xml files");
 		System.out.println("     " + COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML + " for writing lists to individual xml files");
 
-		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_WRITE + " to read all lists from a source and write all lists to a destination");
+		System.out.println("   " + COMMAND_LINE_PARAM_ACTION_VALUE_TRANSFER + " to transfer all lists from a source and write all lists to a destination");
 		System.out.println("     " + COMMAND_LINE_PARAM_XML_FORMAT + "=[XML Output Format]");
 		System.out.println("       " + COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY + " for line ends and indented XML (default)");
 		System.out.println("       " + COMMAND_LINE_PARAM_XML_FORMAT_VALUE_COMPACT + " for unformatted small XML");
 
 		System.out.println(" Example Command Lines");
-		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_WRITE + " " + COMMAND_LINE_PARAM_SOURCE + "=" + COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML +" " + COMMAND_LINE_PARAM_DESTINATION + "=" + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML);
-		System.out.println("      to read all lists from individual xml files and write all list content to their respective all*.xml files");
+		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_TRANSFER + " " + COMMAND_LINE_PARAM_SOURCE + "=" + COMMAND_LINE_PARAM_SOURCE_VALUE_INDIVIDUALXML +" " + COMMAND_LINE_PARAM_DESTINATION + "=" + COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML);
+		System.out.println("      (transfer XML) to read all lists from individual xml files and write all list content to their respective all*.xml files");
 		System.out.println("      to read and write the opposite, flip the soure and destination values");
 		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt");
 		System.out.println("      to validate all lists and direct the output (validation results) to the specified log file");

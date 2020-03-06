@@ -16,9 +16,11 @@ import home.genealogy.configuration.CFGFamily;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.Marriages;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
+import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
 import home.genealogy.util.FileNameFileFilter;
@@ -75,19 +77,19 @@ public class MarriageList
 				Person husband = personList.get(iHusbandId);
 				if (null != husband)
 				{
-					int iHusbandParentMarriageId = PersonHelper.getParentId(husband);
-					if (MarriageIdHelper.MARRIAGEID_INVALID != iHusbandParentMarriageId)
+					Parents husbandParents = ParentsHelper.getPreferredBloodThenAnyParents(husband.getParents());
+					if (null != husbandParents)
 					{
-						setInLineFlags(iHusbandParentMarriageId, personList);
+						setInLineFlags(husbandParents.getMarriageId(), personList);
 					}
 				}
 				Person wife = personList.get(iWifeId);
 				if (null != wife)
 				{
-					int iWifeParentMarriageId = PersonHelper.getParentId(wife);
-					if (MarriageIdHelper.MARRIAGEID_INVALID != iWifeParentMarriageId)
+					Parents wifeParents = ParentsHelper.getPreferredBloodThenAnyParents(wife.getParents());
+					if (null != wifeParents)
 					{
-						setInLineFlags(iWifeParentMarriageId, personList);
+						setInLineFlags(wifeParents.getMarriageId(), personList);
 					}
 				}
 			}
@@ -251,7 +253,7 @@ public class MarriageList
 		while (iter.hasNext())
 		{
 			Marriage marriage = iter.next();
-			String strMarriageFileName = MessageFormat.format(CFGFamily.MARRIAGES_FILE_FORMAT_STRING, marriage.getMarriageId());
+			String strMarriageFileName = MessageFormat.format(CFGFamily.MARRIAGES_FILE_FORMAT_STRING, String.valueOf(marriage.getMarriageId()));
 			MarshallUtil.marshall(marshaller, marriage, strDirectory + File.separator + strMarriageFileName);
 		}
 	}

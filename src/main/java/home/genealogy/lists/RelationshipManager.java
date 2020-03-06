@@ -5,21 +5,25 @@ import home.genealogy.indexes.IndexMarriageToChildren;
 import home.genealogy.indexes.IndexPersonToMarriages;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonId;
 import home.genealogy.schema.all.helpers.MarriageHelper;
-import home.genealogy.schema.all.helpers.MarriageIdHelper;
+import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class RelationshipManager
 {
 	public static final String PERSON = "P";
-	public static final String FATHER = "F"; 
-	public static final String MOTHER = "M"; 
+	public static final String FATHER = "F";
+	public static final String MOTHER = "M";
+	public static final String PARENT_ADOPTED = "a";
+	public static final String PARENT_DEFACTO = "d";
 	public static final String CHILD = "C"; 
 	public static final String HUSBAND = "H"; 
 	public static final String WIFE = "W";
@@ -54,28 +58,49 @@ public class RelationshipManager
 				(0 == person.getRelationshipToPrimary().length()))
 			{
 				person.setRelationshipToPrimary(strRelationship);
-				int iParentId = PersonHelper.getParentId(person);
-				if (MarriageIdHelper.MARRIAGEID_INVALID != iParentId)
+				List<Parents> lParents = person.getParents();
+				if (!lParents.isEmpty())
 				{
-					Marriage marriage = marriageList.get(iParentId);
-					if (null != marriage)
+					for (Parents parent : lParents)
 					{
-						int iHusbandId = MarriageHelper.getHusbandPersonId(marriage);
-						int iWifeId = MarriageHelper.getWifePersonId(marriage);
-						if (PersonIdHelper.PERSONID_INVALID != iHusbandId)
+						Marriage marriage = marriageList.get(parent.getMarriageId());
+						if (null != marriage)
 						{
-							Person husband = personList.get(iHusbandId);
-							if (null != husband)
+							int iHusbandId = MarriageHelper.getHusbandPersonId(marriage);
+							int iWifeId = MarriageHelper.getWifePersonId(marriage);
+							if (PersonIdHelper.PERSONID_INVALID != iHusbandId)
 							{
-								setPrimaryRelationships(iHusbandId, personList, marriageList, strRelationship + FATHER);
+								Person husband = personList.get(iHusbandId);
+								if (null != husband)
+								{
+									String strFatherRelationship = strRelationship + FATHER;
+									if (ParentsHelper.isFatherAdopted(parent))
+									{
+										strFatherRelationship += PARENT_ADOPTED;
+									}
+									else if (ParentsHelper.isFatherDeFacto(parent))
+									{
+										strFatherRelationship += PARENT_DEFACTO;
+									}
+									setPrimaryRelationships(iHusbandId, personList, marriageList, strFatherRelationship);
+								}
 							}
-						}
-						if (PersonIdHelper.PERSONID_INVALID != iWifeId)
-						{
-							Person wife = personList.get(iWifeId);
-							if (null != wife)
+							if (PersonIdHelper.PERSONID_INVALID != iWifeId)
 							{
-								setPrimaryRelationships(iWifeId, personList, marriageList, strRelationship + MOTHER);
+								Person wife = personList.get(iWifeId);
+								if (null != wife)
+								{
+									String strMotherRelationship = strRelationship + MOTHER;
+									if (ParentsHelper.isMotherAdopted(parent))
+									{
+										strMotherRelationship += PARENT_ADOPTED;
+									}
+									else if (ParentsHelper.isMotherDeFacto(parent))
+									{
+										strMotherRelationship += PARENT_DEFACTO;
+									}
+									setPrimaryRelationships(iWifeId, personList, marriageList, strMotherRelationship);
+								}
 							}
 						}
 					}
@@ -100,13 +125,13 @@ public class RelationshipManager
 				(0 == strPersonRelationshipToPrimary.length()))
 			{
 				int iPersonId = PersonHelper.getPersonId(person);
-				int iParentId = PersonHelper.getParentId(person);
-				int iFatherId = PersonIdHelper.PERSONID_INVALID;
-				int iMotherId = PersonIdHelper.PERSONID_INVALID;
-				// Am I a child of a person that has a "relationship"
-	
-				if (MarriageIdHelper.MARRIAGEID_INVALID != iParentId)
+				List<Parents> lParents = PersonHelper.getParents(person);
+				for (Parents parent : lParents)
 				{
+					int iParentId = parent.getMarriageId();
+					int iFatherId = PersonIdHelper.PERSONID_INVALID;
+					int iMotherId = PersonIdHelper.PERSONID_INVALID;
+					// Am I a child of a person that has a "relationship"
 					Marriage marriage = marriageList.get(iParentId);
 					if (null != marriage)
 					{

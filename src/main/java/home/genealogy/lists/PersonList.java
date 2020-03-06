@@ -194,7 +194,7 @@ public class PersonList
 		while (iter.hasNext())
 		{
 			Person person = iter.next();
-			String strPersonFileName = MessageFormat.format(CFGFamily.PERSONS_FILE_FORMAT_STRING, person.getPersonId());
+			String strPersonFileName = MessageFormat.format(CFGFamily.PERSONS_FILE_FORMAT_STRING, String.valueOf(person.getPersonId()));
 			MarshallUtil.marshall(marshaller, person, strDirectory + File.separator + strPersonFileName);
 		}
 	}

@@ -3,10 +3,12 @@ package home.genealogy.indexes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.PersonList;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
@@ -27,17 +29,23 @@ public class IndexMarriageToChildren
 		{
 			Person person = iter.next();
 			int iPersonId = PersonHelper.getPersonId(person);
-			int iParentMarriageId = PersonHelper.getParentId(person);
-			if ((MarriageIdHelper.MARRIAGEID_INVALID != iParentMarriageId) &&
-				(PersonIdHelper.PERSONID_INVALID != iPersonId))
+			if (PersonIdHelper.PERSONID_INVALID != iPersonId)
 			{
-				ArrayList<Integer> al = m_hmIndex.get(new Integer(iParentMarriageId));
-				if (null == al)
+				List<Parents> lParents = PersonHelper.getParents(person);
+				for (Parents parent : lParents)
 				{
-					al = new ArrayList<Integer>();
-					m_hmIndex.put(iParentMarriageId, al);
+					int iParentMarriageId = parent.getMarriageId();
+					if (MarriageIdHelper.MARRIAGEID_INVALID != iParentMarriageId)
+					{
+						ArrayList<Integer> al = m_hmIndex.get(new Integer(iParentMarriageId));
+						if (null == al)
+						{
+							al = new ArrayList<Integer>();
+							m_hmIndex.put(iParentMarriageId, al);
+						}
+						al.add(iPersonId);
+					}
 				}
-				al.add(iPersonId);
 			}
 		}
 		

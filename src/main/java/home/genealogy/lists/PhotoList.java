@@ -192,7 +192,7 @@ public class PhotoList
 		while (iter.hasNext())
 		{
 			Photo photo = iter.next();
-			String strPhotoFileName = MessageFormat.format(CFGFamily.PHOTOS_FILE_FORMAT_STRING, photo.getPhotoId());
+			String strPhotoFileName = MessageFormat.format(CFGFamily.PHOTOS_FILE_FORMAT_STRING, String.valueOf(photo.getPhotoId()));
 			MarshallUtil.marshall(marshaller, photo, strDirectory + File.separator + strPhotoFileName);
 		}
 	}

@@ -59,11 +59,26 @@ public class PersonHelper
 		return getPersonId(m_person);
 	}
 	
-	public int getParentId()
+	public List<Parents> getParents()
 	{
-		return getParentId(m_person);
+		return getParents(m_person);
+	}
+
+	public Parents getPreferredParents()
+	{
+		return getPreferredParents(m_person);
+	}
+
+	public Parents getBloodParents()
+	{
+		return getBloodParents(m_person);
 	}
 	
+	public Parents getPreferredBloodThenAnyParents()
+	{
+		return ParentsHelper.getPreferredBloodThenAnyParents(m_person.getParents());
+	}
+
 	public String getAfn()
 	{
 		return getAfn(m_person);
@@ -336,14 +351,21 @@ public class PersonHelper
 		return person.getPersonId();
 	}
 	
-	public static int getParentId(Person person)
+	public static List<Parents> getParents(Person person)
 	{
-		List<Parents> lParents = person.getParents();
-		if (!lParents.isEmpty())
-		{
-			return lParents.get(0).getMarriageId();
-		}
-		return MarriageIdHelper.MARRIAGEID_INVALID;
+		return person.getParents();
+	}
+	
+	public static Parents getPreferredParents(Person person)
+	{
+		List<Parents> lParents = getParents(person);
+		return ParentsHelper.getPreferredParents(lParents);
+	}
+
+	public static Parents getBloodParents(Person person)
+	{
+		List<Parents> lParents = getParents(person);
+		return ParentsHelper.getBloodParents(lParents);
 	}
 	
 	public static String getPersonName(Person person)
@@ -735,20 +757,11 @@ public class PersonHelper
 	
 	public static boolean isLiving(Person person, PlaceList placeList)
 	{
-		String strLiving = person.getLiving();
-		if (null != strLiving)
+		Boolean bIsLiving = person.isLiving();
+		if (null != bIsLiving)
 		{
-			if ((strLiving.equalsIgnoreCase("yes")) ||
-				(strLiving.equalsIgnoreCase("true")))
-			{
-				return true;
-			}
-			if ((strLiving.equalsIgnoreCase("no")) ||
-				(strLiving.equalsIgnoreCase("false")))
-			{
-				return false;
-			}
-        }
+			return bIsLiving.booleanValue();
+		}
 		// "living" attribute not found, look for death information
 		if (hasAnyDeathInfo(person, placeList))
 		{	// Has a death date, must be dead
@@ -771,36 +784,28 @@ public class PersonHelper
 	
 	public static boolean isMarkedAsLiving(Person person)
 	{
-		String strLiving = person.getLiving();
-		if (null != strLiving)
+		Boolean bIsLiving = person.isLiving();
+		if (null != bIsLiving)
 		{
-			if ((strLiving.equalsIgnoreCase("yes")) ||
-				(strLiving.equalsIgnoreCase("true")))
-			{
-				return true;
-			}
+			return bIsLiving.booleanValue();
         }
 		return false;
 	}
 	
 	public static boolean isMarkedAsNotLiving(Person person)
 	{
-		String strLiving = person.getLiving();
-		if (null != strLiving)
+		Boolean bIsLiving = person.isLiving();
+		if (null != bIsLiving)
 		{
-			if ((strLiving.equalsIgnoreCase("no")) ||
-				(strLiving.equalsIgnoreCase("false")))
-			{
-				return true;
-			}
+			return !bIsLiving.booleanValue();
         }
 		return false;
 	}
 	
 	public static boolean isLivingIsNotSpecified(Person person)
 	{
-		String strLiving = person.getLiving();
-		if ((null == strLiving) || (0 == strLiving.length()))
+		Boolean bIsLiving = person.isLiving();
+		if (null == bIsLiving)
 		{
 			return true;
         }

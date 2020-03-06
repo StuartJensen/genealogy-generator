@@ -95,7 +95,7 @@ public class Genealogy
 				GenealogyValidator validator = new GenealogyValidator(family, commandLineParameters, outputStream);
 				validator.validate();
 			}
-			else if (commandLineParameters.isActionWrite())
+			else if (commandLineParameters.isActionTransfer())
 			{
 				boolean bFormattedOutput = true;
 				String strFormat = commandLineParameters.getXmlFormat();

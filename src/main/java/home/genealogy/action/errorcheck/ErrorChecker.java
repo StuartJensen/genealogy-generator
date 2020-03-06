@@ -14,6 +14,7 @@ import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Entry;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageTag;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonTag;
 import home.genealogy.schema.all.Photo;
@@ -72,16 +73,18 @@ public class ErrorChecker
 		while (iter.hasNext())
 		{
 		    Person person = iter.next();
-            int iParentId = PersonHelper.getParentId(person);
-			if (iParentId != MarriageIdHelper.MARRIAGEID_INVALID)
-			{ // Look for a marriage with this marriage id
+		    List<Parents> lParents = PersonHelper.getParents(person);
+		    for (Parents parents : lParents)
+		    {
+	            int iParentId = parents.getMarriageId();
+	            // Look for a marriage with this marriage id
 			    Marriage marriage = marriageList.get(iParentId);
 				if (null == marriage)
 				{
 				    int iPersonId = PersonHelper.getPersonId(person);
 				    m_outputStream.output("ERROR: Parent id [" + iParentId + "] for Person [" + iPersonId + "] references an unavailable Marriage!");
 				}
-			}
+		    }
 		}
     }
 	
@@ -249,9 +252,11 @@ public class ErrorChecker
 				    		while (iterChildren.hasNext())
 				    		{
 				    		    Person possibleChild = iterChildren.next();
-				    		    int iParentId = PersonHelper.getParentId(possibleChild);
-				    		    if (MarriageIdHelper.MARRIAGEID_INVALID != iParentId)
+				    		    
+				    		    List<Parents> lParents = PersonHelper.getParents(possibleChild);
+				    		    for (Parents parents : lParents)
 				    		    {
+				    		    	int iParentId = parents.getMarriageId();
 					    		    if (iParentId == iMarriageId)
 					    		    {	// This indeed is a child
 						    			int iChildAge = PersonHelper.getApproximateAge(possibleChild);

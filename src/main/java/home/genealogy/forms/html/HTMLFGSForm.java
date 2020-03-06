@@ -3,6 +3,7 @@ package home.genealogy.forms.html;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
@@ -20,6 +21,7 @@ import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
+import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
@@ -305,9 +307,11 @@ public class HTMLFGSForm
 	{
 		Person father = null;
 		Person mother = null;
-		int iParentMarriageId = personHelper.getParentId();
-		if (MarriageIdHelper.MARRIAGEID_INVALID != iParentMarriageId)
+		Parents parents = personHelper.getPreferredBloodThenAnyParents();
+		int iParentMarriageId = MarriageIdHelper.MARRIAGEID_INVALID;
+		if (null != parents)
 		{
+			iParentMarriageId = parents.getMarriageId();
 			Marriage marriage = marriageList.get(iParentMarriageId);
 			if (null != marriage)
 			{

@@ -192,7 +192,7 @@ public class ReferenceList
 		while (iter.hasNext())
 		{
 			Reference reference = iter.next();
-			String strReferenceFileName = MessageFormat.format(CFGFamily.REFERENCES_FILE_FORMAT_STRING, reference.getReferenceId());
+			String strReferenceFileName = MessageFormat.format(CFGFamily.REFERENCES_FILE_FORMAT_STRING, String.valueOf(reference.getReferenceId()));
 			MarshallUtil.marshall(marshaller, reference, strDirectory + File.separator + strReferenceFileName);
 		}
 	}
