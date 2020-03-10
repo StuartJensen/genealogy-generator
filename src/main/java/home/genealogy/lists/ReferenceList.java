@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.References;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
@@ -24,16 +25,33 @@ public class ReferenceList
 {
 	private Reference[] m_arReferenceList;
 
-	public ReferenceList(CFGFamily family, CommandLineParameters commandLineParameters)
+	public ReferenceList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws Exception
 	{
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);
+			outputStream.output("Reference List: Count: " + size() + ": Loaded from Individual XML files.\n");
 		}
 		else if (commandLineParameters.isSourceAllXMLs())
 		{
 			unMarshallAllFile(family);
+			outputStream.output("Reference List: Count: " + size() + ": Loaded from ALL XML file.\n");
+		}
+	}
+	
+	public void persist(CFGFamily family, CommandLineParameters commandLineParameters, boolean bFormattedOutput, IOutputStream outputStream)
+		throws Exception
+	{
+		if (commandLineParameters.isDestinationIndividualXMLs())
+		{
+			marshallIndividualFiles(family, bFormattedOutput);
+			outputStream.output("Reference List: Count: " + size() + ": Persisted to Individual XML files.\n");
+		}
+		else if (commandLineParameters.isDestinationAllXMLs())
+		{
+			marshallAllFile(family, bFormattedOutput);
+			outputStream.output("Reference List: Count: " + size() + ": Persisted to ALL XML file.\n");
 		}
 	}
 	

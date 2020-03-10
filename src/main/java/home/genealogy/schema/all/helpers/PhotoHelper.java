@@ -1,21 +1,27 @@
 package home.genealogy.schema.all.helpers;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import home.genealogy.lists.PlaceList;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Description;
-import home.genealogy.schema.all.Entry;
+import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.File;
 import home.genealogy.schema.all.FileList;
+import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageTag;
 import home.genealogy.schema.all.Paragraph;
+import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonTag;
 import home.genealogy.schema.all.Photo;
+import home.genealogy.schema.all.Place;
 import home.genealogy.schema.all.PublishedIn;
 import home.genealogy.schema.all.SeeAlso;
 import home.genealogy.schema.all.Singleton;
 import home.genealogy.schema.all.Source;
-import home.genealogy.schema.all.TagGroup;
 
 public class PhotoHelper
 {
@@ -224,5 +230,46 @@ public class PhotoHelper
 			}
 		}
 		return null;
+	}
+	
+	public static Set<String> getAllPlaceIds(Photo photo)
+	{
+		Set<String> hResults = new HashSet<String>();
+		if (null != photo)
+		{
+			if ((null != photo.getSource()) &&
+				(null != photo.getSource().getSingleton()) &&
+				(null != photo.getSource().getSingleton().getPlace()))
+			{
+				hResults.add(photo.getSource().getSingleton().getPlace().getIdRef());
+			}
+		}
+		return hResults;
+	}
+	
+	public static boolean usesPlace(Photo photo, PlaceList placeList, String strPlaceId)
+	{
+		Set<String> sAllPlaceIds = PhotoHelper.getAllPlaceIds(photo);
+		return sAllPlaceIds.contains(strPlaceId);
+	}
+	
+	public static int replacePlaceId(Photo photo, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	{
+		int iCount = 0;
+		if (null != photo)
+		{
+			if ((null != photo.getSource()) &&
+				(null != photo.getSource().getSingleton()) &&
+				(null != photo.getSource().getSingleton().getPlace()))
+			{
+				if (photo.getSource().getSingleton().getPlace().getIdRef().equals(strToBeReplaced))
+				{
+					outputStream.output("  PhotoList: Place Id Replace: Photo Id: " + photo.getPhotoId() + ", Replacing Photo Place: " + photo.getSource().getSingleton().getPlace().getIdRef() + " with " + strReplacement + "\n");
+					photo.getSource().getSingleton().getPlace().setIdRef(strReplacement);
+					iCount++;
+				}
+			}
+		}
+		return iCount;
 	}
 }

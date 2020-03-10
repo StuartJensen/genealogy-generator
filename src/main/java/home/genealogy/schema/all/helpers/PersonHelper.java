@@ -3,10 +3,13 @@ package home.genealogy.schema.all.helpers;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.RelationshipManager;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.BirthInfo;
 import home.genealogy.schema.all.BurialInfo;
 import home.genealogy.schema.all.ChrInfo;
@@ -17,6 +20,8 @@ import home.genealogy.schema.all.EventGroup;
 import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonName;
+import home.genealogy.schema.all.Place;
+import home.genealogy.util.StringUtil;
 
 public class PersonHelper
 {
@@ -875,4 +880,122 @@ public class PersonHelper
 		}
 		return -1;
 	}
+	
+	public static Set<String> getAllPlaceIds(Person person)
+	{
+		Set<String> hResults = new HashSet<String>();
+		if (null != person)
+		{
+			if ((null != person.getBirthInfo()) &&
+				(null != person.getBirthInfo().getInfo()) &&
+				(null != person.getBirthInfo().getInfo().getPlace()))
+			{
+				hResults.add(person.getBirthInfo().getInfo().getPlace().getIdRef());
+			}
+			if ((null != person.getChrInfo()) &&
+				(null != person.getChrInfo().getInfo()) &&
+				(null != person.getChrInfo().getInfo().getPlace()))
+			{
+				hResults.add(person.getChrInfo().getInfo().getPlace().getIdRef());
+			}
+			if ((null != person.getDeathInfo()) &&
+				(null != person.getDeathInfo().getInfo()) &&
+				(null != person.getDeathInfo().getInfo().getPlace()))
+			{
+				hResults.add(person.getDeathInfo().getInfo().getPlace().getIdRef());
+			}
+			if ((null != person.getBurialInfo()) &&
+				(null != person.getBurialInfo().getInfo()) &&
+				(null != person.getBurialInfo().getInfo().getPlace()))
+			{
+				hResults.add(person.getBurialInfo().getInfo().getPlace().getIdRef());
+			}
+			int iEventCount = getEventCount(person);
+			for (int i=0; i<iEventCount; i++)
+			{
+				Event eventCandidate = PersonHelper.getEvent(person, i);
+				Place placeCandidate = eventCandidate.getPlace();
+				if (null != placeCandidate)
+				{
+					hResults.add(placeCandidate.getIdRef());
+				}
+			}
+		}
+		return hResults;
+	}
+	
+	public static boolean usesPlace(Person person, PlaceList placeList, String strPlaceId)
+	{
+		Set<String> sAllPlacedIds = PersonHelper.getAllPlaceIds(person);
+		return sAllPlacedIds.contains(strPlaceId);
+	}
+	
+	public static int replacePlaceId(Person person, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	{
+		int iCount = 0;
+		if (null != person)
+		{
+			if ((null != person.getBirthInfo()) &&
+				(null != person.getBirthInfo().getInfo()) &&
+				(null != person.getBirthInfo().getInfo().getPlace()))
+			{
+				if (person.getBirthInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
+				{
+					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Birth Place: " + person.getBirthInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
+					person.getBirthInfo().getInfo().getPlace().setIdRef(strReplacement);
+					iCount++;
+				}
+			}
+			if ((null != person.getChrInfo()) &&
+				(null != person.getChrInfo().getInfo()) &&
+				(null != person.getChrInfo().getInfo().getPlace()))
+			{
+				if (person.getChrInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
+				{
+					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Chr Place: " + person.getChrInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
+					person.getChrInfo().getInfo().getPlace().setIdRef(strReplacement);
+					iCount++;
+				}
+			}
+			if ((null != person.getDeathInfo()) &&
+				(null != person.getDeathInfo().getInfo()) &&
+				(null != person.getDeathInfo().getInfo().getPlace()))
+			{
+				if (person.getDeathInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
+				{
+					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Death Place: " + person.getDeathInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
+					person.getDeathInfo().getInfo().getPlace().setIdRef(strReplacement);
+					iCount++;
+				}
+			}
+			if ((null != person.getBurialInfo()) &&
+				(null != person.getBurialInfo().getInfo()) &&
+				(null != person.getBurialInfo().getInfo().getPlace()))
+			{
+				if (person.getBurialInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
+				{
+					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Burial Place: " + person.getBurialInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
+					person.getBurialInfo().getInfo().getPlace().setIdRef(strReplacement);
+					iCount++;
+				}
+			}
+			int iEventCount = getEventCount(person);
+			for (int i=0; i<iEventCount; i++)
+			{
+				Event eventCandidate = PersonHelper.getEvent(person, i);
+				Place placeCandidate = eventCandidate.getPlace();
+				if (null != placeCandidate)
+				{
+					if (placeCandidate.getIdRef().equals(strToBeReplaced))
+					{
+						outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Event Place: " + placeCandidate.getIdRef() + " with " + strReplacement + "\n");
+						placeCandidate.setIdRef(strReplacement);
+						iCount++;
+					}
+				}
+			}
+		}
+		return iCount;
+	}
+
 }

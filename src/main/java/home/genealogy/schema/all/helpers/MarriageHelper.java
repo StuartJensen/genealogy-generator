@@ -1,15 +1,23 @@
 package home.genealogy.schema.all.helpers;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PlaceList;
+import home.genealogy.output.IOutputStream;
+import home.genealogy.schema.all.Entry;
+import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.Info;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageInfo;
 import home.genealogy.schema.all.Person;
+import home.genealogy.schema.all.Place;
+import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.SealToSpouseInfo;
+import home.genealogy.util.StringUtil;
 
 public class MarriageHelper
 {
@@ -155,4 +163,45 @@ public class MarriageHelper
 		return false;
 	}
 	
+	public static Set<String> getAllPlaceIds(Marriage marriage)
+	{
+		Set<String> hResults = new HashSet<String>();
+		if (null != marriage)
+		{
+			if ((null != marriage.getMarriageInfo()) &&
+				(null != marriage.getMarriageInfo().getInfo()) &&
+				(null != marriage.getMarriageInfo().getInfo().getPlace()))
+			{
+				hResults.add(marriage.getMarriageInfo().getInfo().getPlace().getIdRef());
+			}
+		}
+		return hResults;
+	}
+
+	public static boolean usesPlace(Marriage marriage, PlaceList placeList, String strPlaceId)
+	{
+		Set<String> sAllPlaceIds = MarriageHelper.getAllPlaceIds(marriage);
+		return sAllPlaceIds.contains(strPlaceId);
+	}
+	
+	public static int replacePlaceId(Marriage marriage, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	{
+		int iCount = 0;
+		if (null != marriage)
+		{
+			if ((null != marriage.getMarriageInfo()) &&
+				(null != marriage.getMarriageInfo().getInfo()) &&
+				(null != marriage.getMarriageInfo().getInfo().getPlace()))
+			{
+				if (marriage.getMarriageInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
+				{
+					outputStream.output("  MarriageList: Place Id Replace: Marriage Id: " + marriage.getMarriageId() + ", Replacing Marriage Place: " + marriage.getMarriageInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
+					marriage.getMarriageInfo().getInfo().getPlace().setIdRef(strReplacement);
+					iCount++;
+				}
+			}
+		}
+		return iCount;
+	}
+
 }

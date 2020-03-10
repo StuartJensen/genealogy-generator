@@ -6,11 +6,14 @@ import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.Caption;
 import home.genealogy.schema.all.Commentary;
 import home.genealogy.schema.all.Date;
+import home.genealogy.schema.all.Entry;
 import home.genealogy.schema.all.MarriageTag;
 import home.genealogy.schema.all.PersonTag;
 import home.genealogy.schema.all.Place;
+import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.Singleton;
 import home.genealogy.schema.all.TagGroup;
+import home.genealogy.util.StringUtil;
 
 public class SingletonHelper
 {
@@ -83,4 +86,21 @@ public class SingletonHelper
 		}
 		return null;
 	}
+	
+	public static boolean usesPlace(Singleton singleton, PlaceList placeList, String strPlaceId)
+	{
+		if (null != singleton)
+		{
+			if (StringUtil.exists(SingletonHelper.getPlace(singleton, placeList)))
+			{
+				String strCandidateId = singleton.getPlace().getIdRef();
+				if (strPlaceId.equals(strCandidateId))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 }

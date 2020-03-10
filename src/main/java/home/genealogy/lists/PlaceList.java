@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -17,6 +19,7 @@ import org.xml.sax.SAXException;
 import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.conversions.Place30To50;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.PlaceName;
 import home.genealogy.schema.all.PlaceNames;
 import home.genealogy.util.MarshallUtil;
@@ -35,6 +38,22 @@ public class PlaceList
 		throws Exception
 	{
 		unMarshallAllFile(family);
+	}
+	
+	public void persist(CFGFamily family, boolean bFormattedOutput, IOutputStream outputStream)
+		throws Exception
+	{
+		marshallAllFile(family, bFormattedOutput);
+		outputStream.output("Place List: Count: " + size() + ": Persisted to ALL XML file.\n");
+	}
+	
+	public PlaceName remove(String strPlaceId)
+	{
+		if (null != m_mPlaceNames)
+		{
+			return m_mPlaceNames.remove(strPlaceId);
+		}
+		return null;
 	}
 	
 	public Map<String, PlaceName> getPlaces()
@@ -58,7 +77,7 @@ public class PlaceList
 	
 	public PlaceName get(String strPlaceId)
 	{
-		if (null != m_mPlaceNames)
+		if ((null != strPlaceId) && (null != m_mPlaceNames))
 		{
 			return m_mPlaceNames.get(strPlaceId);
 		}
@@ -159,5 +178,32 @@ public class PlaceList
 		String strDataPath = family.getDataPathSlashTerminated();
 		String strDirectory = strDataPath + CFGFamily.PLACES_ALL_FILENAME;
 		MarshallUtil.marshall(marshaller, places, strDirectory);
+	}
+	
+	public Set<String> getAllParentIds(Set<String> sChildPlaceIds)
+	{
+		Set<String> sParentIds = new HashSet<String>();
+		Iterator<String> iterChildIds = sChildPlaceIds.iterator();
+		while (iterChildIds.hasNext())
+		{
+			String strChildId = iterChildIds.next();
+			sParentIds.addAll(getAllParentIds(strChildId));
+		}
+		return sParentIds;
+	}
+	
+	public Set<String> getAllParentIds(String strChildPlaceId)
+	{
+		Set<String> sParentIds = new HashSet<String>();
+		PlaceName child = get(strChildPlaceId);
+		while (null != child)
+		{
+			if (StringUtil.exists(child.getParentIdRef()))
+			{
+				sParentIds.add(child.getParentIdRef());
+			}
+			child = get(child.getParentIdRef());
+		}
+		return sParentIds;
 	}
 }

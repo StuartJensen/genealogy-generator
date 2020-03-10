@@ -3,7 +3,6 @@ package home.genealogy;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.util.CommandLineParameterList;
 import home.genealogy.util.StringUtil;
 
@@ -12,6 +11,9 @@ public class CommandLineParameters
 	public static final String COMMAND_LINE_PARAM_CONFIG = "config";
 	public static final String COMMAND_LINE_PARAM_FAMILY = "family";
 	public static final String COMMAND_LINE_PARAM_ACTION = "action";
+	public static final String COMMAND_LINE_PARAM_SUBACTION = "subaction";
+	public static final String COMMAND_LINE_PARAM_COMMIT = "commit";
+	public static final String COMMAND_LINE_PARAM_INPUT_FILE = "infile";
 	public static final String COMMAND_LINE_PARAM_XML_FORMAT = "format";
 	public static final String COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY = "pretty";
 	public static final String COMMAND_LINE_PARAM_XML_FORMAT_VALUE_COMPACT = "compact";
@@ -35,6 +37,11 @@ public class CommandLineParameters
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE = "httpvalidate";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE_TARGET = "target";
+	
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES = "places";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST = "list";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_UNUSED = "unused";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS = "commands";
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS = "generations";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE = "type";
@@ -79,7 +86,9 @@ public class CommandLineParameters
 	private static Collection<String> VALID_HTMLFORM_TARGETS;
 	private static Collection<String> VALID_HTTPVALIDATE_TARGETS;
 	private static Collection<String> VALID_SUPPRESS_LIVING;
+	private static Collection<String> VALID_COMMIT;
 	private static Collection<String> VALID_GENERATIONS_TYPE;
+	private static Collection<String> VALID_PLACES_SUBACTIONS;
 	private static Collection<String> GENERATIONS_INTEGERS;
 	
 	static
@@ -98,6 +107,7 @@ public class CommandLineParameters
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_CONFIG);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_FAMILY);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_ACTION);
+		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_SUBACTION);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_XML_FORMAT);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_SOURCE);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_DESTINATION);
@@ -106,6 +116,8 @@ public class CommandLineParameters
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_LOG_FILE_ECHO);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING);
 		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET);
+		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_INPUT_FILE);
+		VALID_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_COMMIT);
 
 		REQUIRED_PARAMETER_NAMES = new ArrayList<String>();
 		REQUIRED_PARAMETER_NAMES.add(COMMAND_LINE_PARAM_CONFIG);
@@ -120,6 +132,7 @@ public class CommandLineParameters
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_ERRORCHECK);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_HTTPVALIDATE);
 		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS);
+		VALID_ACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES);
 
 		VALID_SOURCE_TYPES = new ArrayList<String>();
 		VALID_SOURCE_TYPES.add(COMMAND_LINE_PARAM_SOURCE_VALUE_ALLXML);
@@ -140,6 +153,10 @@ public class CommandLineParameters
 		VALID_SUPPRESS_LIVING = new ArrayList<String>();
 		VALID_SUPPRESS_LIVING.addAll(VALID_TRUE);
 		VALID_SUPPRESS_LIVING.addAll(VALID_FALSE);
+		
+		VALID_COMMIT = new ArrayList<String>();
+		VALID_COMMIT.addAll(VALID_TRUE);
+		VALID_COMMIT.addAll(VALID_FALSE);
 		
 		VALID_XML_FORMAT_TYPES = new ArrayList<String>();
 		VALID_XML_FORMAT_TYPES.add(COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY);
@@ -169,6 +186,11 @@ public class CommandLineParameters
 		VALID_HTTPVALIDATE_TARGETS.add(COMMAND_LINE_PARAM_TARGET_REFERENCES);
 		VALID_HTTPVALIDATE_TARGETS.add(COMMAND_LINE_PARAM_TARGET_ALL);
 		
+		VALID_PLACES_SUBACTIONS = new ArrayList<String>();
+		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST);
+		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_UNUSED);
+		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS);
+
 		VALID_GENERATIONS_TYPE = new ArrayList<String>();
 		VALID_GENERATIONS_TYPE.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_ALL);
 		VALID_GENERATIONS_TYPE.add(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE_LIVING);
@@ -244,7 +266,9 @@ public class CommandLineParameters
 		}
 
 		validateSuppessLiving();
+		validateCommit();
 		validateGenerationIntegers();
+		validatePlacesSubAction(strAction);
 		
 		strValidated = validateGenerationsType(m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE));
 		m_listCLP.set(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS_TYPE, strValidated);
@@ -270,6 +294,11 @@ public class CommandLineParameters
 		return m_listCLP.getBooleanValue(COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_SUPPRESSLIVING);
 	}
 	
+	public boolean getCommit()
+	{
+		return m_listCLP.getBooleanValue(COMMAND_LINE_PARAM_COMMIT);
+	}
+	
 	public String getConfigurationFilename()
 	{
 		return m_listCLP.getValue(COMMAND_LINE_PARAM_CONFIG);
@@ -283,6 +312,11 @@ public class CommandLineParameters
 	public String getAction()
 	{
 		return m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION);
+	}
+	
+	public String getSubAction()
+	{
+		return m_listCLP.getValue(COMMAND_LINE_PARAM_SUBACTION);
 	}
 	
 	public boolean isActionValidate()
@@ -320,6 +354,41 @@ public class CommandLineParameters
 		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS);
 	}
 	
+	public boolean isActionPlaces()
+	{
+		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES);
+	}
+	
+	public boolean isSubActionPlacesUnused()
+	{
+		String strSubAction = getSubAction();
+		if (StringUtil.exists(strSubAction))
+		{
+			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_UNUSED);
+		}
+		return false;
+	}
+	
+	public boolean isSubActionPlacesCommands()
+	{
+		String strSubAction = getSubAction();
+		if (StringUtil.exists(strSubAction))
+		{
+			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS);
+		}
+		return false;
+	}
+	
+	public boolean isSubActionPlacesList()
+	{
+		String strSubAction = getSubAction();
+		if (StringUtil.exists(strSubAction))
+		{
+			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST);
+		}
+		return false;
+	}
+	
 	public String getSource()
 	{
 		return m_listCLP.getValue(COMMAND_LINE_PARAM_SOURCE);
@@ -355,6 +424,19 @@ public class CommandLineParameters
 		return m_listCLP.getValue(COMMAND_LINE_PARAM_XML_FORMAT);
 	}
 	
+	public boolean isXmlFormatPretty()
+	{
+		String strFormat = getXmlFormat();
+		if (StringUtil.exists(strFormat))
+		{
+			if (CommandLineParameters.COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY.equals(strFormat))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public long getValidateTimeLimit()
 	{
 		return m_listCLP.getLongValue(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TIME, 0);
@@ -363,6 +445,11 @@ public class CommandLineParameters
 	public String getValidateTarget()
 	{
 		return m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE_TARGET);
+	}
+	
+	public String getInputFile()
+	{
+		return m_listCLP.getValue(COMMAND_LINE_PARAM_INPUT_FILE);
 	}
 	
 	public boolean isValidateTargetAll()
@@ -792,6 +879,59 @@ public class CommandLineParameters
 		}
 	}
 	
+	private void validateCommit()
+		throws UsageException
+	{
+		String strCommit = m_listCLP.getValue(COMMAND_LINE_PARAM_COMMIT);
+		if (!StringUtil.exists(strCommit))
+		{
+			m_listCLP.set(COMMAND_LINE_PARAM_COMMIT, "false");
+		}
+		else
+		{
+			strCommit = strCommit.toLowerCase();
+			if (!VALID_COMMIT.contains(strCommit))
+			{
+				throw new UsageException("Invalid value for command line parameter commit: " + strCommit + "\n");
+			}
+			m_listCLP.set(COMMAND_LINE_PARAM_COMMIT, strCommit);
+		}
+	}
+
+	private void validatePlacesSubAction(String strAction)
+		throws UsageException
+	{
+		if (StringUtil.exists(strAction))
+		{
+			if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES))
+			{	// Only need to look further if the action is PLACES
+				String strSubAction = m_listCLP.getValue(COMMAND_LINE_PARAM_SUBACTION);
+				if (StringUtil.exists(strSubAction))
+				{
+					strSubAction = strSubAction.toLowerCase();
+					if (!VALID_PLACES_SUBACTIONS.contains(strSubAction))
+					{
+						throw new UsageException("Invalid value for command line parameter places subaction: " + strSubAction + "\n");
+					}
+					m_listCLP.set(COMMAND_LINE_PARAM_SUBACTION, strSubAction);
+					
+					if (strSubAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS))
+					{
+						String strInputFile = m_listCLP.getValue(COMMAND_LINE_PARAM_INPUT_FILE);
+						if (!StringUtil.exists(strInputFile))
+						{
+							throw new UsageException("Missing required parameter: " +  COMMAND_LINE_PARAM_INPUT_FILE + " for places subaction: " + strSubAction + "\n");
+						}
+					}
+				}
+				else
+				{
+					throw new UsageException("Missing command line parameter value for places subaction.\n");
+				}
+			}
+		}
+	}
+
 	public static void showUsage(String strMessage)
 	{
 		if (null != strMessage)
@@ -845,7 +985,11 @@ public class CommandLineParameters
 		System.out.println("      to validate all lists and direct the output (validation results) to the specified log file");
 		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM + " " +  COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt " + COMMAND_LINE_PARAM_LOG_FILE_ECHO + "=true " + COMMAND_LINE_PARAM_ACTION_VALUE_HTMLFORM_TARGET + "=all");
 		System.out.println("      to generate all HTML forms, populate the lists from individual XML files, log the output to a file, and echo the logged output to Standard Out");
-		
+		System.out.println("   java -jar d:\\bin\\generator-1.0.0-jar-with-dependencies.jar " + COMMAND_LINE_PARAM_CONFIG + "=d:\\genealogy\\configuration\\families.properties " + COMMAND_LINE_PARAM_FAMILY + "=jensen " + COMMAND_LINE_PARAM_ACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_PLACES + " " +  COMMAND_LINE_PARAM_SUBACTION + "=" + COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS + " " + COMMAND_LINE_PARAM_INPUT_FILE + "=d:\\wprojects\\genealogy\\commands.txt " + COMMAND_LINE_PARAM_LOG + "=" + COMMAND_LINE_PARAM_LOG_VALUE_FILE + " " + COMMAND_LINE_PARAM_LOG_FILE_FILENAME + "=d:\\temp\\genlog.txt " + COMMAND_LINE_PARAM_LOG_FILE_ECHO + "=true " + COMMAND_LINE_PARAM_COMMIT + "=false");
+		System.out.println("      to process the specified \"place commands file\" to replace and remove place ids. Use the " + COMMAND_LINE_PARAM_COMMIT + " parameter to commit changes or do a dry run without committing.");
+		System.out.println("      place commands file format:");
+		System.out.println("        \"replace,USUtUtSpFoCi,USUtUtSpFo\" : meaning replace all instances of \"USUtUtSpFoCi\" with \"USUtUtSpFo\".");
+		System.out.println("        \"delete,USUtUtSpFoCi\" : meaning remove the place with id \"USUtUtSpFoCi\" from the place list.");
 		System.exit(1);
 	}
 

@@ -1,15 +1,19 @@
 package home.genealogy;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import home.genealogy.action.errorcheck.ErrorChecker;
 import home.genealogy.action.validate.GenealogyValidator;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.configuration.CFGFamilyList;
-import home.genealogy.conversions.Place30To50;
 import home.genealogy.forms.html.HTMLFGSForm;
 import home.genealogy.forms.html.HTMLPersonInfoForm;
 import home.genealogy.forms.html.HTMLPersonListForm;
@@ -26,6 +30,9 @@ import home.genealogy.lists.PhotoList;
 import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.ReferenceList;
 import home.genealogy.lists.RelationshipManager;
+import home.genealogy.lists.place.PlaceAction;
+import home.genealogy.lists.place.PlaceActionException;
+import home.genealogy.lists.place.PlaceActionScanner;
 import home.genealogy.output.FileOutput;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.output.StdOutOutput;
@@ -38,7 +45,12 @@ import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Place;
 import home.genealogy.schema.all.PlaceName;
 import home.genealogy.schema.all.Reference;
+import home.genealogy.schema.all.helpers.MarriageHelper;
+import home.genealogy.schema.all.helpers.PersonHelper;
+import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.PlaceHelper;
+import home.genealogy.schema.all.helpers.PlaceNameHelper;
+import home.genealogy.schema.all.helpers.ReferenceHelper;
 import home.genealogy.util.StringUtil;
 
 public class Genealogy
@@ -67,6 +79,7 @@ public class Genealogy
 			}
 			
 			String strAction = commandLineParameters.getAction();
+			boolean bFormattedOutput = commandLineParameters.isXmlFormatPretty();
 			
 			// Load all lists unless the action does not need ANY lists
 			PersonList personList = null;
@@ -78,17 +91,18 @@ public class Genealogy
 			{
 				outputStream.output("Initiating Lists Load:\n");
 				placeList = new PlaceList(family, commandLineParameters);
-				outputStream.output("Place List: Count: " + placeList.size() + "\n");
-				personList = new PersonList(family, commandLineParameters);
-				outputStream.output("Person List: Count: " + personList.size() + "\n");
-				photoList = new PhotoList(family, commandLineParameters);
-				outputStream.output("Photo List: Count: " + photoList.size() + "\n");
-				marriageList = new MarriageList(family, commandLineParameters);
+				personList = new PersonList(family, commandLineParameters, outputStream);
+				photoList = new PhotoList(family, commandLineParameters, outputStream);
+				marriageList = new MarriageList(family, commandLineParameters, outputStream);
 				marriageList.setInLineFlags(family, personList);
-				outputStream.output("Marriage List: Count: " + marriageList.size() + "\n");
-				referenceList = new ReferenceList(family, commandLineParameters);
-				outputStream.output("Reference List: Count: " + referenceList.size() + "\n");
+				referenceList = new ReferenceList(family, commandLineParameters, outputStream);
 			}
+			
+			boolean bStorePlaceList = false;
+			boolean bStorePersonList = false;
+			boolean bStoreMarriageList = false;
+			boolean bStoreReferenceList = false;
+			boolean bStorePhotoList = false;
 			
 			if (strAction.equals(commandLineParameters.isActionValidate()))
 			{
@@ -96,36 +110,11 @@ public class Genealogy
 				validator.validate();
 			}
 			else if (commandLineParameters.isActionTransfer())
-			{
-				boolean bFormattedOutput = true;
-				String strFormat = commandLineParameters.getXmlFormat();
-				if (CommandLineParameters.COMMAND_LINE_PARAM_XML_FORMAT_VALUE_PRETTY.equals(strFormat))
-				{
-					bFormattedOutput = true;
-				}
-				String strDestination = commandLineParameters.getDestination();
-				if (strDestination.equalsIgnoreCase(CommandLineParameters.COMMAND_LINE_PARAM_DESTINATION_VALUE_ALLXML))
-				{
-					personList.marshallAllFile(family, bFormattedOutput);
-					outputStream.output("Stored Person List to destination: " + CFGFamily.PERSONS_ALL_FILENAME + " file\n");
-					photoList.marshallAllFile(family, bFormattedOutput);
-					outputStream.output("Stored Photo List to destination: " + CFGFamily.PHOTOS_ALL_FILENAME + " file\n");
-					marriageList.marshallAllFile(family, bFormattedOutput);
-					outputStream.output("Stored Marriage List to destination: " + CFGFamily.MARRIAGES_ALL_FILENAME + " file\n");
-					referenceList.marshallAllFile(family, bFormattedOutput);
-					outputStream.output("Stored Reference List to destination: " + CFGFamily.REFERENCES_ALL_FILENAME + " file\n");
-				}
-				else if (strDestination.equalsIgnoreCase(CommandLineParameters.COMMAND_LINE_PARAM_DESTINATION_VALUE_INDIVIDUALXML))
-				{
-					personList.marshallIndividualFiles(family, bFormattedOutput);
-					outputStream.output("Stored Person List to destination: individual xml files\n");
-					photoList.marshallIndividualFiles(family, bFormattedOutput);
-					outputStream.output("Stored Photo List to destination: individual xml files\n");
-					marriageList.marshallIndividualFiles(family, bFormattedOutput);
-					outputStream.output("Stored Marriage List to destination: individual xml files\n");
-					referenceList.marshallIndividualFiles(family, bFormattedOutput);
-					outputStream.output("Stored Reference List to destination: individual xml files\n");
-				}
+			{	// Set flags to transfer to destination.
+				bStorePersonList = true;
+				bStoreMarriageList = true;
+				bStoreReferenceList = true;
+				bStorePhotoList = true;
 			}
 			else if (commandLineParameters.isActionHtmlForm())
 			{	// Set relationships in the personList
@@ -192,6 +181,98 @@ public class Genealogy
 				ErrorChecker errorChecker = new ErrorChecker(family, placeList, personList, marriageList, referenceList, photoList, commandLineParameters, outputStream);
 				errorChecker.check();
 			}
+			else if (commandLineParameters.isActionPlaces())
+			{
+				if (commandLineParameters.isSubActionPlacesList())
+				{
+					Map<String, PlaceName> mPlaces = placeList.getPlaces();
+					Iterator<String> iter = mPlaces.keySet().iterator();
+					List<String> lPlaceNames = new ArrayList<String>();
+					while (iter.hasNext())
+					{
+						String strKey = iter.next();
+						lPlaceNames.add(PlaceNameHelper.getPlaceName(strKey, placeList));
+					}
+					Collections.sort(lPlaceNames);
+					for (String strPlace : lPlaceNames)
+					{
+						String strId = PlaceNameHelper.getPlaceNameId(strPlace, placeList);
+						outputStream.output(strPlace + " : (" + strId + ")\n");
+					}					
+				}
+				else if (commandLineParameters.isSubActionPlacesUnused())
+				{
+					Set<String> allUsedIds = new HashSet<String>();
+					// Add Person's Used Place Ids
+					Iterator<Person> iterPersons = personList.getPersons();
+					while (iterPersons.hasNext())
+					{
+						Person candidate = iterPersons.next();
+						allUsedIds.addAll(PersonHelper.getAllPlaceIds(candidate));
+					}
+					// Add Marriage's Used Place Ids
+					Iterator<Marriage> iterMarriages = marriageList.getMarriages();
+					while (iterMarriages.hasNext())
+					{
+						Marriage candidate = iterMarriages.next();
+						allUsedIds.addAll(MarriageHelper.getAllPlaceIds(candidate));
+					}
+					// Add References's Used Place Ids
+					Iterator<Reference> iterReferences = referenceList.getReferences();
+					while (iterReferences.hasNext())
+					{
+						Reference candidate = iterReferences.next();
+						allUsedIds.addAll(ReferenceHelper.getAllPlaceIds(candidate));
+					}
+					// Add Photo's Used Place Ids
+					Iterator<Photo> iterPhotos = photoList.getPhotos();
+					while (iterPhotos.hasNext())
+					{
+						Photo candidate = iterPhotos.next();
+						allUsedIds.addAll(PhotoHelper.getAllPlaceIds(candidate));
+					}
+					// Gather all parental ids of all used place names
+					allUsedIds.addAll(placeList.getAllParentIds(allUsedIds));
+					// Show details about the "found" places
+					outputStream.output("Found " + allUsedIds.size() + " Used Places\n");
+					outputStream.output("Place List Contains " + placeList.size() + " Places\n");
+					// Now look for any places in the placeList that are not
+					// in the used list.
+					Map<String, PlaceName> mPlaces = placeList.getPlaces();
+					Iterator<String> iter = mPlaces.keySet().iterator();
+					while (iter.hasNext())
+					{
+						String strKey = iter.next();
+						if (!allUsedIds.contains(strKey))
+						{
+							outputStream.output("Unused place id: " + strKey + "\n");
+						}
+					}
+				}
+				else if (commandLineParameters.isSubActionPlacesCommands())
+				{
+					String strInputFile = commandLineParameters.getInputFile();
+					PlaceActionScanner scanner = new PlaceActionScanner(new File(strInputFile), outputStream);
+					Iterator<PlaceAction> iterActions = scanner.getActions();
+					while (iterActions.hasNext())
+					{
+						PlaceAction action = iterActions.next();
+						action.execute(placeList, personList, marriageList, referenceList, photoList, outputStream);
+					}
+					if (commandLineParameters.getCommit())
+					{
+						bStorePlaceList = scanner.placeListModified();
+						bStorePersonList = scanner.personListModified();
+						bStorePhotoList = scanner.photoListModified();
+						bStoreMarriageList = scanner.marriageListModified();
+						bStoreReferenceList = scanner.referenceListModified();
+					}
+					else
+					{
+						outputStream.output("Place Action Command results NOT persisted. Set command line parameter \"commit\" to true for persist.\n");
+					}
+				}
+			}
 			else if (commandLineParameters.isActionConvert())
 			{				
 				Iterator<Person> iter = personList.getPersons();
@@ -247,6 +328,27 @@ public class Genealogy
 				personList.marshallAllFile(family, true);
 				outputStream.output("Stored Person List to destination: " + CFGFamily.PERSONS_ALL_FILENAME + " file\n");
 			}
+			
+			if (bStorePlaceList)
+			{
+				placeList.persist(family, bFormattedOutput, outputStream);
+			}
+			if (bStorePersonList)
+			{
+				personList.persist(family, commandLineParameters, bFormattedOutput, outputStream);
+			}
+			if (bStoreMarriageList)
+			{
+				 marriageList.persist(family, commandLineParameters, bFormattedOutput, outputStream);
+			}
+			if (bStoreReferenceList)
+			{
+				referenceList.persist(family, commandLineParameters, bFormattedOutput, outputStream);
+			}
+			if (bStorePhotoList)
+			{
+				photoList.persist(family, commandLineParameters, bFormattedOutput, outputStream);
+			}
 			if (null != outputStream)
 			{
 				outputStream.deinitialize();
@@ -255,6 +357,10 @@ public class Genealogy
 		catch (UsageException ue)
 		{
 			CommandLineParameters.showUsage(ue.getMessage());
+		}
+		catch (PlaceActionException pae)
+		{
+			System.out.println("Place action exception: " + pae.getMessage());
 		}
 		catch (Exception e)
 		{

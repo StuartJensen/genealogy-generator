@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
 import home.genealogy.configuration.CFGFamily;
+import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.Marriages;
@@ -30,19 +31,36 @@ public class MarriageList
 {
 	private Marriage[] m_arMarriageList;
 	
-	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters)
+	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws Exception
 	{
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);
+			outputStream.output("Marriage List: Count: " + size() + ": Loaded from Individual XML files.\n");
 		}
 		else if (commandLineParameters.isSourceAllXMLs())
 		{
 			unMarshallAllFile(family);
+			outputStream.output("Marriage List: Count: " + size() + ": Loaded from ALL XML file.\n");
 		}
 	}
-
+	
+	public void persist(CFGFamily family, CommandLineParameters commandLineParameters, boolean bFormattedOutput, IOutputStream outputStream)
+		throws Exception
+	{
+		if (commandLineParameters.isDestinationIndividualXMLs())
+		{
+			marshallIndividualFiles(family, bFormattedOutput);
+			outputStream.output("Marriage List: Count: " + size() + ": Persisted to Individual XML files.\n");
+		}
+		else if (commandLineParameters.isDestinationAllXMLs())
+		{
+			marshallAllFile(family, bFormattedOutput);
+			outputStream.output("Marriage List: Count: " + size() + ": Persisted to ALL XML file.\n");
+		}
+	}
+	
 	public void setInLineFlags(CFGFamily family, PersonList personList)
 	{
 		// Set marriage list in line flags. First turn them all off.

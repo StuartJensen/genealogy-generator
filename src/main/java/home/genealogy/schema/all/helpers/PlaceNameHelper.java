@@ -1,5 +1,9 @@
 package home.genealogy.schema.all.helpers;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import home.genealogy.lists.PlaceList;
@@ -20,6 +24,22 @@ public class PlaceNameHelper
 			sb.append(strPart);
 		}
 		return sb.toString();
+	}
+	
+	public static String getPlaceNameId(String strPlaceName, PlaceList placeList)
+	{
+		Map<String, PlaceName> mPlaces = placeList.getPlaces();
+		Iterator<String> iter = mPlaces.keySet().iterator();
+		while (iter.hasNext())
+		{
+			String strKey = iter.next();
+			String strCandidate = PlaceNameHelper.getPlaceName(strKey, placeList);
+			if (strPlaceName.equals(strCandidate))
+			{
+				return strKey;
+			}
+		}
+		return null;
 	}
 	
 	private static void getPlaceName(String strPlaceNameId, PlaceList placeList, Stack<String> stack)
