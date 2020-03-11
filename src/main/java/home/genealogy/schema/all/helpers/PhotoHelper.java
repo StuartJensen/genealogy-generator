@@ -253,7 +253,13 @@ public class PhotoHelper
 		return sAllPlaceIds.contains(strPlaceId);
 	}
 	
-	public static int replacePlaceId(Photo photo, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	public static int replacePlaceId(Photo photo,
+									String strToBeReplaced,
+									String strReplacement,
+									String strLocale,
+									String strStreet,
+									String strSpot,
+									IOutputStream outputStream)
 	{
 		int iCount = 0;
 		if (null != photo)
@@ -265,7 +271,7 @@ public class PhotoHelper
 				if (photo.getSource().getSingleton().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  PhotoList: Place Id Replace: Photo Id: " + photo.getPhotoId() + ", Replacing Photo Place: " + photo.getSource().getSingleton().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					photo.getSource().getSingleton().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(photo.getSource().getSingleton().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}

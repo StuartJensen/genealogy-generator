@@ -652,6 +652,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="globalCoordinates"/>
+        <xs:element minOccurs="0" name="locale" type="xs:string"/>
         <xs:element minOccurs="0" name="street" type="xs:string"/>
         <xs:element minOccurs="0" name="spot" type="xs:string" />
       </xs:sequence>

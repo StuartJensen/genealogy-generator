@@ -20,7 +20,18 @@ public class PlaceHelper
 		{
 			sb.append(strModifier);
 		}
-		sb.append(PlaceNameHelper.getPlaceName(place.getIdRef(), placeList));
+		String strPlaceName = PlaceNameHelper.getPlaceName(place.getIdRef(), placeList);
+		if (StringUtil.exists(strPlaceName))
+		{
+			StringUtil.commaTerminateExisting(sb);
+			sb.append(strPlaceName);
+		}
+		String strLocale = place.getLocale();
+		if (StringUtil.exists(strLocale))
+		{
+			StringUtil.commaTerminateExisting(sb);
+			sb.append(strLocale);
+		}
 		String strStreet = place.getStreet();
 		if (StringUtil.exists(strStreet))
 		{
@@ -41,10 +52,31 @@ public class PlaceHelper
 			if (null != wgs)
 			{
 				String strCoordinates = WGS84Helper.getCoordinates(wgs);
-				sb.append(", ");
+				StringUtil.commaTerminateExisting(sb);
 				sb.append(strCoordinates);
 			}
 		}
 		return(sb.toString());
 	}
+	
+	public static void setPlaceData(Place target, String strPlaceId, String strLocale, String strStreet, String strSpot)
+	{
+		if (null != strPlaceId)
+		{
+			target.setIdRef(strPlaceId);
+		}
+		if (null != strLocale)
+		{
+			target.setLocale(strLocale);
+		}
+		if (null != strStreet)
+		{
+			target.setStreet(strStreet);
+		}
+		if (null != strSpot)
+		{
+			target.setSpot(strSpot);
+		}
+	}
+
 }

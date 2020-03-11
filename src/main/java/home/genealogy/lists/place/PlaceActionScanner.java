@@ -55,7 +55,37 @@ public class PlaceActionScanner
 							String strToBeReplaced = st.nextToken();
 							if (st.hasMoreTokens())
 							{
-								m_actions.add(new PlaceReplaceAction(strToBeReplaced, st.nextToken()));
+								PlaceReplaceAction action = new PlaceReplaceAction(strToBeReplaced, st.nextToken());
+								while (st.hasMoreTokens())
+								{
+									String strType = st.nextToken();
+									if ("locale".equalsIgnoreCase(strType))
+									{
+										if (st.hasMoreTokens())
+										{
+											action.setLocale(st.nextToken());
+										}
+									}
+									else if ("street".equalsIgnoreCase(strType))
+									{
+										if (st.hasMoreTokens())
+										{
+											action.setStreet(st.nextToken());
+										}
+									}
+									else if ("spot".equalsIgnoreCase(strType))
+									{
+										if (st.hasMoreTokens())
+										{
+											action.setSpot(st.nextToken());
+										}
+									}
+									else
+									{
+										outputStream.output("WARNING: Unrecognized token in Place Action Scanner: Replace: " + strType + ": in " + strLine);
+									}
+								}
+								m_actions.add(action);
 							}
 						}
 					}

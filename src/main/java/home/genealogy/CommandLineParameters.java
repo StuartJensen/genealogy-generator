@@ -40,7 +40,7 @@ public class CommandLineParameters
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES = "places";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST = "list";
-	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_UNUSED = "unused";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_VALIDATE = "validate";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS = "commands";
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS = "generations";
@@ -188,7 +188,7 @@ public class CommandLineParameters
 		
 		VALID_PLACES_SUBACTIONS = new ArrayList<String>();
 		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST);
-		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_UNUSED);
+		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_VALIDATE);
 		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS);
 
 		VALID_GENERATIONS_TYPE = new ArrayList<String>();
@@ -229,6 +229,7 @@ public class CommandLineParameters
 		
 		strValidated = validateAction(m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION));
 		m_listCLP.set(COMMAND_LINE_PARAM_ACTION, strValidated);
+		String strAction = m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION);
 
 		strValidated = validateSource(m_listCLP.getValue(COMMAND_LINE_PARAM_SOURCE));
 		m_listCLP.set(COMMAND_LINE_PARAM_SOURCE, strValidated);
@@ -236,8 +237,11 @@ public class CommandLineParameters
 		strValidated = validateDestination(m_listCLP.getValue(COMMAND_LINE_PARAM_DESTINATION));
 		m_listCLP.set(COMMAND_LINE_PARAM_DESTINATION, strValidated);
 		
-		validateSourceWithDestination(m_listCLP.getValue(COMMAND_LINE_PARAM_SOURCE),
-										m_listCLP.getValue(COMMAND_LINE_PARAM_DESTINATION));
+		if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_TRANSFER))
+		{
+			validateSourceWithDestination(m_listCLP.getValue(COMMAND_LINE_PARAM_SOURCE),
+										  m_listCLP.getValue(COMMAND_LINE_PARAM_DESTINATION));
+		}
 		
 		strValidated = validateXmlFormat(m_listCLP.getValue(COMMAND_LINE_PARAM_XML_FORMAT));
 		m_listCLP.set(COMMAND_LINE_PARAM_XML_FORMAT, strValidated);
@@ -245,7 +249,6 @@ public class CommandLineParameters
 		// Since the same command line parameter "target" is shared
 		// between multiple actions, we must only validate it for the
 		// action being executed.
-		String strAction = m_listCLP.getValue(COMMAND_LINE_PARAM_ACTION);
 		if (strAction.equals(COMMAND_LINE_PARAM_ACTION_VALUE_VALIDATE))
 		{
 			strValidated = validateValidateTargets(strAction,
@@ -359,12 +362,12 @@ public class CommandLineParameters
 		return getAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES);
 	}
 	
-	public boolean isSubActionPlacesUnused()
+	public boolean isSubActionPlacesValidate()
 	{
 		String strSubAction = getSubAction();
 		if (StringUtil.exists(strSubAction))
 		{
-			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_UNUSED);
+			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_VALIDATE);
 		}
 		return false;
 	}

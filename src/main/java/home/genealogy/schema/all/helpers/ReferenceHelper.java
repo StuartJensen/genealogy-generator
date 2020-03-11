@@ -218,7 +218,13 @@ public class ReferenceHelper
 		return sAllPlaceIds.contains(strPlaceId);
 	}
 	
-	public static int replacePlaceId(Reference reference, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	public static int replacePlaceId(Reference reference,
+									String strToBeReplaced,
+									String strReplacement,
+									String strLocale,
+									String strStreet,
+									String strSpot,
+									IOutputStream outputStream)
 	{
 		int iCount = 0;
 		if (null != reference)
@@ -229,7 +235,7 @@ public class ReferenceHelper
 				if (reference.getCitation().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  ReferenceList: Place Id Replace: Reference Id: " + reference.getReferenceId() + ", Replacing Reference Citation Place: " + reference.getCitation().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					reference.getCitation().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(reference.getCitation().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}
@@ -246,7 +252,7 @@ public class ReferenceHelper
 						if (place.getIdRef().equals(strToBeReplaced))
 						{
 							outputStream.output("  ReferenceList: Place Id Replace: Reference Id: " + reference.getReferenceId() + ", Entry: " + entryCandidate.getEntryId() + " Replacing Reference Entry Place: " + place.getIdRef() + " with " + strReplacement + "\n");
-							place.setIdRef(strReplacement);
+							PlaceHelper.setPlaceData(place, strReplacement, strLocale, strStreet, strSpot);
 							iCount++;
 						}
 					}

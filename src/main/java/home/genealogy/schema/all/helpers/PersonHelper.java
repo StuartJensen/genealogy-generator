@@ -930,7 +930,13 @@ public class PersonHelper
 		return sAllPlacedIds.contains(strPlaceId);
 	}
 	
-	public static int replacePlaceId(Person person, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	public static int replacePlaceId(Person person,
+									String strToBeReplaced,
+									String strReplacement,
+									String strLocale,
+									String strStreet,
+									String strSpot,
+									IOutputStream outputStream)
 	{
 		int iCount = 0;
 		if (null != person)
@@ -942,7 +948,7 @@ public class PersonHelper
 				if (person.getBirthInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Birth Place: " + person.getBirthInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					person.getBirthInfo().getInfo().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(person.getBirthInfo().getInfo().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}
@@ -953,7 +959,7 @@ public class PersonHelper
 				if (person.getChrInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Chr Place: " + person.getChrInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					person.getChrInfo().getInfo().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(person.getChrInfo().getInfo().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}
@@ -964,7 +970,7 @@ public class PersonHelper
 				if (person.getDeathInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Death Place: " + person.getDeathInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					person.getDeathInfo().getInfo().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(person.getDeathInfo().getInfo().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}
@@ -975,7 +981,7 @@ public class PersonHelper
 				if (person.getBurialInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Burial Place: " + person.getBurialInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					person.getBurialInfo().getInfo().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(person.getBurialInfo().getInfo().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}
@@ -989,7 +995,7 @@ public class PersonHelper
 					if (placeCandidate.getIdRef().equals(strToBeReplaced))
 					{
 						outputStream.output("  PersonList: Place Id Replace: Person Id: " + person.getPersonId() + ", Replacing Event Place: " + placeCandidate.getIdRef() + " with " + strReplacement + "\n");
-						placeCandidate.setIdRef(strReplacement);
+						PlaceHelper.setPlaceData(placeCandidate, strReplacement, strLocale, strStreet, strSpot);
 						iCount++;
 					}
 				}
@@ -997,5 +1003,6 @@ public class PersonHelper
 		}
 		return iCount;
 	}
+	
 
 }

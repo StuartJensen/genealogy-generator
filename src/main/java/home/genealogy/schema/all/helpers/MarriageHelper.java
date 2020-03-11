@@ -184,7 +184,13 @@ public class MarriageHelper
 		return sAllPlaceIds.contains(strPlaceId);
 	}
 	
-	public static int replacePlaceId(Marriage marriage, String strToBeReplaced, String strReplacement, IOutputStream outputStream)
+	public static int replacePlaceId(Marriage marriage,
+									String strToBeReplaced,
+									String strReplacement,
+									String strLocale,
+									String strStreet,
+									String strSpot,
+									IOutputStream outputStream)
 	{
 		int iCount = 0;
 		if (null != marriage)
@@ -196,7 +202,7 @@ public class MarriageHelper
 				if (marriage.getMarriageInfo().getInfo().getPlace().getIdRef().equals(strToBeReplaced))
 				{
 					outputStream.output("  MarriageList: Place Id Replace: Marriage Id: " + marriage.getMarriageId() + ", Replacing Marriage Place: " + marriage.getMarriageInfo().getInfo().getPlace().getIdRef() + " with " + strReplacement + "\n");
-					marriage.getMarriageInfo().getInfo().getPlace().setIdRef(strReplacement);
+					PlaceHelper.setPlaceData(marriage.getMarriageInfo().getInfo().getPlace(), strReplacement, strLocale, strStreet, strSpot);
 					iCount++;
 				}
 			}

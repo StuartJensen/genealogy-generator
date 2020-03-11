@@ -200,54 +200,13 @@ public class Genealogy
 						outputStream.output(strPlace + " : (" + strId + ")\n");
 					}					
 				}
-				else if (commandLineParameters.isSubActionPlacesUnused())
+				else if (commandLineParameters.isSubActionPlacesValidate())
 				{
-					Set<String> allUsedIds = new HashSet<String>();
-					// Add Person's Used Place Ids
-					Iterator<Person> iterPersons = personList.getPersons();
-					while (iterPersons.hasNext())
-					{
-						Person candidate = iterPersons.next();
-						allUsedIds.addAll(PersonHelper.getAllPlaceIds(candidate));
-					}
-					// Add Marriage's Used Place Ids
-					Iterator<Marriage> iterMarriages = marriageList.getMarriages();
-					while (iterMarriages.hasNext())
-					{
-						Marriage candidate = iterMarriages.next();
-						allUsedIds.addAll(MarriageHelper.getAllPlaceIds(candidate));
-					}
-					// Add References's Used Place Ids
-					Iterator<Reference> iterReferences = referenceList.getReferences();
-					while (iterReferences.hasNext())
-					{
-						Reference candidate = iterReferences.next();
-						allUsedIds.addAll(ReferenceHelper.getAllPlaceIds(candidate));
-					}
-					// Add Photo's Used Place Ids
-					Iterator<Photo> iterPhotos = photoList.getPhotos();
-					while (iterPhotos.hasNext())
-					{
-						Photo candidate = iterPhotos.next();
-						allUsedIds.addAll(PhotoHelper.getAllPlaceIds(candidate));
-					}
-					// Gather all parental ids of all used place names
-					allUsedIds.addAll(placeList.getAllParentIds(allUsedIds));
-					// Show details about the "found" places
-					outputStream.output("Found " + allUsedIds.size() + " Used Places\n");
-					outputStream.output("Place List Contains " + placeList.size() + " Places\n");
-					// Now look for any places in the placeList that are not
-					// in the used list.
-					Map<String, PlaceName> mPlaces = placeList.getPlaces();
-					Iterator<String> iter = mPlaces.keySet().iterator();
-					while (iter.hasNext())
-					{
-						String strKey = iter.next();
-						if (!allUsedIds.contains(strKey))
-						{
-							outputStream.output("Unused place id: " + strKey + "\n");
-						}
-					}
+					StringBuilder sb = new StringBuilder();
+					placeList.validate(personList, marriageList,
+										photoList, referenceList,
+										sb);
+					outputStream.output(sb.toString());
 				}
 				else if (commandLineParameters.isSubActionPlacesCommands())
 				{
