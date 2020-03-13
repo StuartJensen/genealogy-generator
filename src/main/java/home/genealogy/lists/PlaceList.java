@@ -1,6 +1,7 @@
 package home.genealogy.lists;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.conversions.Place30To50;
 import home.genealogy.output.IOutputStream;
@@ -29,6 +31,7 @@ import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PhotoHelper;
+import home.genealogy.schema.all.helpers.PlaceHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
 import home.genealogy.util.MarshallUtil;
 import home.genealogy.util.StringUtil;
@@ -43,16 +46,16 @@ public class PlaceList
 	}
 	
 	public PlaceList(CFGFamily family, CommandLineParameters commandLineParameters)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		unMarshallAllFile(family);
 	}
 	
-	public void persist(CFGFamily family, boolean bFormattedOutput, IOutputStream outputStream)
+	public void persist(GenealogyContext context)
 		throws Exception
 	{
-		marshallAllFile(family, bFormattedOutput);
-		outputStream.output("Place List: Count: " + size() + ": Persisted to ALL XML file.\n");
+		marshallAllFile(context.getFamily(), context.getFormattedOutput());
+		context.output("Place List: Count: " + size() + ": Persisted to ALL XML file.\n");
 	}
 	
 	public PlaceName remove(String strPlaceId)
@@ -110,7 +113,7 @@ public class PlaceList
 	}
 	
 	public void unMarshallAllFile(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -131,7 +134,7 @@ public class PlaceList
 				String strPlaceId = place.getId();
 				if (!StringUtil.exists(strPlaceId))
 				{
-					throw new Exception("Place has missing place id: " + place.toString());
+					throw new InvalidParameterException("Place has missing place id: " + place.toString());
 				}
 				m_mPlaceNames.put(strPlaceId, place);
 			}
@@ -215,12 +218,14 @@ public class PlaceList
 		return sParentIds;
 	}
 	
-	public void validate(PersonList personList,
-						MarriageList marriageList,
-						PhotoList photoList,
-						ReferenceList referenceList,
-						StringBuilder sb)
+	public boolean validate(GenealogyContext context,
+							StringBuilder sb)
 	{
+		boolean bError = false;
+		PersonList personList = context.getPersonList();
+		MarriageList marriageList = context.getMarriageList();
+		PhotoList photoList = context.getPhotoList();
+		ReferenceList referenceList = context.getReferenceList();
 		Map<String, PlaceName> mPlaces = getPlaces();
 		
 		Iterator<String> iterPlaces = mPlaces.keySet().iterator();
@@ -231,6 +236,7 @@ public class PlaceList
 			if (!place.getId().equals(strPlaceId))
 			{
 				sb.append("WARNING: Place list map links key " + strPlaceId + " to incorrect Place with id " + place.getId() + ".\n");
+				bError = true;
 			}
 			
 			if (StringUtil.exists(place.getParentIdRef()))
@@ -239,6 +245,7 @@ public class PlaceList
 				if (null == parent)
 				{
 					sb.append("WARNING: Place list parent reference id " + place.getParentIdRef() + " in Place with id " + place.getId() + " does not exist.\n");
+					bError = true;
 				}
 			}
 		}
@@ -285,6 +292,7 @@ public class PlaceList
 			if (!allUsedIds.contains(strKey))
 			{
 				sb.append("WARNING: Unused place id: " + strKey + "\n");
+				bError = true;
 			}
 		}
 		// Now look for any places that are NOT in the placeList but that are
@@ -295,7 +303,43 @@ public class PlaceList
 			if (null == existingPlace)
 			{
 				sb.append("WARNING: Undefined place id: " + strUsedId + "\n");
+				bError = true;
 			}
 		}
+		return bError;
 	}
+	
+	public boolean replacePlaceId(String strIdToBeReplaced,
+								String strIdReplacement,
+								IOutputStream outputStream,
+								boolean bDeleteToBeReplaced)
+	{
+		boolean bListModified = false;
+		if (null != m_mPlaceNames)
+		{
+			Iterator<String> iter = m_mPlaceNames.keySet().iterator();
+			while (iter.hasNext())
+			{
+				String strKey = iter.next();
+				PlaceName current = m_mPlaceNames.get(strKey);
+				if (StringUtil.exists(current.getParentIdRef()))
+				{
+					if (current.getParentIdRef().equals(strIdToBeReplaced))
+					{
+						outputStream.output("  PlaceList: Place Id Replace: Place Id: " + current.getId() + ", Replacing Parent Ref Id: " + current.getParentIdRef() + " with " + strIdReplacement + "\n");
+						current.setParentIdRef(strIdReplacement);
+						bListModified = true;
+					}
+				}
+			}
+			if (bDeleteToBeReplaced)
+			{
+				outputStream.output("  PlaceList: Place Id Replace: Removed Place Id: " + strIdToBeReplaced + "\n");
+				remove(strIdToBeReplaced);
+				bListModified = true;
+			}
+		}
+		return bListModified;
+	}
+
 }

@@ -19,6 +19,7 @@ import home.genealogy.schema.all.PersonTag;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Place;
 import home.genealogy.schema.all.PublishedIn;
+import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.SeeAlso;
 import home.genealogy.schema.all.Singleton;
 import home.genealogy.schema.all.Source;
@@ -251,6 +252,20 @@ public class PhotoHelper
 	{
 		Set<String> sAllPlaceIds = PhotoHelper.getAllPlaceIds(photo);
 		return sAllPlaceIds.contains(strPlaceId);
+	}
+	
+	public static int replacePlaceId(Photo photo,
+									String strToBeReplaced,
+									String strReplacement,
+									IOutputStream outputStream)
+	{
+		return replacePlaceId(photo,
+							strToBeReplaced,
+							strReplacement,
+							(String)null,
+							(String)null,
+							(String)null,
+							outputStream);
 	}
 	
 	public static int replacePlaceId(Photo photo,

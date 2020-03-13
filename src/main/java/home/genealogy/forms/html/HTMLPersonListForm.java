@@ -1,5 +1,6 @@
 package home.genealogy.forms.html;
 
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
@@ -25,19 +26,14 @@ public class HTMLPersonListForm
 	private boolean m_bSuppressLiving;
 	private IOutputStream m_outputStream;
 	  
-	public HTMLPersonListForm(CFGFamily family,
-							  PlaceList placeList,
-							  PersonList personList,
-							  MarriageList marriageList,
-							  boolean bSuppressLiving,
-							  IOutputStream outputStream)
+	public HTMLPersonListForm(GenealogyContext context)
 	{
-		m_family = family;
-		m_placeList = placeList;
-		m_personList = personList;
-		m_marriageList = marriageList;
-		m_bSuppressLiving = bSuppressLiving;
-		m_outputStream = outputStream;
+		m_family = context.getFamily();
+		m_placeList = context.getPlaceList();
+		m_personList = context.getPersonList();
+		m_marriageList = context.getMarriageList();
+		m_bSuppressLiving = context.getSuppressLiving();
+		m_outputStream = context.getOutputStream();
 	}
 	
 	

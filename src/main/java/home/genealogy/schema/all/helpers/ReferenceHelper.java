@@ -221,6 +221,20 @@ public class ReferenceHelper
 	public static int replacePlaceId(Reference reference,
 									String strToBeReplaced,
 									String strReplacement,
+									IOutputStream outputStream)
+	{
+		return replacePlaceId(reference,
+							strToBeReplaced,
+							strReplacement,
+							(String)null,
+							(String)null,
+							(String)null,
+							outputStream);
+	}
+	
+	public static int replacePlaceId(Reference reference,
+									String strToBeReplaced,
+									String strReplacement,
 									String strLocale,
 									String strStreet,
 									String strSpot,

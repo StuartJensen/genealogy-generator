@@ -1,9 +1,11 @@
 package home.genealogy.output;
 
+import java.io.IOException;
+
 public class StdOutOutput implements IOutputStream
 {
 	public void initialize()
-		throws Exception
+		throws IOException
 	{
 		// Nothing to do
 	}
@@ -14,7 +16,7 @@ public class StdOutOutput implements IOutputStream
 	}
 		
 	public void deinitialize()
-		throws Exception
+		throws IOException
 	{
 		// Nothing to do
 	}

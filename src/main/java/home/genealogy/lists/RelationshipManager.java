@@ -1,5 +1,6 @@
 package home.genealogy.lists;
 
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToChildren;
 import home.genealogy.indexes.IndexPersonToMarriages;
@@ -29,22 +30,22 @@ public class RelationshipManager
 	public static final String WIFE = "W";
 	public static final String UNKNOWN = "X";
 	
-	public static void setRelationships(CFGFamily family, PersonList personList, MarriageList marriageList,
-			                            IndexPersonToMarriages idxPerToMar, IndexMarriageToChildren idxMarToChild,
-			                            IOutputStream outputStream)
+	public static void setRelationships(GenealogyContext context,
+			                            IndexPersonToMarriages idxPerToMar,
+			                            IndexMarriageToChildren idxMarToChild)
 	{
-		PersonId basePersonId = family.getBasePersonId();
+		PersonId basePersonId = context.getFamily().getBasePersonId();
 		if (null != basePersonId)
 		{
 			int iBasePersonId = PersonIdHelper.getPersonId(basePersonId);
 			if (PersonIdHelper.PERSONID_INVALID != iBasePersonId)
 			{
 				String strRelationship = PERSON;
-				setPrimaryRelationships(iBasePersonId, personList, marriageList, strRelationship);
+				setPrimaryRelationships(iBasePersonId, context.getPersonList(), context.getMarriageList(), strRelationship);
 				
 				// While secondary relationships are found, keep setting them.  When we
 				// finally set zero we know we are done.
-				while (0 != setSecondaryRelationships(personList, marriageList, idxPerToMar, idxMarToChild, outputStream));
+				while (0 != setSecondaryRelationships(context.getPersonList(), context.getMarriageList(), idxPerToMar, idxMarToChild, context.getOutputStream()));
 			}
 		}
 	}

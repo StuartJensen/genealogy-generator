@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToChildren;
 import home.genealogy.indexes.IndexMarriageToSpouses;
@@ -42,25 +43,17 @@ public class HTMLFGSForm
 	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	  
-	public HTMLFGSForm(CFGFamily family,
-							  PlaceList placeList,
-							  PersonList personList,
-							  MarriageList marriageList,
-							  ReferenceList referenceList,
-							  PhotoList photoList,
-							  boolean bSuppressLiving,
-							  CommandLineParameters commandLineParameters,
-							  IOutputStream outputStream)
+	public HTMLFGSForm(GenealogyContext context)
 	{
-		m_family = family;
-		m_placeList = placeList;
-		m_personList = personList;
-		m_marriageList = marriageList;
-		m_referenceList = referenceList;
-		m_photoList = photoList;
-		m_bSuppressLiving = bSuppressLiving;
-		m_commandLineParameters = commandLineParameters;
-		m_outputStream = outputStream;
+		m_family = context.getFamily();
+		m_placeList = context.getPlaceList();
+		m_personList = context.getPersonList();
+		m_marriageList = context.getMarriageList();
+		m_referenceList = context.getReferenceList();
+		m_photoList = context.getPhotoList();
+		m_bSuppressLiving = context.getSuppressLiving();
+		m_commandLineParameters = context.getCommandLineParameters();
+		m_outputStream = context.getOutputStream();
 	}
 	
 	public void create()

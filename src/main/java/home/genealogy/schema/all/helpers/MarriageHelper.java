@@ -187,6 +187,20 @@ public class MarriageHelper
 	public static int replacePlaceId(Marriage marriage,
 									String strToBeReplaced,
 									String strReplacement,
+									IOutputStream outputStream)
+	{
+		return replacePlaceId(marriage,
+							strToBeReplaced,
+							strReplacement,
+							(String)null,
+							(String)null,
+							(String)null,
+							outputStream);
+	}
+	
+	public static int replacePlaceId(Marriage marriage,
+									String strToBeReplaced,
+									String strReplacement,
 									String strLocale,
 									String strStreet,
 									String strSpot,

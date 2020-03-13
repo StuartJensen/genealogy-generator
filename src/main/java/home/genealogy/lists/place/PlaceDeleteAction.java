@@ -1,5 +1,6 @@
 package home.genealogy.lists.place;
 
+import home.genealogy.GenealogyContext;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
@@ -24,23 +25,18 @@ public class PlaceDeleteAction
 	{
 		return m_strToBeDeleted;
 	}
-	public void execute(PlaceList placeList,
-						PersonList personList,
-						MarriageList marriageList,
-						ReferenceList referenceList,
-						PhotoList photoList,
-						IOutputStream outputStream)
-							throws PlaceActionException
+	public void execute(GenealogyContext context)
+		throws PlaceActionException
 	{
-		outputStream.output("Executing Place Command: Delete: Place Id " + m_strToBeDeleted + "\n");
-		PlaceName removed = placeList.remove(m_strToBeDeleted);
+		context.output("Executing Place Command: Delete: Place Id " + m_strToBeDeleted + "\n");
+		PlaceName removed = context.getPlaceList().remove(m_strToBeDeleted);
 		if (null == removed)
 		{
-			outputStream.output("  WARNING: Removal of Place with id: " + m_strToBeDeleted + " failed. No Place with that id!\n");
+			context.output("  WARNING: Removal of Place with id: " + m_strToBeDeleted + " failed. No Place with that id!\n");
 		}
 		else
 		{
-			outputStream.output("  Place with id " + m_strToBeDeleted + " removed from place list!\n");
+			context.output("  Place with id " + m_strToBeDeleted + " removed from place list!\n");
 			markPlaceListModified();
 		}
 	}

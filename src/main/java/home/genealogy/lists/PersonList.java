@@ -1,6 +1,7 @@
 package home.genealogy.lists;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Person;
@@ -26,7 +28,7 @@ public class PersonList
 	private Person[] m_arPersonList;
 	
 	public PersonList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -40,18 +42,18 @@ public class PersonList
 		}
 	}
 	
-	public void persist(CFGFamily family, CommandLineParameters commandLineParameters, boolean bFormattedOutput, IOutputStream outputStream)
+	public void persist(GenealogyContext context)
 		throws Exception
 	{
-		if (commandLineParameters.isDestinationIndividualXMLs())
+		if (context.getCommandLineParameters().isDestinationIndividualXMLs())
 		{
-			marshallIndividualFiles(family, bFormattedOutput);
-			outputStream.output("Person List: Count: " + size() + ": Persisted to Individual XML files.\n");
+			marshallIndividualFiles(context.getFamily(), context.getFormattedOutput());
+			context.output("Person List: Count: " + size() + ": Persisted to Individual XML files.\n");
 		}
-		else if (commandLineParameters.isDestinationAllXMLs())
+		else if (context.getCommandLineParameters().isDestinationAllXMLs())
 		{
-			marshallAllFile(family, bFormattedOutput);
-			outputStream.output("Person List: Count: " + size() + ": Persisted to ALL XML file.\n");
+			marshallAllFile(context.getFamily(), context.getFormattedOutput());
+			context.output("Person List: Count: " + size() + ": Persisted to ALL XML file.\n");
 		}
 	}
 	
@@ -84,7 +86,7 @@ public class PersonList
 	}
 	
 	public void unMarshallAllFile(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -106,11 +108,11 @@ public class PersonList
 				int iPersonId = PersonHelper.getPersonId(person);
 				if (PersonIdHelper.PERSONID_INVALID == iPersonId)
 				{
-					throw new Exception("Person has invalid person id: " + fAllFile.getName());
+					throw new InvalidParameterException("Person has invalid person id: " + fAllFile.getName());
 				}
 				if (iPersonId >= m_arPersonList.length)
 				{
-					throw new Exception("Person's person id out of range: " + iPersonId);
+					throw new InvalidParameterException("Person's person id out of range: " + iPersonId);
 				}
 				m_arPersonList[iPersonId] = person;
 			}
@@ -155,7 +157,7 @@ public class PersonList
 	}
 	
 	public void unMarshallIndividualFiles(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 
@@ -176,11 +178,11 @@ public class PersonList
 				int iPersonId = PersonHelper.getPersonId(person);
 				if (PersonIdHelper.PERSONID_INVALID == iPersonId)
 				{
-					throw new Exception("Person has invalid person id: " + arFiles[i].getName());
+					throw new InvalidParameterException("Person has invalid person id: " + arFiles[i].getName());
 				}
 				if (iPersonId >= m_arPersonList.length)
 				{
-					throw new Exception("Person's person id out of range: " + iPersonId);
+					throw new InvalidParameterException("Person's person id out of range: " + iPersonId);
 				}
 				m_arPersonList[iPersonId] = person;
 			}
@@ -215,5 +217,24 @@ public class PersonList
 			String strPersonFileName = MessageFormat.format(CFGFamily.PERSONS_FILE_FORMAT_STRING, String.valueOf(person.getPersonId()));
 			MarshallUtil.marshall(marshaller, person, strDirectory + File.separator + strPersonFileName);
 		}
+	}
+	
+	public int replacePlaceId(String strIdToBeReplaced,
+									String strIdReplacement,
+									IOutputStream outputStream)
+	{
+		int iCount = 0;
+		Iterator<Person> iter = getPersons();
+		while (iter.hasNext())
+		{
+			iCount += PersonHelper.replacePlaceId(iter.next(),
+												strIdToBeReplaced,
+												strIdReplacement,
+												(String)null,
+												(String)null,
+												(String)null,
+												outputStream);
+		}
+		return iCount;
 	}
 }

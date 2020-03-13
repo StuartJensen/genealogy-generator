@@ -1,6 +1,7 @@
 package home.genealogy.lists;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
@@ -19,11 +21,13 @@ import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.Marriages;
 import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
+import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
+import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.util.FileNameFileFilter;
 import home.genealogy.util.MarshallUtil;
 
@@ -32,7 +36,7 @@ public class MarriageList
 	private Marriage[] m_arMarriageList;
 	
 	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -46,18 +50,18 @@ public class MarriageList
 		}
 	}
 	
-	public void persist(CFGFamily family, CommandLineParameters commandLineParameters, boolean bFormattedOutput, IOutputStream outputStream)
+	public void persist(GenealogyContext context)
 		throws Exception
 	{
-		if (commandLineParameters.isDestinationIndividualXMLs())
+		if (context.getCommandLineParameters().isDestinationIndividualXMLs())
 		{
-			marshallIndividualFiles(family, bFormattedOutput);
-			outputStream.output("Marriage List: Count: " + size() + ": Persisted to Individual XML files.\n");
+			marshallIndividualFiles(context.getFamily(), context.getFormattedOutput());
+			context.output("Marriage List: Count: " + size() + ": Persisted to Individual XML files.\n");
 		}
-		else if (commandLineParameters.isDestinationAllXMLs())
+		else if (context.getCommandLineParameters().isDestinationAllXMLs())
 		{
-			marshallAllFile(family, bFormattedOutput);
-			outputStream.output("Marriage List: Count: " + size() + ": Persisted to ALL XML file.\n");
+			marshallAllFile(context.getFamily(), context.getFormattedOutput());
+			context.output("Marriage List: Count: " + size() + ": Persisted to ALL XML file.\n");
 		}
 	}
 	
@@ -143,7 +147,7 @@ public class MarriageList
 	}
 	
 	public void unMarshallAllFile(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -165,11 +169,11 @@ public class MarriageList
 				int iMarriageId = MarriageHelper.getMarriageId(marriage);
 				if (MarriageIdHelper.MARRIAGEID_INVALID == iMarriageId)
 				{
-					throw new Exception("Marriage has invalid marriage id: " + fAllFile.getName());
+					throw new InvalidParameterException("Marriage has invalid marriage id: " + fAllFile.getName());
 				}
 				if (iMarriageId >= m_arMarriageList.length)
 				{
-					throw new Exception("Marriage's marriage id out of range: " + iMarriageId);
+					throw new InvalidParameterException("Marriage's marriage id out of range: " + iMarriageId);
 				}
 				m_arMarriageList[iMarriageId] = marriage;
 			}
@@ -214,7 +218,7 @@ public class MarriageList
 	}
 	
 	public void unMarshallIndividualFiles(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -234,11 +238,11 @@ public class MarriageList
 				int iMarriageId = MarriageHelper.getMarriageId(marriage);
 				if (MarriageIdHelper.MARRIAGEID_INVALID == iMarriageId)
 				{
-					throw new Exception("Marriage has invalid marriage id: " + arFiles[i].getName());
+					throw new InvalidParameterException("Marriage has invalid marriage id: " + arFiles[i].getName());
 				}
 				if (iMarriageId >= m_arMarriageList.length)
 				{
-					throw new Exception("Marriage's marriage id out of range: " + iMarriageId);
+					throw new InvalidParameterException("Marriage's marriage id out of range: " + iMarriageId);
 				}
 				m_arMarriageList[iMarriageId] = marriage;
 			}
@@ -274,5 +278,24 @@ public class MarriageList
 			String strMarriageFileName = MessageFormat.format(CFGFamily.MARRIAGES_FILE_FORMAT_STRING, String.valueOf(marriage.getMarriageId()));
 			MarshallUtil.marshall(marshaller, marriage, strDirectory + File.separator + strMarriageFileName);
 		}
+	}
+	
+	public int replacePlaceId(String strIdToBeReplaced,
+							String strIdReplacement,
+							IOutputStream outputStream)
+	{
+		int iCount = 0;
+		Iterator<Marriage> iter = getMarriages();
+		while (iter.hasNext())
+		{
+			iCount += MarriageHelper.replacePlaceId(iter.next(),
+										strIdToBeReplaced,
+										strIdReplacement,
+										(String)null,
+										(String)null,
+										(String)null,
+										outputStream);
+		}
+		return iCount;
 	}
 }

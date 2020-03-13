@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToPhotos;
 import home.genealogy.indexes.IndexMarriageToSpouses;
@@ -49,31 +50,22 @@ public class HTMLPhotoListForm
 	private IndexPersonToPhotos m_idxPersonToPhotos;
 	private IndexMarriageToPhotos m_idxMarriageToPhotos;
 	  
-	public HTMLPhotoListForm(CFGFamily family,
-								 PlaceList placeList,
-							     PersonList personList,
-							     MarriageList marriageList,
-							     ReferenceList referenceList,
-							     PhotoList photoList,
-							     IndexMarriageToSpouses indexMarrToSpouses,
-							     boolean bSuppressLiving,
-							     CommandLineParameters commandLineParameters,
-							     IOutputStream outputStream)
+	public HTMLPhotoListForm(GenealogyContext context,
+							IndexMarriageToSpouses indexMarrToSpouses)
 	{
-		m_family = family;
-		m_placeList = placeList;
-		m_personList = personList;
-		m_marriageList = marriageList;
-		m_referenceList = referenceList;
-		m_photoList = photoList;
-		m_bSuppressLiving = bSuppressLiving;
-		m_commandLineParameters = commandLineParameters;
-		m_outputStream = outputStream;
+		m_family = context.getFamily();
+		m_placeList = context.getPlaceList();
+		m_personList = context.getPersonList();
+		m_marriageList = context.getMarriageList();
+		m_referenceList = context.getReferenceList();
+		m_photoList = context.getPhotoList();
+		m_bSuppressLiving = context.getSuppressLiving();
+		m_commandLineParameters = context.getCommandLineParameters();
+		m_outputStream = context.getOutputStream();
 		m_indexMarrToSpouses = indexMarrToSpouses;
 		m_idxPersonToPhotos = new IndexPersonToPhotos(m_family, m_personList, m_photoList);
 		m_idxMarriageToPhotos = new IndexMarriageToPhotos(m_family, m_marriageList, m_photoList);
 	}
-	
 	
 	public void create()
 		throws Exception

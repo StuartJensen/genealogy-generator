@@ -1,6 +1,7 @@
 package home.genealogy.lists;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -12,12 +13,15 @@ import javax.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Photos;
+import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.schema.all.helpers.PhotoIdHelper;
+import home.genealogy.schema.all.helpers.ReferenceHelper;
 import home.genealogy.util.FileNameFileFilter;
 import home.genealogy.util.MarshallUtil;
 
@@ -26,7 +30,7 @@ public class PhotoList
 	private Photo[] m_arPhotoList;
 	
 	public PhotoList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -40,18 +44,18 @@ public class PhotoList
 		}
 	}
 	
-	public void persist(CFGFamily family, CommandLineParameters commandLineParameters, boolean bFormattedOutput, IOutputStream outputStream)
+	public void persist(GenealogyContext context)
 		throws Exception
 	{
-		if (commandLineParameters.isDestinationIndividualXMLs())
+		if (context.getCommandLineParameters().isDestinationIndividualXMLs())
 		{
-			marshallIndividualFiles(family, bFormattedOutput);
-			outputStream.output("Photo List: Count: " + size() + ": Persisted to Individual XML files.\n");
+			marshallIndividualFiles(context.getFamily(), context.getFormattedOutput());
+			context.output("Photo List: Count: " + size() + ": Persisted to Individual XML files.\n");
 		}
-		else if (commandLineParameters.isDestinationAllXMLs())
+		else if (context.getCommandLineParameters().isDestinationAllXMLs())
 		{
-			marshallAllFile(family, bFormattedOutput);
-			outputStream.output("Photo List: Count: " + size() + ": Persisted to ALL XML file.\n");
+			marshallAllFile(context.getFamily(), context.getFormattedOutput());
+			context.output("Photo List: Count: " + size() + ": Persisted to ALL XML file.\n");
 		}
 	}
 	
@@ -83,7 +87,7 @@ public class PhotoList
 	}
 	
 	public void unMarshallAllFile(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -105,11 +109,11 @@ public class PhotoList
 				int iPhotoId = PhotoHelper.getPhotoId(photo);
 				if (PhotoIdHelper.PHOTOID_INVALID == iPhotoId)
 				{
-					throw new Exception("Photo has invalid photo id: " + fAllFile.getName());
+					throw new InvalidParameterException("Photo has invalid photo id: " + fAllFile.getName());
 				}
 				if (iPhotoId >= m_arPhotoList.length)
 				{
-					throw new Exception("Photo's photo id out of range: " + iPhotoId);
+					throw new InvalidParameterException("Photo's photo id out of range: " + iPhotoId);
 				}
 				m_arPhotoList[iPhotoId] = photo;
 			}
@@ -154,7 +158,7 @@ public class PhotoList
 	}
 	
 	public void unMarshallIndividualFiles(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -174,11 +178,11 @@ public class PhotoList
 				int iPhotoId = PhotoHelper.getPhotoId(photo);
 				if (PhotoIdHelper.PHOTOID_INVALID == iPhotoId)
 				{
-					throw new Exception("Photo has invalid photo id: " + arFiles[i].getName());
+					throw new InvalidParameterException("Photo has invalid photo id: " + arFiles[i].getName());
 				}
 				if (iPhotoId >= m_arPhotoList.length)
 				{
-					throw new Exception("Photo's photo id out of range: " + iPhotoId);
+					throw new InvalidParameterException("Photo's photo id out of range: " + iPhotoId);
 				}
 				m_arPhotoList[iPhotoId] = photo;
 			}
@@ -213,5 +217,24 @@ public class PhotoList
 			String strPhotoFileName = MessageFormat.format(CFGFamily.PHOTOS_FILE_FORMAT_STRING, String.valueOf(photo.getPhotoId()));
 			MarshallUtil.marshall(marshaller, photo, strDirectory + File.separator + strPhotoFileName);
 		}
+	}
+	
+	public int replacePlaceId(String strIdToBeReplaced,
+							String strIdReplacement,
+							IOutputStream outputStream)
+	{
+		int iCount = 0;
+		Iterator<Photo> iter = getPhotos();
+		while (iter.hasNext())
+		{
+		iCount += PhotoHelper.replacePlaceId(iter.next(),
+											strIdToBeReplaced,
+											strIdReplacement,
+											(String)null,
+											(String)null,
+											(String)null,
+											outputStream);
+		}
+		return iCount;
 	}
 }

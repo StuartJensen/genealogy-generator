@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import home.genealogy.GenealogyContext;
 import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.RelationshipManager;
 import home.genealogy.output.IOutputStream;
@@ -928,6 +930,20 @@ public class PersonHelper
 	{
 		Set<String> sAllPlacedIds = PersonHelper.getAllPlaceIds(person);
 		return sAllPlacedIds.contains(strPlaceId);
+	}
+
+	public static int replacePlaceId(Person person,
+			String strToBeReplaced,
+			String strReplacement,
+			IOutputStream outputStream)
+	{
+		return replacePlaceId(person,
+							strToBeReplaced,
+							strReplacement,
+							(String)null,
+							(String)null,
+							(String)null,
+							outputStream);
 	}
 	
 	public static int replacePlaceId(Person person,

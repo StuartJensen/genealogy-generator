@@ -2,6 +2,7 @@ package home.genealogy.output;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 
 public class FileOutput implements IOutputStream
@@ -17,7 +18,7 @@ public class FileOutput implements IOutputStream
 	}
 	
 	public void initialize()
-		throws Exception
+		throws IOException
 	{
 		if (null == m_strFileName)
 		{
@@ -51,7 +52,7 @@ public class FileOutput implements IOutputStream
 	}
 		
 	public void deinitialize()
-		throws Exception
+		throws IOException
 	{
 		if (null != m_fos)
 		{

@@ -7,6 +7,7 @@ import home.genealogy.util.StringUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -17,7 +18,7 @@ public class CFGFamilyList {
 	private ArrayList<CFGFamily> m_alFamilyList = new ArrayList<CFGFamily>();
 
 	public CFGFamilyList(File fConfiguration)
-		throws Exception
+		throws IOException
 	{
 		Properties properties = new Properties();
 		if (fConfiguration.exists())

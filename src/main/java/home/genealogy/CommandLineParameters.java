@@ -40,7 +40,9 @@ public class CommandLineParameters
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES = "places";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST = "list";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_CLEAN = "clean";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_VALIDATE = "validate";
+	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_DUPLICATES = "duplicates";
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS = "commands";
 	
 	public static final String COMMAND_LINE_PARAM_ACTION_VALUE_GENERATIONS = "generations";
@@ -188,7 +190,9 @@ public class CommandLineParameters
 		
 		VALID_PLACES_SUBACTIONS = new ArrayList<String>();
 		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST);
+		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_CLEAN);
 		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_VALIDATE);
+		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_DUPLICATES);
 		VALID_PLACES_SUBACTIONS.add(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_COMMANDS);
 
 		VALID_GENERATIONS_TYPE = new ArrayList<String>();
@@ -372,6 +376,16 @@ public class CommandLineParameters
 		return false;
 	}
 	
+	public boolean isSubActionPlacesDuplicates()
+	{
+		String strSubAction = getSubAction();
+		if (StringUtil.exists(strSubAction))
+		{
+			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_DUPLICATES);
+		}
+		return false;
+	}
+	
 	public boolean isSubActionPlacesCommands()
 	{
 		String strSubAction = getSubAction();
@@ -388,6 +402,16 @@ public class CommandLineParameters
 		if (StringUtil.exists(strSubAction))
 		{
 			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_LIST);
+		}
+		return false;
+	}
+	
+	public boolean isSubActionPlacesClean()
+	{
+		String strSubAction = getSubAction();
+		if (StringUtil.exists(strSubAction))
+		{
+			return getSubAction().equals(COMMAND_LINE_PARAM_ACTION_VALUE_PLACES_SUBACTION_CLEAN);
 		}
 		return false;
 	}

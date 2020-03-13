@@ -1,6 +1,7 @@
 package home.genealogy.action.validate;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.output.IOutputStream;
 
@@ -18,11 +19,11 @@ public class GenealogyValidator
 	private CommandLineParameters m_commandLineParameters;
 	private IOutputStream m_outputStream;
 	
-	public GenealogyValidator(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
+	public GenealogyValidator(GenealogyContext context)
 	{
-		m_family = family;
-		m_commandLineParameters = commandLineParameters;
-		m_outputStream = outputStream;
+		m_family = context.getFamily();
+		m_commandLineParameters = context.getCommandLineParameters();
+		m_outputStream = context.getOutputStream();
 	}
 	
 	public void validate()

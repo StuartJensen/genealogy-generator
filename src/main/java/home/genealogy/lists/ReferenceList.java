@@ -1,6 +1,7 @@
 package home.genealogy.lists;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -12,10 +13,13 @@ import javax.xml.bind.Unmarshaller;
 import org.xml.sax.SAXException;
 
 import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.output.IOutputStream;
+import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.Reference;
 import home.genealogy.schema.all.References;
+import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.ReferenceHelper;
 import home.genealogy.schema.all.helpers.ReferenceIdHelper;
 import home.genealogy.util.FileNameFileFilter;
@@ -26,7 +30,7 @@ public class ReferenceList
 	private Reference[] m_arReferenceList;
 
 	public ReferenceList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -40,18 +44,18 @@ public class ReferenceList
 		}
 	}
 	
-	public void persist(CFGFamily family, CommandLineParameters commandLineParameters, boolean bFormattedOutput, IOutputStream outputStream)
+	public void persist(GenealogyContext context)
 		throws Exception
 	{
-		if (commandLineParameters.isDestinationIndividualXMLs())
+		if (context.getCommandLineParameters().isDestinationIndividualXMLs())
 		{
-			marshallIndividualFiles(family, bFormattedOutput);
-			outputStream.output("Reference List: Count: " + size() + ": Persisted to Individual XML files.\n");
+			marshallIndividualFiles(context.getFamily(), context.getFormattedOutput());
+			context.output("Reference List: Count: " + size() + ": Persisted to Individual XML files.\n");
 		}
-		else if (commandLineParameters.isDestinationAllXMLs())
+		else if (context.getCommandLineParameters().isDestinationAllXMLs())
 		{
-			marshallAllFile(family, bFormattedOutput);
-			outputStream.output("Reference List: Count: " + size() + ": Persisted to ALL XML file.\n");
+			marshallAllFile(context.getFamily(), context.getFormattedOutput());
+			context.output("Reference List: Count: " + size() + ": Persisted to ALL XML file.\n");
 		}
 	}
 	
@@ -83,7 +87,7 @@ public class ReferenceList
 	}
 	
 	public void unMarshallAllFile(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -105,11 +109,11 @@ public class ReferenceList
 				int iReferenceId = ReferenceHelper.getReferenceId(reference);
 				if (ReferenceIdHelper.REFERENCEID_INVALID == iReferenceId)
 				{
-					throw new Exception("Reference has invalid reference id: " + fAllFile.getName());
+					throw new InvalidParameterException("Reference has invalid reference id: " + fAllFile.getName());
 				}
 				if (iReferenceId >= m_arReferenceList.length)
 				{
-					throw new Exception("Reference's reference id out of range: " + iReferenceId);
+					throw new InvalidParameterException("Reference's reference id out of range: " + iReferenceId);
 				}
 				m_arReferenceList[iReferenceId] = reference;
 			}
@@ -154,7 +158,7 @@ public class ReferenceList
 	}
 	
 	public void unMarshallIndividualFiles(CFGFamily family)
-		throws Exception
+		throws InvalidParameterException, JAXBException, SAXException
 	{
 		String strDataPath = family.getDataPathSlashTerminated();
 		
@@ -174,11 +178,11 @@ public class ReferenceList
 				int iReferenceId = ReferenceHelper.getReferenceId(reference);
 				if (ReferenceIdHelper.REFERENCEID_INVALID == iReferenceId)
 				{
-					throw new Exception("Reference has invalid reference id: " + arFiles[i].getName());
+					throw new InvalidParameterException("Reference has invalid reference id: " + arFiles[i].getName());
 				}
 				if (iReferenceId >= m_arReferenceList.length)
 				{
-					throw new Exception("Reference's reference id out of range: " + iReferenceId);
+					throw new InvalidParameterException("Reference's reference id out of range: " + iReferenceId);
 				}
 				m_arReferenceList[iReferenceId] = reference;
 			}
@@ -213,5 +217,24 @@ public class ReferenceList
 			String strReferenceFileName = MessageFormat.format(CFGFamily.REFERENCES_FILE_FORMAT_STRING, String.valueOf(reference.getReferenceId()));
 			MarshallUtil.marshall(marshaller, reference, strDirectory + File.separator + strReferenceFileName);
 		}
+	}
+	
+	public int replacePlaceId(String strIdToBeReplaced,
+							String strIdReplacement,
+							IOutputStream outputStream)
+	{
+		int iCount = 0;
+		Iterator<Reference> iter = getReferences();
+		while (iter.hasNext())
+		{
+			iCount += ReferenceHelper.replacePlaceId(iter.next(),
+													strIdToBeReplaced,
+													strIdReplacement,
+													(String)null,
+													(String)null,
+													(String)null,
+													outputStream);
+		}
+		return iCount;
 	}
 }

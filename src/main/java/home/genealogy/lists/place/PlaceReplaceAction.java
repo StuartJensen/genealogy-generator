@@ -2,6 +2,7 @@ package home.genealogy.lists.place;
 
 import java.util.Iterator;
 
+import home.genealogy.GenealogyContext;
 import home.genealogy.lists.MarriageList;
 import home.genealogy.lists.PersonList;
 import home.genealogy.lists.PhotoList;
@@ -60,50 +61,45 @@ public class PlaceReplaceAction
 		return m_strReplacement;
 	}
 	
-	public void execute(PlaceList placeList,
-			PersonList personList,
-			MarriageList marriageList,
-			ReferenceList referenceList,
-			PhotoList photoList,
-			IOutputStream outputStream)
-				throws PlaceActionException
+	public void execute(GenealogyContext context)
+		throws PlaceActionException
 	{
-		outputStream.output("Executing Place Command: Replace: Place Id To Be Replaced " + getToBeReplaced() + ", Replacement: " + getReplacement() + "\n");
+		context.output("Executing Place Command: Replace: Place Id To Be Replaced " + getToBeReplaced() + ", Replacement: " + getReplacement() + "\n");
 		int iAllCount = 0;
-		Iterator<Person> iterPersons = personList.getPersons();
+		Iterator<Person> iterPersons = context.getPersonList().getPersons();
 		while (iterPersons.hasNext())
 		{
-			int iCount = PersonHelper.replacePlaceId(iterPersons.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, outputStream);
+			int iCount = PersonHelper.replacePlaceId(iterPersons.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, context.getOutputStream());
 			if (0 != iCount)
 			{
 				iAllCount += iCount;
 				markPersonListModified();
 			}
 		}
-		Iterator<Marriage> iterMarriages = marriageList.getMarriages();
+		Iterator<Marriage> iterMarriages = context.getMarriageList().getMarriages();
 		while (iterMarriages.hasNext())
 		{
-			int iCount = MarriageHelper.replacePlaceId(iterMarriages.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, outputStream);
+			int iCount = MarriageHelper.replacePlaceId(iterMarriages.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, context.getOutputStream());
 			if (0 != iCount)
 			{
 				iAllCount += iCount;
 				markMarriageListModified();
 			}
 		}
-		Iterator<Reference> iterReferences = referenceList.getReferences();
+		Iterator<Reference> iterReferences = context.getReferenceList().getReferences();
 		while (iterReferences.hasNext())
 		{
-			int iCount = ReferenceHelper.replacePlaceId(iterReferences.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, outputStream);
+			int iCount = ReferenceHelper.replacePlaceId(iterReferences.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, context.getOutputStream());
 			if (0 != iCount)
 			{
 				iAllCount += iCount;
 				markReferenceListModified();
 			}
 		}
-		Iterator<Photo> iterPhotos = photoList.getPhotos();
+		Iterator<Photo> iterPhotos = context.getPhotoList().getPhotos();
 		while (iterPhotos.hasNext())
 		{
-			int iCount = PhotoHelper.replacePlaceId(iterPhotos.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, outputStream);
+			int iCount = PhotoHelper.replacePlaceId(iterPhotos.next(), getToBeReplaced(), getReplacement(), m_strLocale, m_strStreet, m_strSpot, context.getOutputStream());
 			if (0 != iCount)
 			{
 				iAllCount += iCount;
@@ -113,11 +109,11 @@ public class PlaceReplaceAction
 		
 		if (0 == iAllCount)
 		{
-			outputStream.output("  WARNING: Zero instances of the place id: " + getToBeReplaced() + " found. No replacements with " + getReplacement() + " performed!\n");
+			context.output("  WARNING: Zero instances of the place id: " + getToBeReplaced() + " found. No replacements with " + getReplacement() + " performed!\n");
 		}
 		else
 		{
-			outputStream.output("  Replaced: " + iAllCount + " place ids.\n");
+			context.output("  Replaced: " + iAllCount + " place ids.\n");
 		}
 	}
 }
