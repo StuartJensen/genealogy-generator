@@ -340,8 +340,6 @@
         <xs:element minOccurs="0" name="cemetery" type="xs:string" />
         <xs:element minOccurs="0" name="cemeteryPlot" type="xs:string" />
       </xs:sequence>
-      <xs:attribute name="cemeteryName"/>
-      <xs:attribute name="cemeteryPlotAddress"/>
       <xs:attribute name="cremated" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
@@ -712,9 +710,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="date"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" name="altPlaceNameIdRef" type="xs:string"/>
       </xs:sequence>
       <xs:attribute name="id" use="required" type="xs:string"/>
+      <xs:attribute name="peerId" type="xs:string"/>
       <xs:attribute name="parentIdRef" type="xs:string" />
       <xs:attribute name="name" use="required" />
     </xs:complexType>

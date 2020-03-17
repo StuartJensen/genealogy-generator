@@ -202,6 +202,28 @@ public class PlaceList
 		}
 		return sParentIds;
 	}
+
+	public Set<String> getIdsOfAllPeers(String strPeerId)
+	{
+		Set<String> sPeerIds = new HashSet<String>();
+		if ((null != strPeerId) && (null != m_mPlaceNames))
+		{
+			Iterator<String> iter = m_mPlaceNames.keySet().iterator();
+			while (iter.hasNext())
+			{
+				String strKey = iter.next();
+				PlaceName current = m_mPlaceNames.get(strKey);
+				if (StringUtil.exists(current.getPeerId()))
+				{
+					if (strPeerId.equals(current.getPeerId()))
+					{
+						sPeerIds.add(strKey);
+					}
+				}
+			}
+		}
+		return sPeerIds;
+	}
 	
 	public Set<String> getAllParentIds(String strChildPlaceId)
 	{
@@ -280,6 +302,17 @@ public class PlaceList
 		}
 		// Gather all parental ids of all used place names
 		allUsedIds.addAll(getAllParentIds(allUsedIds));
+		// Gather all "peer" placename ids of "used" placenames
+		Set<String> sPeerIds = new HashSet<String>();
+		for (String strUsedId : allUsedIds)
+		{
+			PlaceName candidate = get(strUsedId);
+			if (StringUtil.exists(candidate.getPeerId()))
+			{
+				sPeerIds.addAll(getIdsOfAllPeers(candidate.getPeerId()));
+			}
+		}
+		allUsedIds.addAll(sPeerIds);
 		// Show details about the "found" places
 		sb.append("Found " + allUsedIds.size() + " Used Places\n");
 		sb.append("Place List Contains " + size() + " Places\n");
