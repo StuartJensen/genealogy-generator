@@ -3,6 +3,9 @@ package home.genealogy.schema.all.helpers;
 import home.genealogy.schema.all.Date;
 import home.genealogy.schema.all.DateOr;
 import home.genealogy.schema.all.DateRange;
+import home.genealogy.schema.all.Month;
+import home.genealogy.schema.all.TimeModifiers;
+import home.genealogy.util.StringUtil;
 
 import java.util.List;
 
@@ -25,10 +28,10 @@ public class DateHelper
 	{
 		if (null != date)
 		{
-			String strMonth = date.getMonth();
-			if (null != strMonth)
+			Month month = date.getMonth();
+			if (null != month)
 			{
-				return strMonth;
+				return month.value();
 			}
 		}
 		return "";
@@ -45,6 +48,63 @@ public class DateHelper
 			}
 		}
 		return "";
+	}
+	
+	public static int getOldestYear(Date date, int iRelativeToYear)
+	{
+		int iYear = iRelativeToYear;
+		if (null != date)
+		{
+			if (StringUtil.exists(date.getYear()))
+			{
+				try
+				{
+					int iCandidate = Integer.parseInt(date.getYear());
+					if (iCandidate < iYear)
+					{
+						iYear = iCandidate;
+					}
+				}
+				catch (NumberFormatException nfe)
+				{
+					// Ignore
+				}
+			}
+			iYear = DateOrHelper.getOldestYear(date.getDateOr(), iYear);
+			iYear = DateRangeHelper.getOldestBeginYear(date.getDateRange(), iYear);
+			iYear = DateRangeHelper.getOldestEndYear(date.getDateRange(), iYear);
+		}
+		return iYear;
+	}
+	
+	public static boolean isEmpty(Date date)
+	{
+		if (null != date)
+		{
+			if ((null != date.getMonth()) ||
+				(StringUtil.exists(date.getYear())) ||
+				(StringUtil.exists(date.getDay())))
+			{
+				return false;
+			}
+			
+			DateOr or = date.getDateOr();
+			if (null != or)
+			{
+				if (!DateOrHelper.isEmpty(or))
+				{
+					return false;
+				}
+			}
+			if (null != date.getDateRange())
+			{
+				if (!DateRangeHelper.isEmpty(date.getDateRange()))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	public static final int DATE_DAY_UNKNOWN = -1; 
@@ -125,7 +185,7 @@ public class DateHelper
 		return DATE_MONTH_UNKNOWN;
 	}
 	
-	public static final int DATE_YEAR_UNKNOWN = -1; 
+	public static final int DATE_YEAR_UNKNOWN = Integer.MAX_VALUE; 
 	public static int getNumericYear(Date date)
 	{
 		String strYear = getYear(date);
@@ -168,17 +228,18 @@ public class DateHelper
 			return "";
 		}
 		String strDate = "";
-		String strRelativeTime = date.getRelativeTime();
+		TimeModifiers timeModifier = date.getRelativeTime();
 		String strYear = date.getYear();
-		String strMonth = date.getMonth();
+		//String strMonth = date.getMonth();
+		Month month = date.getMonth();
 		String strDay = date.getDay();
-		if ((null != strRelativeTime) && (0 != strRelativeTime.length()))
+		if (null != timeModifier)
 		{
 			if (0 != strDate.length())
 			{
 				strDate += ", ";
 			}
-			strDate = strRelativeTime;
+			strDate = timeModifier.value();
 		}
 		if ((null != strYear) && (0 != strYear.length()))
 		{
@@ -188,13 +249,13 @@ public class DateHelper
 			}
 			strDate += strYear;
 		}
-		if ((null != strMonth) && (0 != strMonth.length()))
+		if (null != month)
 		{
 			if (0 != strDate.length())
 			{
 				strDate += ", ";
 			}
-			strDate += strMonth;
+			strDate += month.value();
 		}
 		if ((null != strDay) && (0 != strDay.length()))
 		{
@@ -215,17 +276,10 @@ public class DateHelper
 			strDate += DateRangeHelper.getDateRange(dateRange);
 		}
 		// Add Or
-		List<DateOr> lDateOr = date.getDateOr();
-		if (null != lDateOr)
+		DateOr dateOr = date.getDateOr();
+		if (null != dateOr)
 		{
-			for (int i=0; i<lDateOr.size(); i++)
-			{
-				if (0 != strDate.length())
-				{
-					strDate += "; ";
-				}
-				strDate += DateOrHelper.getDateOr(lDateOr.get(i));
-			}
+			strDate += DateOrHelper.getDateOr(dateOr);
 		}
 		return(strDate);
 	}

@@ -7,6 +7,7 @@ import java.util.List;
 import home.genealogy.lists.PlaceList;
 import home.genealogy.schema.all.GlobalCoordinates;
 import home.genealogy.schema.all.Place;
+import home.genealogy.schema.all.PlaceModifiers;
 import home.genealogy.schema.all.PlaceName;
 import home.genealogy.schema.all.WGS84;
 import home.genealogy.util.StringUtil;
@@ -20,10 +21,10 @@ public class PlaceHelper
 			return "";
 		}
 		StringBuilder sb = new StringBuilder(128);
-		String strModifier = place.getModifier();
-		if (null != strModifier)
+		PlaceModifiers placeModifier = place.getModifier();
+		if (null != placeModifier)
 		{
-			sb.append(strModifier);
+			sb.append(placeModifier.value());
 		}
 		String strPlaceName = PlaceNameHelper.getPlaceName(place.getIdRef(), placeList);
 		if (StringUtil.exists(strPlaceName))

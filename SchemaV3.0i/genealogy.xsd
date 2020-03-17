@@ -34,6 +34,78 @@
     </xs:restriction>
   </xs:simpleType>
   
+  <xs:simpleType name="month">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="January"/>
+      <xs:enumeration value="February"/>
+      <xs:enumeration value="March"/>
+      <xs:enumeration value="April"/>
+      <xs:enumeration value="May"/>
+      <xs:enumeration value="June"/>
+      <xs:enumeration value="July"/>
+      <xs:enumeration value="August"/>
+      <xs:enumeration value="September"/>
+      <xs:enumeration value="October"/>
+      <xs:enumeration value="November"/>
+      <xs:enumeration value="December"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="day">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="5"/>
+      <xs:enumeration value="6"/>
+      <xs:enumeration value="7"/>
+      <xs:enumeration value="8"/>
+      <xs:enumeration value="9"/>
+      <xs:enumeration value="10"/>
+      <xs:enumeration value="11"/>
+      <xs:enumeration value="12"/>
+      <xs:enumeration value="13"/>
+      <xs:enumeration value="14"/>
+      <xs:enumeration value="15"/>
+      <xs:enumeration value="16"/>
+      <xs:enumeration value="17"/>
+      <xs:enumeration value="18"/>
+      <xs:enumeration value="19"/>
+      <xs:enumeration value="20"/>
+      <xs:enumeration value="21"/>
+      <xs:enumeration value="22"/>
+      <xs:enumeration value="23"/>
+      <xs:enumeration value="24"/>
+      <xs:enumeration value="25"/>
+      <xs:enumeration value="26"/>
+      <xs:enumeration value="27"/>
+      <xs:enumeration value="28"/>
+      <xs:enumeration value="29"/>
+      <xs:enumeration value="30"/>
+      <xs:enumeration value="31"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="timeModifiers">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="ABOUT"/>
+      <xs:enumeration value="AFTER"/>
+      <xs:enumeration value="BEFORE"/>
+      <xs:enumeration value="CALC"/>
+      <xs:enumeration value="PROBABLY"/>
+      <xs:enumeration value="NEVER"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="placeModifiers">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="NEAR"/>
+      <xs:enumeration value="OF"/>
+      <xs:enumeration value="PROBABLY"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:element name="parents">
     <xs:complexType>
       <xs:sequence>
@@ -657,73 +729,7 @@
         <xs:element minOccurs="0" name="spot" type="xs:string" />
       </xs:sequence>
       <xs:attribute name="idRef" type="xs:string"/>
-      <xs:attribute name="modifier">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="NEAR"/>
-            <xs:enumeration value="OF"/>
-            <xs:enumeration value="PROBABLY"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="country">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="USA"/>
-            <xs:enumeration value="England"/>
-            <xs:enumeration value="Scotland"/>
-            <xs:enumeration value="Ireland"/>
-            <xs:enumeration value="Wales"/>
-            <xs:enumeration value="Denmark"/>
-            <xs:enumeration value="Norway"/>
-            <xs:enumeration value="Finland"/>
-            <xs:enumeration value="Germany"/>
-            <xs:enumeration value="France"/>
-            <xs:enumeration value="Holland"/>
-            <xs:enumeration value="Ukraine"/>
-            <xs:enumeration value="Italy"/>
-            <xs:enumeration value="Austria"/>
-            <xs:enumeration value="Switzerland"/>
-            <xs:enumeration value="Hungary"/>
-            <xs:enumeration value="Spain"/>
-            <xs:enumeration value="Canada"/>
-            <xs:enumeration value="Mexico"/>
-            <xs:enumeration value="Greece"/>
-            <xs:enumeration value="Russia"/>
-            <xs:enumeration value="Sweden"/>
-            <xs:enumeration value="Turkey"/>
-            <xs:enumeration value="Belgium"/>
-            <xs:enumeration value="Tonga"/>
-            <xs:enumeration value="Prussia"/>
-            <xs:enumeration value="Columbia"/>
-            <xs:enumeration value="Venezuela"/>
-            <xs:enumeration value="Brazil"/>
-            <xs:enumeration value="Iceland"/>
-            <xs:enumeration value="Israel"/>
-            <xs:enumeration value="Egypt"/>
-            <xs:enumeration value="India"/>
-            <xs:enumeration value="Iran"/>
-            <xs:enumeration value="Iraq"/>
-            <xs:enumeration value="Pakistan"/>
-            <xs:enumeration value="Japan"/>
-            <xs:enumeration value="Korea"/>
-            <xs:enumeration value="VietNam"/>
-            <xs:enumeration value="Portugal"/>
-            <xs:enumeration value="NewZealand"/>
-            <xs:enumeration value="Australia"/>
-            <xs:enumeration value="Scandinavia"/>
-            <xs:enumeration value="Tunisia"/>
-            <xs:enumeration value="AtSea"/>
-            <xs:enumeration value="PacificOcean"/>
-            <xs:enumeration value="AtlanticOcean"/>
-            <xs:enumeration value="Austrasia"/>
-            <xs:enumeration value="Bavaria"/>
-            <xs:enumeration value="Neustria"/>
-            <xs:enumeration value="Netherlands"/>
-            <xs:enumeration value="UNKNOWN"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
+      <xs:attribute name="modifier" type="placeModifiers" />
     </xs:complexType>
   </xs:element>
   <xs:element name="globalCoordinates">
@@ -773,145 +779,41 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" ref="dateRange"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="dateOr"/>
+        <xs:element minOccurs="0" ref="dateOr"/>
       </xs:sequence>
       <xs:attribute name="year"/>
-      <xs:attribute name="month">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="January"/>
-            <xs:enumeration value="February"/>
-            <xs:enumeration value="March"/>
-            <xs:enumeration value="April"/>
-            <xs:enumeration value="May"/>
-            <xs:enumeration value="June"/>
-            <xs:enumeration value="July"/>
-            <xs:enumeration value="August"/>
-            <xs:enumeration value="September"/>
-            <xs:enumeration value="October"/>
-            <xs:enumeration value="November"/>
-            <xs:enumeration value="December"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="day">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="1"/>
-            <xs:enumeration value="2"/>
-            <xs:enumeration value="3"/>
-            <xs:enumeration value="4"/>
-            <xs:enumeration value="5"/>
-            <xs:enumeration value="6"/>
-            <xs:enumeration value="7"/>
-            <xs:enumeration value="8"/>
-            <xs:enumeration value="9"/>
-            <xs:enumeration value="10"/>
-            <xs:enumeration value="11"/>
-            <xs:enumeration value="12"/>
-            <xs:enumeration value="13"/>
-            <xs:enumeration value="14"/>
-            <xs:enumeration value="15"/>
-            <xs:enumeration value="16"/>
-            <xs:enumeration value="17"/>
-            <xs:enumeration value="18"/>
-            <xs:enumeration value="19"/>
-            <xs:enumeration value="20"/>
-            <xs:enumeration value="21"/>
-            <xs:enumeration value="22"/>
-            <xs:enumeration value="23"/>
-            <xs:enumeration value="24"/>
-            <xs:enumeration value="25"/>
-            <xs:enumeration value="26"/>
-            <xs:enumeration value="27"/>
-            <xs:enumeration value="28"/>
-            <xs:enumeration value="29"/>
-            <xs:enumeration value="30"/>
-            <xs:enumeration value="31"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="relativeTime">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="ABOUT"/>
-            <xs:enumeration value="AFTER"/>
-            <xs:enumeration value="BEFORE"/>
-            <xs:enumeration value="CALC"/>
-            <xs:enumeration value="PROBABLY"/>
-            <xs:enumeration value="CHRISTENING"/>
-            <xs:enumeration value="NEVER"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
+      <xs:attribute name="month" type="month" />
+      <xs:attribute name="day" type="day" />
+      <xs:attribute name="relativeTime" type="timeModifiers" />
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="dateBegin">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" ref="date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="dateEnd">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" ref="date"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="dateRange">
-    <xs:complexType mixed="true">
-      <xs:attribute name="yearBegin"/>
-      <xs:attribute name="monthBegin">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="January"/>
-            <xs:enumeration value="February"/>
-            <xs:enumeration value="March"/>
-            <xs:enumeration value="April"/>
-            <xs:enumeration value="May"/>
-            <xs:enumeration value="June"/>
-            <xs:enumeration value="July"/>
-            <xs:enumeration value="August"/>
-            <xs:enumeration value="September"/>
-            <xs:enumeration value="October"/>
-            <xs:enumeration value="November"/>
-            <xs:enumeration value="December"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="dayBegin"/>
-      <xs:attribute name="relativeTimeBegin">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="ABOUT"/>
-            <xs:enumeration value="CALC"/>
-            <xs:enumeration value="PROBABLY"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="yearEnd"/>
-      <xs:attribute name="monthEnd">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="January"/>
-            <xs:enumeration value="February"/>
-            <xs:enumeration value="March"/>
-            <xs:enumeration value="April"/>
-            <xs:enumeration value="May"/>
-            <xs:enumeration value="June"/>
-            <xs:enumeration value="July"/>
-            <xs:enumeration value="August"/>
-            <xs:enumeration value="September"/>
-            <xs:enumeration value="October"/>
-            <xs:enumeration value="November"/>
-            <xs:enumeration value="December"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="dayEnd"/>
-      <xs:attribute name="relativeTimeEnd">
-        <xs:simpleType>
-          <xs:restriction base="xs:token">
-            <xs:enumeration value="ABOUT"/>
-            <xs:enumeration value="CALC"/>
-            <xs:enumeration value="PROBABLY"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="dateBegin"/>
+        <xs:element minOccurs="0" ref="dateEnd"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="dateOr">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="date"/>
+        <xs:element minOccurs="1" maxOccurs="unbounded" ref="date"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

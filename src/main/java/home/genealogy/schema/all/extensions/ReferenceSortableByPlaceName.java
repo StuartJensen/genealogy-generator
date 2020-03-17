@@ -40,7 +40,7 @@ public class ReferenceSortableByPlaceName implements Comparable<ReferenceSortabl
 		for (int i=0; i<iCount; i++)
 		{
 			DateRange dateRange = ReferenceHelper.getCitationDateRange(m_reference, i);
-			int iEndYear = DateRangeHelper.getEndYear(dateRange);
+			int iEndYear = DateRangeHelper.getOldestYear(dateRange);
 			if ((DateHelper.DATE_YEAR_UNKNOWN == iThisEndYear) ||
 				(iEndYear < iThisEndYear))
 			{
@@ -53,7 +53,7 @@ public class ReferenceSortableByPlaceName implements Comparable<ReferenceSortabl
 		for (int i=0; i<iCount; i++)
 		{
 			DateRange dateRange = ReferenceHelper.getCitationDateRange(that.getReference(), i);
-			int iEndYear = DateRangeHelper.getEndYear(dateRange);
+			int iEndYear = DateRangeHelper.getOldestYear(dateRange);
 			if ((DateHelper.DATE_YEAR_UNKNOWN == iThatEndYear) ||
 				(iEndYear < iThatEndYear))
 			{

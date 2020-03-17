@@ -118,32 +118,50 @@ public class Genealogy
 		catch (InvalidParameterException ipe)
 		{
 			System.out.println("An invalid construct was encountered: " + ipe.getMessage());
-			context.setException(ipe);
+			if (null != context)
+			{
+				context.setException(ipe);
+			}
 		}
 		catch (UsageException ue)
 		{
 			CommandLineParameters.showUsage(ue.getMessage());
-			context.setException(ue);
+			if (null != context)
+			{
+				context.setException(ue);
+			}
 		}
 		catch (SAXException sxe)
 		{
 			System.out.println("Exception instantiating marshalling agent: " + sxe.getMessage());
-			context.setException(sxe);
+			if (null != context)
+			{
+				context.setException(sxe);
+			}
 		}
 		catch (JAXBException jbe)
 		{
 			System.out.println("Exception marshalling XML file: " + jbe.getMessage());
-			context.setException(jbe);
+			if (null != context)
+			{
+				context.setException(jbe);
+			}
 		}
 		catch (PlaceActionException pae)
 		{
 			System.out.println("Place action exception: " + pae.getMessage());
-			context.setException(pae);
+			if (null != context)
+			{
+				context.setException(pae);
+			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			context.setException(e);
+			if (null != context)
+			{
+				context.setException(e);
+			}
 		}
 		finally
 		{

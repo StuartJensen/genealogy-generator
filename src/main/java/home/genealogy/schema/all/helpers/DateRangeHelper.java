@@ -1,131 +1,107 @@
 package home.genealogy.schema.all.helpers;
 
+import java.util.List;
+
+import home.genealogy.schema.all.Date;
+import home.genealogy.schema.all.DateOr;
 import home.genealogy.schema.all.DateRange;
 
 public class DateRangeHelper
 {
 	public static boolean isEmpty(DateRange dateRange)
 	{
-		String strYearBegin = dateRange.getYearBegin();
-		String strMonthBegin = dateRange.getMonthBegin();
-		String strDayBegin = dateRange.getDayBegin();
-		String strRelativeTimeBegin = dateRange.getRelativeTimeBegin();
-		String strYearEnd = dateRange.getYearEnd();
-		String strMonthEnd = dateRange.getMonthEnd();
-		String strDayEnd = dateRange.getDayEnd();
-		String strRelativeTimeEnd = dateRange.getRelativeTimeEnd();
-		if (((null != strYearBegin) && (0 != strYearBegin.length())) &&
-		    ((null != strMonthBegin) && (0 != strMonthBegin.length())) &&
-		    ((null != strDayBegin) && (0 != strDayBegin.length())) &&
-		    ((null != strRelativeTimeBegin) && (0 != strRelativeTimeBegin.length())) &&
-		    ((null != strYearEnd) && (0 != strYearEnd.length())) &&
-		    ((null != strMonthEnd) && (0 != strMonthEnd.length())) &&
-		    ((null != strDayEnd) && (0 != strDayEnd.length())) &&
-		    ((null != strRelativeTimeEnd) && (0 != strRelativeTimeEnd.length())))
+		if ((null != dateRange.getDateBegin()) &&
+			(null != dateRange.getDateBegin().getDate()))
 		{
-			return false;
+			if (!DateHelper.isEmpty(dateRange.getDateBegin().getDate()))
+			{
+				return false;
+			}
+		}
+		if ((null != dateRange.getDateEnd()) &&
+			(null != dateRange.getDateEnd().getDate()))
+		{
+			if (!DateHelper.isEmpty(dateRange.getDateEnd().getDate()))
+			{
+				return false;
+			}
 		}
 		return true;
 	}
 	
-	public static int getBeginYear(DateRange dateRange)
+	public static int getOldestBeginYear(DateRange dateRange, int iRelativeToYear)
 	{
-		int iYear = DateHelper.DATE_YEAR_UNKNOWN;
+		int iYear = iRelativeToYear;
 		if (null != dateRange)
 		{
-			String strYear = dateRange.getYearBegin();
-			if (null != strYear)
+			if (null != dateRange.getDateBegin())
 			{
-				try
-				{
-					iYear = Integer.parseInt(strYear);
-				}
-				catch (NumberFormatException nfe)
-				{
-					// Leave as invalid
-				}
+				iYear = DateHelper.getOldestYear(dateRange.getDateBegin().getDate(), iYear);
 			}
 		}
 		return iYear;
 	}
 	
-	public static int getEndYear(DateRange dateRange)
+	public static int getOldestEndYear(DateRange dateRange, int iRelativeToYear)
 	{
-		int iYear = DateHelper.DATE_YEAR_UNKNOWN;
+		int iYear = iRelativeToYear;
 		if (null != dateRange)
 		{
-			String strYear = dateRange.getYearEnd();
-			if (null != strYear)
+			if (null != dateRange.getDateEnd())
 			{
-				try
-				{
-					iYear = Integer.parseInt(strYear);
-				}
-				catch (NumberFormatException nfe)
-				{
-					// Leave as invalid
-				}
+				iYear = DateHelper.getOldestYear(dateRange.getDateEnd().getDate(), iYear);
 			}
 		}
+		return iYear;
+	}
+	
+	public static int getOldestYear(DateRange dateRange)
+	{
+		int iYear = DateHelper.DATE_YEAR_UNKNOWN;
+		iYear = getOldestBeginYear(dateRange, iYear);
+		iYear = getOldestEndYear(dateRange, iYear);
+		return iYear;
+	}
+	
+	public static int getOldestYear(DateRange dateRange, int iRelativeToYear)
+	{
+		int iYear = iRelativeToYear;
+		iYear = getOldestBeginYear(dateRange, iYear);
+		iYear = getOldestEndYear(dateRange, iYear);
 		return iYear;
 	}
 
 	public static String getDateRange(DateRange dateRange)
 	{
-		String strYearBegin = dateRange.getYearBegin();
-		String strMonthBegin = dateRange.getMonthBegin();
-		String strDayBegin = dateRange.getDayBegin();
-		String strRelativeTimeBegin = dateRange.getRelativeTimeBegin();
-		String strYearEnd = dateRange.getYearEnd();
-		String strMonthEnd = dateRange.getMonthEnd();
-		String strDayEnd = dateRange.getDayEnd();
-		String strRelativeTimeEnd = dateRange.getRelativeTimeEnd();
-		StringBuffer sb = new StringBuffer(256);
-		sb.append("BTWN");
-		if ((null != strRelativeTimeBegin) && (0 != strRelativeTimeBegin.length()))
+		StringBuilder sb = new StringBuilder();
+		if (null != dateRange)
 		{
-			sb.append(" ");
-			sb.append(strRelativeTimeBegin);
+			sb.append("(BTWN");
+			if ((null != dateRange.getDateBegin()) &&
+				(null != dateRange.getDateBegin().getDate()))
+			{
+				sb.append(" ");
+				sb.append(DateHelper.getDate(dateRange.getDateBegin().getDate()));
+				sb.append(" ");
+			}
+			else
+			{
+				sb.append(" ~ ");
+			}
+			
+			sb.append("and");
+			if ((null != dateRange.getDateEnd()) &&
+				(null != dateRange.getDateEnd().getDate()))
+			{
+				sb.append(" ");
+				sb.append(DateHelper.getDate(dateRange.getDateEnd().getDate()));
+			}
+			else
+			{
+				sb.append(" ~");
+			}
+			sb.append(")");
 		}
-		if ((null != strYearBegin) && (0 != strYearBegin.length()))
-		{
-			sb.append(" ");
-			sb.append(strYearBegin);
-		}
-		if ((null != strMonthBegin) && (0 != strMonthBegin.length()))
-		{
-			sb.append(" ");
-			sb.append(strMonthBegin);
-		}
-		if ((null != strDayBegin) && (0 != strDayBegin.length()))
-		{
-			sb.append(" ");
-			sb.append(strDayBegin);
-		}
-
-		sb.append(" and ");
-
-		if ((null != strRelativeTimeEnd) && (0 != strRelativeTimeEnd.length()))
-		{
-			sb.append(" ");
-			sb.append(strRelativeTimeEnd);
-		}
-		if ((null != strYearEnd) && (0 != strYearEnd.length()))
-		{
-			sb.append(" ");
-			sb.append(strYearEnd);
-		}
-		if ((null != strMonthEnd) && (0 != strMonthEnd.length()))
-		{
-			sb.append(" ");
-			sb.append(strMonthEnd);
-		}
-		if ((null != strDayEnd) && (0 != strDayEnd.length()))
-		{
-			sb.append(" ");
-			sb.append(strDayEnd);
-		}
-
 		return(sb.toString());
 	}
 }
