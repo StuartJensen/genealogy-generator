@@ -77,7 +77,7 @@ public class GenealogyContext
 		if (!m_strAction.equals(m_commandLineParameters.isActionValidate()))
 		{
 			m_outputStream.output("Initiating Lists Load:\n");
-			m_placeList = new PlaceList(m_family, m_commandLineParameters);
+			m_placeList = new PlaceList(m_family, m_commandLineParameters, m_outputStream);
 			m_personList = new PersonList(m_family, m_commandLineParameters, m_outputStream);
 			m_photoList = new PhotoList(m_family, m_commandLineParameters, m_outputStream);
 			m_marriageList = new MarriageList(m_family, m_commandLineParameters, m_outputStream);

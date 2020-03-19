@@ -30,6 +30,7 @@ public class PersonList
 	public PersonList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		outputStream.output("Person List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);

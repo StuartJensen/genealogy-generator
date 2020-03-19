@@ -21,13 +21,10 @@ import home.genealogy.schema.all.MarriageId;
 import home.genealogy.schema.all.Marriages;
 import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
-import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.helpers.MarriageHelper;
 import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.ParentsHelper;
-import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
-import home.genealogy.schema.all.helpers.PhotoHelper;
 import home.genealogy.util.FileNameFileFilter;
 import home.genealogy.util.MarshallUtil;
 
@@ -38,6 +35,7 @@ public class MarriageList
 	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		outputStream.output("Marriage List: Count:  List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);

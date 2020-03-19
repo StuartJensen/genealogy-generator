@@ -45,10 +45,12 @@ public class PlaceList
 		m_mPlaceNames = new HashMap<String, PlaceName>();
 	}
 	
-	public PlaceList(CFGFamily family, CommandLineParameters commandLineParameters)
+	public PlaceList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		outputStream.output("Place List: Initiating load.\n");
 		unMarshallAllFile(family);
+		outputStream.output("Place List: Count: " + size() + ": Loaded from ALL XML file.\n");
 	}
 	
 	public void persist(GenealogyContext context)

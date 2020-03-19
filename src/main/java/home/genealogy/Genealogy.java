@@ -142,6 +142,10 @@ public class Genealogy
 		catch (JAXBException jbe)
 		{
 			System.out.println("Exception marshalling XML file: " + jbe.getMessage());
+			if (null != jbe.getLinkedException())
+			{
+				System.out.println("  ... with linked Exception: " + jbe.getLinkedException().getMessage());
+			}
 			if (null != context)
 			{
 				context.setException(jbe);

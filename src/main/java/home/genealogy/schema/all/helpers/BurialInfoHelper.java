@@ -36,7 +36,7 @@ public class BurialInfoHelper
 	{
 		if (null != burialInfo)
 		{
-			String strCemeteryName = burialInfo.getCemeteryName();
+			String strCemeteryName = burialInfo.getCemetery();
 			if (null != strCemeteryName)
 			{
 				return strCemeteryName;
@@ -49,7 +49,7 @@ public class BurialInfoHelper
 	{
 		if (null != burialInfo)
 		{
-			String strCemeteryPlotAddress = burialInfo.getCemeteryPlotAddress();
+			String strCemeteryPlotAddress = burialInfo.getCemeteryPlot();
 			if (null != strCemeteryPlotAddress)
 			{
 				return strCemeteryPlotAddress;
