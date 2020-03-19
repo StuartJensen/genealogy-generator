@@ -35,7 +35,7 @@ public class MarriageList
 	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
-		outputStream.output("Marriage List: Count:  List: Initiating load.\n");
+		outputStream.output("Marriage List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);

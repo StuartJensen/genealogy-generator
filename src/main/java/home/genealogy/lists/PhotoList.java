@@ -32,7 +32,7 @@ public class PhotoList
 	public PhotoList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
-		outputStream.output("Photo List: Count:  List: Initiating load.\n");
+		outputStream.output("Photo List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);

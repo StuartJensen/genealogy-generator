@@ -32,7 +32,7 @@ public class ReferenceList
 	public ReferenceList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
-		outputStream.output("Reference List: Count:  List: Initiating load.\n");
+		outputStream.output("Reference List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
 			unMarshallIndividualFiles(family);
