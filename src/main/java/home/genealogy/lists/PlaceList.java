@@ -309,9 +309,16 @@ public class PlaceList
 		for (String strUsedId : allUsedIds)
 		{
 			PlaceName candidate = get(strUsedId);
-			if (StringUtil.exists(candidate.getPeerId()))
+			if (null == candidate)
 			{
-				sPeerIds.addAll(getIdsOfAllPeers(candidate.getPeerId()));
+				context.output("ERROR: A discovered PlaceName id \"" + strUsedId + "\" is invalid. It maps to no PlaceName!\n");
+			}
+			else
+			{
+				if (StringUtil.exists(candidate.getPeerId()))
+				{
+					sPeerIds.addAll(getIdsOfAllPeers(candidate.getPeerId()));
+				}
 			}
 		}
 		allUsedIds.addAll(sPeerIds);
