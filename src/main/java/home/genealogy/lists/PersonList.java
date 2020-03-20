@@ -26,10 +26,12 @@ import home.genealogy.util.MarshallUtil;
 public class PersonList
 {
 	private Person[] m_arPersonList;
+	private IOutputStream m_outputStream;
 	
 	public PersonList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		m_outputStream = outputStream;
 		outputStream.output("Person List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -95,6 +97,7 @@ public class PersonList
 		
 		// Setup JAXB unmarshaller
 		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		unmarshaller.setEventHandler(new ListsValidationEventHandler(m_outputStream));
 		
 		String strDirectoryPersons = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PERSONS;
 		String strFileName = strDirectoryPersons + File.separator + CFGFamily.PERSONS_ALL_FILENAME;

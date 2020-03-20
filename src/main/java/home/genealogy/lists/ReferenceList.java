@@ -28,10 +28,12 @@ import home.genealogy.util.MarshallUtil;
 public class ReferenceList
 {
 	private Reference[] m_arReferenceList;
+	private IOutputStream m_outputStream;
 
 	public ReferenceList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		m_outputStream = outputStream;
 		outputStream.output("Reference List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -96,6 +98,7 @@ public class ReferenceList
 		
 		// Setup JAXB unmarshaller
 		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		unmarshaller.setEventHandler(new ListsValidationEventHandler(m_outputStream));
 		
 		String strDirectoryReferences = strDataPath + CFGFamily.APPENDAGE_DATAPATH_REFERENCES;
 		String strFileName = strDirectoryReferences + File.separator + CFGFamily.REFERENCES_ALL_FILENAME;

@@ -31,10 +31,12 @@ import home.genealogy.util.MarshallUtil;
 public class MarriageList
 {
 	private Marriage[] m_arMarriageList;
+	private IOutputStream m_outputStream;
 	
 	public MarriageList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		m_outputStream = outputStream;
 		outputStream.output("Marriage List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -153,6 +155,7 @@ public class MarriageList
 		
 		// Setup JAXB unmarshaller
 		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		unmarshaller.setEventHandler(new ListsValidationEventHandler(m_outputStream));
 		
 		String strDirectoryMarriages = strDataPath + CFGFamily.APPENDAGE_DATAPATH_MARRIAGES;
 		String strFileName = strDirectoryMarriages + File.separator + CFGFamily.MARRIAGES_ALL_FILENAME;

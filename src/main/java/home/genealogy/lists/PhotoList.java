@@ -28,10 +28,12 @@ import home.genealogy.util.MarshallUtil;
 public class PhotoList
 {
 	private Photo[] m_arPhotoList;
+	private IOutputStream m_outputStream;
 	
 	public PhotoList(CFGFamily family, CommandLineParameters commandLineParameters, IOutputStream outputStream)
 		throws InvalidParameterException, JAXBException, SAXException
 	{
+		m_outputStream = outputStream;
 		outputStream.output("Photo List: Initiating load.\n");
 		if (commandLineParameters.isSourceIndividualXMLs())
 		{
@@ -96,6 +98,7 @@ public class PhotoList
 		
 		// Setup JAXB unmarshaller
 		Unmarshaller unmarshaller = MarshallUtil.createUnMarshaller(family.getSchemaFile());
+		unmarshaller.setEventHandler(new ListsValidationEventHandler(m_outputStream));
 		
 		String strDirectoryPhotos = strDataPath + CFGFamily.APPENDAGE_DATAPATH_PHOTOS;
 		String strFileName = strDirectoryPhotos + File.separator + CFGFamily.PHOTOS_ALL_FILENAME;
