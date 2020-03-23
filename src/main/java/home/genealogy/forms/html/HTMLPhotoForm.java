@@ -4,19 +4,11 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import home.genealogy.CommandLineParameters;
 import home.genealogy.GenealogyContext;
-import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexPersonToMarriages;
 import home.genealogy.indexes.IndexPersonToParentMarriage;
 import home.genealogy.indexes.IndexPersonsToReferences;
-import home.genealogy.lists.MarriageList;
-import home.genealogy.lists.PersonList;
-import home.genealogy.lists.PhotoList;
-import home.genealogy.lists.PlaceList;
-import home.genealogy.lists.ReferenceList;
-import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Caption;
 import home.genealogy.schema.all.Commentary;
 import home.genealogy.schema.all.Entry;
@@ -54,29 +46,13 @@ public class HTMLPhotoForm
 {
 	public static final String PHOTOWRAPPER_FILE_SYSTEM_SUBDIRECTORY = "photowrappers";
 	
-	private CFGFamily m_family;
-	private PlaceList m_placeList;
-	private PersonList m_personList;
-	private MarriageList m_marriageList;
-	private ReferenceList m_referenceList;
-	private PhotoList m_photoList;
+	private GenealogyContext m_context;
 	private IndexMarriageToSpouses m_indexMarrToSpouses;
-	private boolean m_bSuppressLiving;
-	private CommandLineParameters m_commandLineParameters;
-	private IOutputStream m_outputStream;
 	  
 	public HTMLPhotoForm(GenealogyContext context,
 						IndexMarriageToSpouses indexMarrToSpouses)
 	{
-		m_family = context.getFamily();
-		m_placeList = context.getPlaceList();
-		m_personList = context.getPersonList();
-		m_marriageList = context.getMarriageList();
-		m_referenceList = context.getReferenceList();
-		m_photoList = context.getPhotoList();
-		m_bSuppressLiving = context.getSuppressLiving();
-		m_commandLineParameters = context.getCommandLineParameters();
-		m_outputStream = context.getOutputStream();
+		m_context = context;
 		m_indexMarrToSpouses = indexMarrToSpouses;
 	}
 	
@@ -85,7 +61,7 @@ public class HTMLPhotoForm
 	{
 		// Get the base output file system path and make sure it 
 		// ends with a slash
-		String strOutputPath = m_family.getOutputPathHTML();
+		String strOutputPath = m_context.getFamily().getOutputPathHTML();
 		if (!strOutputPath.endsWith("\\"))
 		{
 			strOutputPath += "\\";
@@ -102,31 +78,22 @@ public class HTMLPhotoForm
 		}		
 		
 		// Create necessary Indexes
-		IndexPersonToParentMarriage idxPerToParentMar = new IndexPersonToParentMarriage(m_family, m_personList);
-		IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(m_family, m_marriageList);
-		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_family, m_marriageList);
-		IndexPersonsToReferences idxPerToRef = new IndexPersonsToReferences(m_family, m_personList, m_referenceList);
+		IndexPersonToParentMarriage idxPerToParentMar = new IndexPersonToParentMarriage(m_context.getFamily(), m_context.getPersonList());
+		IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(m_context.getFamily(), m_context.getMarriageList());
+		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_context.getFamily(), m_context.getMarriageList());
+		IndexPersonsToReferences idxPerToRef = new IndexPersonsToReferences(m_context.getFamily(), m_context.getPersonList(), m_context.getReferenceList());
 		
-		Iterator<Photo> iter = m_photoList.getPhotos();
+		Iterator<Photo> iter = m_context.getPhotoList().getPhotos();
 		while (iter.hasNext())
 		{
 			Photo thisPhoto = iter.next();
-			createPhoto(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
-						         m_photoList, m_bSuppressLiving, idxPerToParentMar,
-						         idxPerToMar, idxMarToSpouses, strOutputPath, thisPhoto);
+			createPhoto(idxPerToParentMar, idxPerToMar, idxMarToSpouses, strOutputPath, thisPhoto);
 		}
-		m_outputStream.output("Completed Generating All Photo Wrapper Files\n");
+		m_context.output("Completed Generating All Photo Wrapper Files\n");
 	}
 
 
-	private void createPhoto(CFGFamily family,
-				 PlaceList placeList,
-				 PersonList personList,
-				 MarriageList marriageList,
-				 ReferenceList referenceList,
-				 PhotoList photoList,
-				 boolean bSuppressLiving,
-				 IndexPersonToParentMarriage idxPerToParentMar,
+	private void createPhoto(IndexPersonToParentMarriage idxPerToParentMar,
 				 IndexPersonToMarriages idxPerToMar,
 				 IndexMarriageToSpouses idxMarToSpouses,
 				 String strOutputPath,
@@ -135,9 +102,9 @@ public class HTMLPhotoForm
 	{
 		int iPhotoId = PhotoHelper.getPhotoId(photo);
 		String strFileName = strOutputPath + PHOTOWRAPPER_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
-		m_outputStream.output("Generating Photo File: " + strFileName+ "\n");
+		m_context.output("Generating Photo File: " + strFileName+ "\n");
 		HTMLFormOutput output = new HTMLFormOutput(strFileName);
-		output.outputSidebarFrontEnd("Photo Number: " + iPhotoId, m_family, personList, marriageList);
+		output.outputSidebarFrontEnd("Photo Number: " + iPhotoId, m_context.getFamily(), m_context.getPersonList(), m_context.getMarriageList());
 
 		// Top of Document Internal Link Tag
 		output.output("<A name=InfoTop></A>");
@@ -147,13 +114,11 @@ public class HTMLPhotoForm
 		List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
 		for (int i=0; i<lDescription.size(); i++)
 		{
-			String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-					lDescription.get(i), placeList, m_personList, m_marriageList,
-                    m_referenceList, m_photoList,
+			String strParagraph = HTMLShared.buildParagraphString(m_context,
+					lDescription.get(i),
                     m_indexMarrToSpouses,
                     true,
                     true,
-                    m_bSuppressLiving,
                     new HTMLParagraphFormat("pageTopHeader"),
                     iPhotoId,
                     PhotoIdHelper.PHOTOID_INVALID);
@@ -167,7 +132,7 @@ public class HTMLPhotoForm
 		// If the photo has PRIVATE access, do not show details
 		String strAccess = PhotoHelper.getAccess(photo);
 		
-		if (strAccess.equals("PRIVATE") && m_bSuppressLiving)
+		if (strAccess.equals("PRIVATE") && m_context.getSuppressLiving())
 		{
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, "<b>The content of this photo has been deemed <i>private</i>.</b><br>This simply means that the family feels it is of a private or sacred nature.<br>However, we would love to share the photo with anyone who has an honest interest in it.<br>If you are interested in viewing the content of this photo, email us at the address provided on the sidebar explaining who you are and what your interest in the photo is.");
 			output.outputBR(2);
@@ -175,7 +140,7 @@ public class HTMLPhotoForm
 		}
 		else
 		{	// access is PUBLIC or COPYRIGHTED, show everything if PUBLIC, parts if COPYRIGHTED
-			if (!(strAccess.equals("COPYRIGHTED")) || !m_bSuppressLiving)
+			if (!(strAccess.equals("COPYRIGHTED")) || !m_context.getSuppressLiving())
 			{
 				// Start Photo Frame Table
 				output.output("<center>");
@@ -193,12 +158,12 @@ public class HTMLPhotoForm
 				if (0 != strSmallestWebbableFileName.length())
 				{
 					strSmallestWebbableFileName = strSmallestWebbableFileName.toLowerCase();
-					String strUrl = "<img border=\"0\" src=\"" + m_family.getUrlPrefix() + "photos/" + strSmallestWebbableFileName + "\" alt=\" Photo Id: " + iPhotoId + "\">"; 
+					String strUrl = "<img border=\"0\" src=\"" + m_context.getFamily().getUrlPrefix() + "photos/" + strSmallestWebbableFileName + "\" alt=\" Photo Id: " + iPhotoId + "\">"; 
 					output.output(strUrl);
 				}
 				else
 				{	// Log error!
-					m_outputStream.output("No Webbable Photo is available!\n");
+					m_context.output("No Webbable Photo is available!\n");
 				}
 				// End Photo Frame Table 
 				output.output("</table>");
@@ -227,7 +192,7 @@ public class HTMLPhotoForm
 						String strPhotoFileName = "photos\\" + strPackage + "\\" + strBaseFileName + FileHelper.getUniqueId(file) + "." + FileHelper.getTypeExtension(file);
 						strPhotoFileName = HTMLShared.replaceBkSlashWithPhotoFileNameSeparator(strPhotoFileName);
 						strPhotoFileName = strPhotoFileName.toLowerCase();
-						output.outputStartAnchor(m_family.getUrlPrefix() + strPhotoFileName);
+						output.outputStartAnchor(m_context.getFamily().getUrlPrefix() + strPhotoFileName);
 						String strWork = "Type: " + FileHelper.getType(file) + ", Size: " + FileHelper.getSize(file) + " (KBytes)";
 						output.output(strWork);
 						output.outputEndAnchor();
@@ -240,7 +205,7 @@ public class HTMLPhotoForm
 				output.outputCRLF();
 			}
 			// If the photo has COPYRIGHTED access, do not show details
-			else if (strAccess.equals("COPYRIGHTED") && m_bSuppressLiving)
+			else if (strAccess.equals("COPYRIGHTED") && m_context.getSuppressLiving())
 			{
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, "<b>This photo is (or may be) <i>copyrighted</i>.</b><br>If you cannot locate the resource using the location details, you are welcome to contact us, using the email address on the sidebar, and we may be able to help you.");
 				output.outputBR(2);
@@ -266,7 +231,7 @@ public class HTMLPhotoForm
 						int iRefEntryId = ReferenceEntryIdHelper.getReferenceEntryId(referenceEntryId);
 						if (iRefId != ReferenceIdHelper.REFERENCEID_INVALID)
 						{
-							Reference reference = m_referenceList.get(iRefId);
+							Reference reference = m_context.getReferenceList().get(iRefId);
 							if (null != reference)
 							{
 //								ReferenceCitation *pCitation = pReference->getReferenceCitation();
@@ -274,7 +239,7 @@ public class HTMLPhotoForm
 //								ReferenceAuthor *pAuthor = pSource->getReferenceAuthor();
 
 								// Document Title
-								String strHRef = m_family.getUrlPrefix() + "references/" + HTMLShared.REFERENCEFILENAME + iRefId + ".htm";
+								String strHRef = m_context.getFamily().getUrlPrefix() + "references/" + HTMLShared.REFERENCEFILENAME + iRefId + ".htm";
 								output.outputStandardBracketedLink(strHRef, "View Document");
 								output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, ReferenceHelper.getTitle(reference));
 								output.outputBR();
@@ -295,16 +260,14 @@ public class HTMLPhotoForm
 									for (int t=0; t<iTitleParagraphCount; t++)
 									{
 										Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);					
-										String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-												  paragraph, placeList, m_personList, m_marriageList,
-					                            m_referenceList, m_photoList,
-					                            m_indexMarrToSpouses,
-					                            true,
-					                            true,
-					                            m_bSuppressLiving,
-					                            null,
-					                            iRefId,
-					                            iRefEntryId);
+										String strParagraph = HTMLShared.buildParagraphString(m_context,
+																						paragraph,
+																						m_indexMarrToSpouses,
+																						true,
+																						true,
+																						null,
+																						iRefId,
+																						iRefEntryId);
 										output.output(strParagraph);
 										output.outputCRLF();
 									}
@@ -320,7 +283,7 @@ public class HTMLPhotoForm
 			{	// The photo has a singleton
 				Singleton singleton = PhotoHelper.getSingleton(photo);
 				String strDate = SingletonHelper.getDate(singleton);
-				String strPlace = SingletonHelper.getPlace(singleton, m_placeList);
+				String strPlace = SingletonHelper.getPlace(singleton, m_context.getPlaceList());
 //				PhotoPhotographer *pPhotographer = pSingleton->GetPhotographer();
 				Caption caption = SingletonHelper.getCaption(singleton);
 				Commentary commentary = SingletonHelper.getCommentary(singleton);
@@ -343,13 +306,11 @@ public class HTMLPhotoForm
 				{
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Inscription on the backside of the photo:");
 					output.outputBR();
-					String strCaption = HTMLShared.buildParagraphListObject(m_family, m_commandLineParameters,
-							  CaptionHelper.getParagraphs(caption), placeList, m_personList, m_marriageList,
-							  m_referenceList, m_photoList,
+					String strCaption = HTMLShared.buildParagraphListObject(m_context,
+							  CaptionHelper.getParagraphs(caption),
 							  m_indexMarrToSpouses,
 							  true,
 							  true,
-							  m_bSuppressLiving,
 							  paragraphFormat,
 							  PhotoHelper.getPhotoId(photo),
 							  0);
@@ -385,13 +346,11 @@ public class HTMLPhotoForm
 				{
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, "Editor's Comments:");
 					output.outputBR();
-					String strCommentary = HTMLShared.buildParagraphListObject(m_family, m_commandLineParameters,
-							  CommentaryHelper.getParagraphs(commentary), placeList, m_personList, m_marriageList,
-							  m_referenceList, m_photoList,
+					String strCommentary = HTMLShared.buildParagraphListObject(m_context,
+							  CommentaryHelper.getParagraphs(commentary),
 							  m_indexMarrToSpouses,
 							  true,
 							  true,
-							  m_bSuppressLiving,
 							  paragraphFormat,
 							  PhotoHelper.getPhotoId(photo),
 							  0);
@@ -407,9 +366,8 @@ public class HTMLPhotoForm
 				// Output the SeeAlso
 				if (0 != PhotoHelper.getSeeAlsoObjectCount(photo))
 				{
-					String strSeeAlso = HTMLShared.buildSeeAlsoString(PhotoHelper.getSeeAlso(photo), family, m_commandLineParameters,
-																	  placeList, m_personList, m_marriageList, m_referenceList,
-																	  m_photoList, null, m_indexMarrToSpouses);
+					String strSeeAlso = HTMLShared.buildSeeAlsoString(m_context, PhotoHelper.getSeeAlso(photo),
+																	  null, m_indexMarrToSpouses);
 					if (0 != strSeeAlso.length())
 					{
 						output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyMediumHeader, "See Also:");
@@ -434,10 +392,10 @@ public class HTMLPhotoForm
 						int iPersonId = PersonTagHelper.getPersonId(personTag);
 						if (iPersonId != PersonIdHelper.PERSONID_INVALID)
 						{
-							Person taggedPerson = personList.get(iPersonId);
+							Person taggedPerson = m_context.getPersonList().get(iPersonId);
 							if (null != taggedPerson)
 							{
-								PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, bSuppressLiving, m_placeList);
+								PersonHelper taggedPersonHelper = new PersonHelper(taggedPerson, m_context.getSuppressLiving(), m_context.getPlaceList());
 								String strTaggedPersonName = taggedPersonHelper.getPersonName();
 								int iPersonTagCount = PersonTagHelper.getPersonTagTypeCount(personTag);
 								for (int t=0; t<iPersonTagCount; t++)
@@ -449,7 +407,7 @@ public class HTMLPhotoForm
 									// Show <Person Name> (ID# 4535) BornD, MEDIUM [Goto Data]
 									output.output("<span class=\"pageBodyNormalLink\">");
 									// Build href to PersonInfo and show <Person Name>
-									String strUrl = family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  iPersonId + ".htm";
+									String strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  iPersonId + ".htm";
 									output.outputStartAnchor(strUrl);
 									output.output(strTaggedPersonName);
 									output.outputEndAnchor();
@@ -481,17 +439,17 @@ public class HTMLPhotoForm
 						int iMarriageId = MarriageTagHelper.getMarriageId(marriageTag);
 						if (iMarriageId != MarriageIdHelper.MARRIAGEID_INVALID)
 						{
-							Marriage taggedMarriage = marriageList.get(iMarriageId);
+							Marriage taggedMarriage = m_context.getMarriageList().get(iMarriageId);
 							if (null != taggedMarriage)
 							{
-								Person husband = personList.get(MarriageHelper.getHusbandPersonId(taggedMarriage));
-								Person wife = personList.get(MarriageHelper.getWifePersonId(taggedMarriage));
+								Person husband = m_context.getPersonList().get(MarriageHelper.getHusbandPersonId(taggedMarriage));
+								Person wife = m_context.getPersonList().get(MarriageHelper.getWifePersonId(taggedMarriage));
 								if ((null != husband) && (null != wife))
 								{
-									PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, m_placeList);
-									PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, m_placeList);
-									MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
-									String strTaggedMarriageName = taggedMarriageHelper.getMarriageName(personList);
+									PersonHelper husbandHelper = new PersonHelper(husband, m_context.getSuppressLiving(), m_context.getPlaceList());
+									PersonHelper wifeHelper = new PersonHelper(wife, m_context.getSuppressLiving(), m_context.getPlaceList());
+									MarriageHelper taggedMarriageHelper = new MarriageHelper(taggedMarriage, husbandHelper, wifeHelper, m_context.getSuppressLiving(), m_context.getPlaceList());
+									String strTaggedMarriageName = taggedMarriageHelper.getMarriageName(m_context.getPersonList());
 									int iMarriageTagCount = MarriageTagHelper.getMarriageTagTypeCount(marriageTag);
 									for (int t=0; t<iMarriageTagCount; t++)
 									{
@@ -502,7 +460,7 @@ public class HTMLPhotoForm
 										// Show <Person Name> (ID# 4535) BornD, MEDIUM [Goto Data]
 										output.output("<span class=\"pageBodyNormalLink\">");
 										// Build href to PersonInfo and show <Person Name>
-										String strUrl = family.getUrlPrefix() + HTMLShared.FGSDIR + "/" + HTMLShared.FGSFILENAME + iMarriageId + ".htm";
+										String strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.FGSDIR + "/" + HTMLShared.FGSFILENAME + iMarriageId + ".htm";
 										output.outputStartAnchor(strUrl);
 										output.output(strTaggedMarriageName);
 										output.outputEndAnchor();
@@ -529,7 +487,7 @@ public class HTMLPhotoForm
 			}
 			else
 			{	// No singleton, No Published In - error
-				m_outputStream.output("Found photo without a Singleton or a PublishedIn! Id: " + iPhotoId + "\n");
+				m_context.output("Found photo without a Singleton or a PublishedIn! Id: " + iPhotoId + "\n");
 			}
 		}
 		output.outputSidebarBackEnd();

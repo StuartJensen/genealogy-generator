@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import home.genealogy.GenealogyContext;
 import home.genealogy.lists.PlaceList;
 import home.genealogy.lists.RelationshipManager;
 import home.genealogy.output.IOutputStream;
@@ -23,11 +21,10 @@ import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.PersonName;
 import home.genealogy.schema.all.Place;
-import home.genealogy.util.StringUtil;
 
 public class PersonHelper
 {
-	public static final String LIVING = "(Living)";
+	public static final String LIVING = "[Living]";
 	
 	private Person m_person;
 	private boolean m_bIsPersonLiving;
@@ -380,7 +377,7 @@ public class PersonHelper
 		PersonName personName = person.getPersonName();
 		if (null == personName)
 		{
-			return ("<No Name>");
+			return ("[No Name]");
 		}
 		return PersonNameHelper.getPersonName(personName);
 	}

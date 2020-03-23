@@ -6,19 +6,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import home.genealogy.CommandLineParameters;
 import home.genealogy.GenealogyContext;
-import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToPhotos;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexPersonToPhotos;
 import home.genealogy.indexes.TaggedContainerDescriptor;
-import home.genealogy.lists.MarriageList;
-import home.genealogy.lists.PersonList;
-import home.genealogy.lists.PhotoList;
-import home.genealogy.lists.PlaceList;
-import home.genealogy.lists.ReferenceList;
-import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.Paragraph;
 import home.genealogy.schema.all.Person;
@@ -37,15 +29,7 @@ public class HTMLPhotoListForm
 {
 	public static final String PHOTO_INDEX_FILE_SYSTEM_SUBDIRECTORY = "index";
 	
-	private CFGFamily m_family;
-	private PlaceList m_placeList;
-	private PersonList m_personList;
-	private MarriageList m_marriageList;
-	private ReferenceList m_referenceList;
-	private PhotoList m_photoList;
-	private boolean m_bSuppressLiving;
-	private CommandLineParameters m_commandLineParameters;
-	private IOutputStream m_outputStream;
+	private GenealogyContext m_context;
 	private IndexMarriageToSpouses m_indexMarrToSpouses;
 	private IndexPersonToPhotos m_idxPersonToPhotos;
 	private IndexMarriageToPhotos m_idxMarriageToPhotos;
@@ -53,18 +37,10 @@ public class HTMLPhotoListForm
 	public HTMLPhotoListForm(GenealogyContext context,
 							IndexMarriageToSpouses indexMarrToSpouses)
 	{
-		m_family = context.getFamily();
-		m_placeList = context.getPlaceList();
-		m_personList = context.getPersonList();
-		m_marriageList = context.getMarriageList();
-		m_referenceList = context.getReferenceList();
-		m_photoList = context.getPhotoList();
-		m_bSuppressLiving = context.getSuppressLiving();
-		m_commandLineParameters = context.getCommandLineParameters();
-		m_outputStream = context.getOutputStream();
+		m_context = context;
 		m_indexMarrToSpouses = indexMarrToSpouses;
-		m_idxPersonToPhotos = new IndexPersonToPhotos(m_family, m_personList, m_photoList);
-		m_idxMarriageToPhotos = new IndexMarriageToPhotos(m_family, m_marriageList, m_photoList);
+		m_idxPersonToPhotos = new IndexPersonToPhotos(m_context.getFamily(), m_context.getPersonList(), m_context.getPhotoList());
+		m_idxMarriageToPhotos = new IndexMarriageToPhotos(m_context.getFamily(), m_context.getMarriageList(), m_context.getPhotoList());
 	}
 	
 	public void create()
@@ -72,7 +48,7 @@ public class HTMLPhotoListForm
 	{
 		// Get the base output file system path and make sure it 
 		// ends with a slash
-		String strOutputPath = m_family.getOutputPathHTML();
+		String strOutputPath = m_context.getFamily().getOutputPathHTML();
 		if (!strOutputPath.endsWith("\\"))
 		{
 			strOutputPath += "\\";
@@ -89,12 +65,12 @@ public class HTMLPhotoListForm
 		}
 
 		String strFileName = strOutputPath + PHOTO_INDEX_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PHOTOINDEXFILENAME + ".htm";
-		m_outputStream.output("Generating Photo List: " + strFileName+ "\n");
+		m_context.output("Generating Photo List: " + strFileName+ "\n");
 		HTMLFormOutput output = new HTMLFormOutput(strFileName);
 
 		// Start document creation
 		String strTitle = "Photo Index";
-		output.outputSidebarFrontEnd(strTitle, m_family, m_personList, m_marriageList);
+		output.outputSidebarFrontEnd(strTitle, m_context.getFamily(), m_context.getPersonList(), m_context.getMarriageList());
 		
 		// Show internal links to sections of the document
 		output.output("<center><span class=\"pageBodySmallLink\">");
@@ -122,12 +98,12 @@ public class HTMLPhotoListForm
 		
 		// Create sorted array of persons
 		ArrayList<PersonSortableByName> alSortedPersons = new ArrayList<PersonSortableByName>(); 
-		Iterator<Person> iter = m_personList.getPersons();
+		Iterator<Person> iter = m_context.getPersonList().getPersons();
 		while (iter.hasNext())
 		{
 			alSortedPersons.add(new PersonSortableByName(iter.next()));
 		}
-		m_outputStream.output("Sorting Persons by name...\n");
+		m_context.output("Sorting Persons by name...\n");
 		Collections.sort(alSortedPersons);
 
 		// For each person, get their associates photos
@@ -137,7 +113,7 @@ public class HTMLPhotoListForm
 			ArrayList<TaggedContainerDescriptor> alPhotoDescriptors = m_idxPersonToPhotos.getPhotosForPerson(PersonHelper.getPersonId(personByName.getPerson()));
 			if ((null != alPhotoDescriptors) && (0 != alPhotoDescriptors.size()))
 			{
-				PersonHelper personHelper = new PersonHelper(personByName.getPerson(), m_bSuppressLiving, m_placeList);
+				PersonHelper personHelper = new PersonHelper(personByName.getPerson(), m_context.getSuppressLiving(), m_context.getPlaceList());
 				String strPersonName = personHelper.getPersonName();
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, strPersonName);
 				output.outputBR(2);
@@ -147,7 +123,7 @@ public class HTMLPhotoListForm
 				{
 					TaggedContainerDescriptor photoDescriptor = alPhotoDescriptors.get(d);
 					long lPhotoId = photoDescriptor.getContainerId();
-					Photo photo = m_photoList.get((int)lPhotoId);
+					Photo photo = m_context.getPhotoList().get((int)lPhotoId);
 					if (null != photo)
 					{
 						showPhoto(photo, output);
@@ -165,14 +141,14 @@ public class HTMLPhotoListForm
 		output.outputCRLF();
 		
 		// For each marriage, get their associates photos
-		Iterator<Marriage> iterMarriages = m_marriageList.getMarriages();
+		Iterator<Marriage> iterMarriages = m_context.getMarriageList().getMarriages();
 		while (iterMarriages.hasNext())
 		{
 			Marriage marriage = iterMarriages.next();
 			ArrayList<TaggedContainerDescriptor> alPhotoDescriptors = m_idxMarriageToPhotos.getPhotosForMarriage(MarriageHelper.getMarriageId(marriage));
 			if ((null != alPhotoDescriptors) && (0 != alPhotoDescriptors.size()))
 			{
-				String strMarriageName = HTMLShared.buildSimpleMarriageNameString(m_placeList, m_personList, m_indexMarrToSpouses, MarriageHelper.getMarriageId(marriage), m_bSuppressLiving, "%s and %s");
+				String strMarriageName = HTMLShared.buildSimpleMarriageNameString(m_context, m_indexMarrToSpouses, MarriageHelper.getMarriageId(marriage), "%s and %s");
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallHeader, strMarriageName);
 				output.outputBR(2);
 				output.outputCRLF();
@@ -181,7 +157,7 @@ public class HTMLPhotoListForm
 				{
 					TaggedContainerDescriptor photoDescriptor = alPhotoDescriptors.get(d);
 					long lPhotoId = photoDescriptor.getContainerId();
-					Photo photo = m_photoList.get((int)lPhotoId);
+					Photo photo = m_context.getPhotoList().get((int)lPhotoId);
 					if (null != photo)
 					{
 						showPhoto(photo, output);
@@ -198,7 +174,7 @@ public class HTMLPhotoListForm
 		output.outputBR(2);
 		output.outputCRLF();
 		
-		Iterator<Photo> iterPhotos = m_photoList.getPhotos();
+		Iterator<Photo> iterPhotos = m_context.getPhotoList().getPhotos();
 		while (iterPhotos.hasNext())
 		{
 			Photo photo = iterPhotos.next();
@@ -211,7 +187,7 @@ public class HTMLPhotoListForm
 		output.outputSidebarBackEnd();
 		output.commit();
 		output = null;
-		m_outputStream.output("Completed Generating All Photo List File\n");
+		m_context.output("Completed Generating All Photo List File\n");
 	}
 	
 	private void showPhoto(Photo photo, HTMLFormOutput output)
@@ -221,19 +197,16 @@ public class HTMLPhotoListForm
 		{
 			int iPhotoId = PhotoHelper.getPhotoId(photo);
 			// Photo Title
-			strHRef = m_family.getUrlPrefix() + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
+			strHRef = m_context.getFamily().getUrlPrefix() + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
 			output.outputStandardBracketedLink(strHRef, "View Photo");
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallText, "&nbsp;&nbsp;<b>Title:</b>&nbsp;");
 			List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
 			for (int i=0; i<lDescription.size(); i++)
 			{
-				String strParagraph = HTMLShared.buildParagraphString(m_family, m_commandLineParameters,
-						lDescription.get(i), m_placeList, m_personList, m_marriageList,
-	                    m_referenceList, m_photoList,
+				String strParagraph = HTMLShared.buildParagraphString(m_context, lDescription.get(i),
 	                    m_indexMarrToSpouses,
 	                    true,
 	                    true,
-	                    m_bSuppressLiving,
 	                    new HTMLParagraphFormat("pageBodyNormalText"),
 	                    iPhotoId,
 	                    PhotoIdHelper.PHOTOID_INVALID);
@@ -252,7 +225,7 @@ public class HTMLPhotoListForm
 			{
 				Singleton singleton = PhotoHelper.getSingleton(photo);
 				String strDate = SingletonHelper.getDate(singleton);
-				String strPlace = SingletonHelper.getPlace(singleton, m_placeList);
+				String strPlace = SingletonHelper.getPlace(singleton, m_context.getPlaceList());
 				boolean bDateEmpty = ((null == strDate) || (0 == strDate.length()));
 				boolean bPlaceEmpty = ((null == strPlace) || (0 == strPlace.length()));
 				if (!bDateEmpty)

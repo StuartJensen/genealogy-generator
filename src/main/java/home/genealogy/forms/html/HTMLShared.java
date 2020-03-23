@@ -5,15 +5,10 @@ import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import home.genealogy.CommandLineParameters;
+import home.genealogy.GenealogyContext;
 import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.TaggedContainerDescriptor;
-import home.genealogy.lists.MarriageList;
-import home.genealogy.lists.PersonList;
-import home.genealogy.lists.PhotoList;
-import home.genealogy.lists.PlaceList;
-import home.genealogy.lists.ReferenceList;
 import home.genealogy.schema.all.Column;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.MarriageId;
@@ -74,14 +69,11 @@ public class HTMLShared
 	public static final String IGNOREAREA_END = "<!-- IGNORE AREA END -->";
 
 	
-	public static String buildParagraphString(CFGFamily family, CommandLineParameters commandLineParameters,
-											  Paragraph paragraph, PlaceList placeList, PersonList personList,
-											  MarriageList marriageList,
-			                                  ReferenceList referenceList, PhotoList photoList,
+	public static String buildParagraphString(GenealogyContext context,
+											  Paragraph paragraph,
 			                                  IndexMarriageToSpouses indexMarrToSpouses,
 			                                  boolean bIndentIfIndicated,
 			                                  boolean bLineEndIfIndicated,
-			                                  boolean bSuppressLiving,
 			                                  HTMLParagraphFormat paragraphFormat,
 			                                  long lContainerId,
 			                                  long lSubContainerId)
@@ -113,12 +105,12 @@ public class HTMLShared
 			{
 				PersonId personId = (PersonId)oParagraph;
 				int iPersonId = PersonIdHelper.getPersonId(personId);
-				Person person = personList.get(iPersonId);
+				Person person = context.getPersonList().get(iPersonId);
 				sb.append("<span class=\"").append(paragraphFormat.getPersonIdSpan()).append("\">");
 				if (null != person)
 				{
-					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, placeList);
-					String strUrl = family.getUrlPrefix() + PERINFODIR + "/" + PERINFOFILENAME +  iPersonId + ".htm";
+					PersonHelper personHelper = new PersonHelper(person, context.getSuppressLiving(), context.getPlaceList());
+					String strUrl = context.getFamily().getUrlPrefix() + PERINFODIR + "/" + PERINFOFILENAME +  iPersonId + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(personHelper.getPersonName());
 					sb.append("</a>");
@@ -134,13 +126,13 @@ public class HTMLShared
 			{
 				MarriageId marriageId = (MarriageId)oParagraph;
 				int iMarriageId = MarriageIdHelper.getMarriageId(marriageId);
-				Marriage marriage = marriageList.get(iMarriageId);
+				Marriage marriage = context.getMarriageList().get(iMarriageId);
 				sb.append("<span class=\"").append(paragraphFormat.getMarriageIdSpan()).append("\">");
 				if (null != marriage)
 				{
-					String strUrl = family.getUrlPrefix() + "fgs/" + FGSFILENAME + iMarriageId + ".htm";
+					String strUrl = context.getFamily().getUrlPrefix() + "fgs/" + FGSFILENAME + iMarriageId + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
-					sb.append(buildSimpleMarriageNameString(placeList, personList, indexMarrToSpouses, iMarriageId, bSuppressLiving, "%s and %s"));
+					sb.append(buildSimpleMarriageNameString(context, indexMarrToSpouses, iMarriageId, "%s and %s"));
 					sb.append("</a>");
 				}
 				else
@@ -154,11 +146,11 @@ public class HTMLShared
 			{
 				ReferenceId referenceId = (ReferenceId)oParagraph;
 				int iReferenceId = ReferenceIdHelper.getReferenceId(referenceId);
-				Reference reference = referenceList.get(iReferenceId);
+				Reference reference = context.getReferenceList().get(iReferenceId);
 				sb.append("<span class=\"").append(paragraphFormat.getReferenceIdSpan()).append("\">");
 				if (null != reference)
 				{
-					String strUrl = family.getUrlPrefix() + "references/" + REFERENCEFILENAME + "/" + iReferenceId + ".htm";
+					String strUrl = context.getFamily().getUrlPrefix() + "references/" + REFERENCEFILENAME + "/" + iReferenceId + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(ReferenceHelper.getTitle(reference));
 					sb.append("</a>");
@@ -175,11 +167,11 @@ public class HTMLShared
 				ReferenceEntryId referenceEntryId = (ReferenceEntryId)oParagraph;
 				int iReferenceId = ReferenceEntryIdHelper.getReferenceId(referenceEntryId);
 				int iReferenceEntryId = ReferenceEntryIdHelper.getReferenceEntryId(referenceEntryId);
-				Reference reference = referenceList.get(iReferenceId);
+				Reference reference = context.getReferenceList().get(iReferenceId);
 				sb.append("<span class=\"").append(paragraphFormat.getReferenceIdSpan()).append("\">");
 				if (null != reference)
 				{
-					String strUrl = family.getUrlPrefix() + REFERENCEDIR + "/" + REFERENCEFILENAME + iReferenceId + ".htm#REF" + iReferenceId + "ENT" + iReferenceEntryId;
+					String strUrl = context.getFamily().getUrlPrefix() + REFERENCEDIR + "/" + REFERENCEFILENAME + iReferenceId + ".htm#REF" + iReferenceId + "ENT" + iReferenceEntryId;
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(ReferenceHelper.getTitle(reference));
 					sb.append("</a>");
@@ -195,19 +187,18 @@ public class HTMLShared
 			{
 				PhotoId photoId = (PhotoId)oParagraph;
 				int iPhotoId = PhotoIdHelper.getPhotoId(photoId);
-				Photo photo = photoList.get(iPhotoId);
+				Photo photo = context.getPhotoList().get(iPhotoId);
 				sb.append("<span class=\"").append(paragraphFormat.getPhotoIdSpan()).append("\">");
 				if (null != photo)
 				{
 					if (PhotoIdHelper.getType(photoId) == ePhotoIdType.eLinked)
 					{	// Linked
-						String strUrl = family.getUrlPrefix() + "/" + PHOTOWRAPDIR + "/" + PHOTOWRAPFILENAME + iPhotoId + ".htm";
+						String strUrl = context.getFamily().getUrlPrefix() + "/" + PHOTOWRAPDIR + "/" + PHOTOWRAPFILENAME + iPhotoId + ".htm";
 						sb.append("<a href=\"").append(strUrl).append("\">[Photo]:</a>&nbsp;&nbsp;");
 						
 						List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
-						sb.append(buildParagraphListObject(family, commandLineParameters, lDescription, placeList, personList, marriageList,
-		                           	 	 	  	 	 	   referenceList, photoList, indexMarrToSpouses, false,
-		                           						   false, bSuppressLiving, paragraphFormat,
+						sb.append(buildParagraphListObject(context, lDescription, indexMarrToSpouses, false,
+		                           						   false, paragraphFormat,
 		                           						   ReferenceIdHelper.REFERENCEID_INVALID,
 		                           						   ReferenceEntryIdHelper.REFERENCEENTRYID_INVALID));
 						sb.append("</a>");
@@ -228,8 +219,8 @@ public class HTMLShared
 							sb.append("<tr>");
 							sb.append("<td>");
 							// Actual Link to Photo File
-							String strUrl = family.getUrlPrefix() + PHOTOWRAPDIR + "/" + PHOTOWRAPFILENAME + iPhotoId + ".htm";
-							String strImg = "<img border=\"0\" src=\"" + family.getUrlPrefix() + "photos\\" + strFilePath + "\" alt=\"Photo#" + iPhotoId + "\">";
+							String strUrl = context.getFamily().getUrlPrefix() + PHOTOWRAPDIR + "/" + PHOTOWRAPFILENAME + iPhotoId + ".htm";
+							String strImg = "<img border=\"0\" src=\"" + context.getFamily().getUrlPrefix() + "photos\\" + strFilePath + "\" alt=\"Photo#" + iPhotoId + "\">";
 							sb.append("<a href=\"").append(strUrl).append("\">");
 							sb.append(strImg);
 							sb.append("</a>");
@@ -265,7 +256,7 @@ public class HTMLShared
 				else if (strElementName.equals("privateText"))
 				{
 					sb.append("<span class=\"").append(paragraphFormat.getParagraphTextSpan()).append("\">");
-					if (!bSuppressLiving)
+					if (!context.getSuppressLiving())
 					{
 						sb.append(replaceCRLFWithSpaces(strContent));
 					}
@@ -319,14 +310,11 @@ public class HTMLShared
 		return sb.toString();
 	}
 	
-	public static String buildParagraphListObject(CFGFamily family, CommandLineParameters commandLineParameters,
-			  									  List<Paragraph> lParagraph, PlaceList placeList, PersonList personList,
-			  									  MarriageList marriageList,
-			  									  ReferenceList referenceList, PhotoList photoList,
+	public static String buildParagraphListObject(GenealogyContext context,
+			  									  List<Paragraph> lParagraph,
 			  									  IndexMarriageToSpouses indexMarrToSpouses,
 			  									  boolean bIndentIfIndicated,
 			  									  boolean bLineEndIfIndicated,
-			  									  boolean bSuppressLiving,
 			  									  HTMLParagraphFormat paragraphFormat,
 			  									  long lContainerId,
 			  									  long lSubContainerId)
@@ -335,12 +323,10 @@ public class HTMLShared
 		for (int i=0; i<lParagraph.size(); i++)
 		{
 			Paragraph paragraph =lParagraph.get(i);
-			sb.append(buildParagraphString(family, commandLineParameters, paragraph, placeList, personList, marriageList,
-						                referenceList, photoList,
+			sb.append(buildParagraphString(context, paragraph,
 						                indexMarrToSpouses,
 						                bIndentIfIndicated,
 						                bLineEndIfIndicated,
-						                bSuppressLiving,
 						                paragraphFormat,
 						                lContainerId,
 						                lSubContainerId));
@@ -361,8 +347,8 @@ public class HTMLShared
 		return(sb.toString());
 	}
 	
-	public static String buildSimpleMarriageNameString(PlaceList placeList, PersonList personList, IndexMarriageToSpouses index,
-			                                           int iMarriageId, boolean bSupressLiving, String strTemplate)
+	public static String buildSimpleMarriageNameString(GenealogyContext context, IndexMarriageToSpouses index,
+			                                           int iMarriageId, String strTemplate)
 	{
 		int arSpouses[] = index.getSpouses(iMarriageId);
 		int iHusbandPersonId = arSpouses[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX];
@@ -371,12 +357,12 @@ public class HTMLShared
 		if ((PersonIdHelper.PERSONID_INVALID != iHusbandPersonId) &&
 			(PersonIdHelper.PERSONID_INVALID != iWifePersonId))
 		{
-			Person husband = personList.get(iHusbandPersonId);
-			Person wife = personList.get(iWifePersonId);
+			Person husband = context.getPersonList().get(iHusbandPersonId);
+			Person wife = context.getPersonList().get(iWifePersonId);
 			if ((null != husband) && (null != wife))
 			{
-				PersonHelper helperHusband = new PersonHelper(husband, bSupressLiving, placeList);
-				PersonHelper helperWife = new PersonHelper(wife, bSupressLiving, placeList);
+				PersonHelper helperHusband = new PersonHelper(husband, context.getSuppressLiving(), context.getPlaceList());
+				PersonHelper helperWife = new PersonHelper(wife, context.getSuppressLiving(), context.getPlaceList());
 				String strNames = String.format(strTemplate, helperHusband.getPersonName(), helperWife.getPersonName());
 				return strNames;
 			}
@@ -408,9 +394,9 @@ public class HTMLShared
 		return(sb.toString());
 	}
 	
-	public static String buildSeeAlsoString(SeeAlso seeAlso, CFGFamily family, CommandLineParameters commandLineParameters,
-			                                PlaceList placeList, PersonList personList, MarriageList marriageList, ReferenceList referenceList,
-			                                PhotoList photoList, HTMLParagraphFormat paragraphFormat, IndexMarriageToSpouses indexMarrToSpouses)
+	public static String buildSeeAlsoString(GenealogyContext context, SeeAlso seeAlso,
+			                                HTMLParagraphFormat paragraphFormat,
+			                                IndexMarriageToSpouses indexMarrToSpouses)
 	{
 		// Get the Paragraph format that will be used
 		if (null == paragraphFormat)
@@ -418,7 +404,7 @@ public class HTMLShared
 			paragraphFormat = new HTMLParagraphFormat();
 		}
 		
-		boolean bSuppressLiving = commandLineParameters.getSuppressLiving();
+		boolean bSuppressLiving = context.getSuppressLiving();
 		StringBuffer sb = new StringBuffer(256);
 		
 		int iSeeAlsoObjectCount = SeeAlsoHelper.getObjectCount(seeAlso);
@@ -429,12 +415,12 @@ public class HTMLShared
 			{
 				PersonId pId = (PersonId)object;
 				int iPersonId = PersonIdHelper.getPersonId(pId);
-				Person person = personList.get(iPersonId);
+				Person person = context.getPersonList().get(iPersonId);
 				sb.append("<span class=\"").append(paragraphFormat.getPersonIdSpan()).append("\">");
 				if (null != person)
 				{
-					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, placeList);
-					String strUrl = family.getUrlPrefix() + PERINFODIR + "/" + PERINFOFILENAME + personHelper.getPersonId() + ".htm";
+					PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, context.getPlaceList());
+					String strUrl = context.getFamily().getUrlPrefix() + PERINFODIR + "/" + PERINFOFILENAME + personHelper.getPersonId() + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(personHelper.getPersonName());
 					sb.append("</a>");
@@ -450,20 +436,20 @@ public class HTMLShared
 			{
 				MarriageId mId = (MarriageId)object;
 				int iMarriageId = MarriageIdHelper.getMarriageId(mId);
-				Marriage marriage = marriageList.get(iMarriageId);
+				Marriage marriage = context.getMarriageList().get(iMarriageId);
 				sb.append("<span class=\"").append(paragraphFormat.getMarriageIdSpan()).append("\">");
 				if (null != marriage)
 				{
-					Person husband = personList.get(MarriageHelper.getHusbandPersonId(marriage));
-					Person wife = personList.get(MarriageHelper.getWifePersonId(marriage));
+					Person husband = context.getPersonList().get(MarriageHelper.getHusbandPersonId(marriage));
+					Person wife = context.getPersonList().get(MarriageHelper.getWifePersonId(marriage));
 					if ((null != husband) && (null != wife))
 					{
-						PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, placeList);
-						PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, placeList);
-						MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, placeList);
-						String strUrl = family.getUrlPrefix() + FGSDIR + "/" + FGSFILENAME + MarriageHelper.getMarriageId(marriage) + ".htm";
+						PersonHelper husbandHelper = new PersonHelper(husband, context.getSuppressLiving(), context.getPlaceList());
+						PersonHelper wifeHelper = new PersonHelper(wife, context.getSuppressLiving(), context.getPlaceList());
+						MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, context.getPlaceList());
+						String strUrl = context.getFamily().getUrlPrefix() + FGSDIR + "/" + FGSFILENAME + MarriageHelper.getMarriageId(marriage) + ".htm";
 						sb.append("<a href=\"").append(strUrl).append("\">");
-						sb.append(marriageHelper.getMarriageName(personList));
+						sb.append(marriageHelper.getMarriageName(context.getPersonList()));
 						sb.append("</a>");
 					}
 				}
@@ -478,11 +464,11 @@ public class HTMLShared
 			{
 				ReferenceId rId = (ReferenceId)object;
 				int iReferenceId = ReferenceIdHelper.getReferenceId(rId);
-				Reference reference = referenceList.get(iReferenceId);
+				Reference reference = context.getReferenceList().get(iReferenceId);
 				sb.append("<span class=\"").append(paragraphFormat.getReferenceIdSpan()).append("\">");
 				if (null != reference)
 				{
-					String strUrl = family.getUrlPrefix() + REFERENCEDIR + "/" + REFERENCEFILENAME + ReferenceHelper.getReferenceId(reference) + ".htm";
+					String strUrl = context.getFamily().getUrlPrefix() + REFERENCEDIR + "/" + REFERENCEFILENAME + ReferenceHelper.getReferenceId(reference) + ".htm";
 					sb.append("<a href=\"").append(strUrl).append("\">");
 					sb.append(ReferenceHelper.getTitle(reference));
 					sb.append("</a>");
@@ -498,20 +484,20 @@ public class HTMLShared
 			{
 				PhotoId photoId = (PhotoId)object;
 				int iPhotoId = PhotoIdHelper.getPhotoId(photoId);
-				Photo photo = photoList.get(iPhotoId);
+				Photo photo = context.getPhotoList().get(iPhotoId);
 				sb.append("<span class=\"").append(paragraphFormat.getPhotoIdSpan()).append("\">");
 				if (null != photo)
 				{
 					List<Paragraph> lDescription = PhotoHelper.getDescription(photo);
-					String strDescription = buildParagraphListObject(family, commandLineParameters, lDescription, placeList, personList, marriageList,
-	                           referenceList, photoList, indexMarrToSpouses, false,
-	                           false, bSuppressLiving, paragraphFormat,
+					String strDescription = buildParagraphListObject(context, lDescription,
+	                           indexMarrToSpouses, false,
+	                           false, paragraphFormat,
 	                           ReferenceIdHelper.REFERENCEID_INVALID,
 	                           ReferenceEntryIdHelper.REFERENCEENTRYID_INVALID);
 					
 					if (PhotoIdHelper.isLinked(photoId))
 					{	// Linked
-						String strUrl = family.getUrlPrefix() + PHOTOWRAPDIR + "/" + PHOTOWRAPFILENAME + PhotoHelper.getPhotoId(photo) + ".htm";
+						String strUrl = context.getFamily().getUrlPrefix() + PHOTOWRAPDIR + "/" + PHOTOWRAPFILENAME + PhotoHelper.getPhotoId(photo) + ".htm";
 						sb.append("<a href=\"").append(strUrl).append("\">[Photo]:</a>&nbsp;&nbsp;");
 						sb.append(strDescription);
 	
@@ -522,7 +508,7 @@ public class HTMLShared
 						strFilePath = replaceBkSlashWithPhotoFileNameSeparator(strFilePath);
 						if (0 != strFilePath.length())
 						{
-							sb.append("<img border=\"0\" src=\"").append(family.getUrlPrefix()).append("photos\\").append(strFilePath).append("\" alt=\"").append(strDescription).append("\">");
+							sb.append("<img border=\"0\" src=\"").append(context.getFamily().getUrlPrefix()).append("photos\\").append(strFilePath).append("\" alt=\"").append(strDescription).append("\">");
 						}
 					}
 				}
@@ -538,12 +524,12 @@ public class HTMLShared
 				ReferenceEntryId referenceEntryId = (ReferenceEntryId)object;
 				int iReferenceId = ReferenceEntryIdHelper.getReferenceId(referenceEntryId);
 				int iReferenceEntryId = ReferenceEntryIdHelper.getReferenceEntryId(referenceEntryId);				
-				Reference reference = referenceList.get(iReferenceId);
+				Reference reference = context.getReferenceList().get(iReferenceId);
 				sb.append("<span class=\"").append(paragraphFormat.getReferenceIdSpan()).append("\">");
 				if (null != reference)
 				{
 					StringBuffer sbUrl = new StringBuffer(256);
-					sbUrl.append(family.getUrlPrefix()).append(REFERENCEDIR).append("/").append(REFERENCEFILENAME);
+					sbUrl.append(context.getFamily().getUrlPrefix()).append(REFERENCEDIR).append("/").append(REFERENCEFILENAME);
 					sbUrl.append(iReferenceId).append(".htm#REF").append(iReferenceId).append("ENT").append(iReferenceEntryId);
 					sb.append("<a href=\"").append(sbUrl.toString()).append("\">[Document Entry]:</a>&nbsp;&nbsp;");
 					sb.append(ReferenceHelper.getTitle(reference));
@@ -560,13 +546,10 @@ public class HTMLShared
 	}
 
 	
-	public static String buildTableString(CFGFamily family, CommandLineParameters commandLineParameters,
-			  							  Table table, PlaceList placeList, PersonList personList, MarriageList marriageList,
-			  							  ReferenceList referenceList, PhotoList photoList,
+	public static String buildTableString(GenealogyContext context, Table table,
 			  							  IndexMarriageToSpouses indexMarrToSpouses,
 			  							  boolean bIndentIfIndicated,
 			  							  boolean bLineEndIfIndicated,
-			  							  boolean bSuppressLiving,
 			  							  HTMLParagraphFormat paragraphFormat,
 			  							  long lContainerId,
 			  							  long lSubContainerId)
@@ -594,9 +577,8 @@ public class HTMLShared
 				for (int p=0; p<iParagraphCount; p++)
 				{
 					Paragraph paragraph = ColumnHelper.getParagraph(column, p);
-					String strParagraph = HTMLShared.buildParagraphString(family, commandLineParameters,
-							paragraph, placeList, personList, marriageList, referenceList, photoList,
-							indexMarrToSpouses, true, true, bSuppressLiving, null, lContainerId,
+					String strParagraph = HTMLShared.buildParagraphString(context,
+							paragraph, indexMarrToSpouses, true, true, null, lContainerId,
 	                        lSubContainerId);
 					if (0 != strParagraph.length())
 					{

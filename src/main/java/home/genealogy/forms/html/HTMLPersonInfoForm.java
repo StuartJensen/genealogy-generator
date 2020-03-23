@@ -7,7 +7,6 @@ import java.util.List;
 
 import home.genealogy.CommandLineParameters;
 import home.genealogy.GenealogyContext;
-import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToPhotos;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexMarriagesToReferences;
@@ -16,24 +15,17 @@ import home.genealogy.indexes.IndexPersonToParentMarriage;
 import home.genealogy.indexes.IndexPersonToPhotos;
 import home.genealogy.indexes.IndexPersonsToReferences;
 import home.genealogy.indexes.TaggedContainerDescriptor;
-import home.genealogy.lists.MarriageList;
-import home.genealogy.lists.PersonList;
-import home.genealogy.lists.PhotoList;
-import home.genealogy.lists.PlaceList;
-import home.genealogy.lists.ReferenceList;
-import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Entry;
 import home.genealogy.schema.all.Event;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.Paragraph;
+import home.genealogy.schema.all.ParentRelationshipType;
 import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
 import home.genealogy.schema.all.Photo;
 import home.genealogy.schema.all.Reference;
-import home.genealogy.schema.all.ParentRelationshipType;
 import home.genealogy.schema.all.helpers.EntryHelper;
 import home.genealogy.schema.all.helpers.EventHelper;
-import home.genealogy.schema.all.helpers.MarriageIdHelper;
 import home.genealogy.schema.all.helpers.ParentsHelper;
 import home.genealogy.schema.all.helpers.PersonHelper;
 import home.genealogy.schema.all.helpers.PersonIdHelper;
@@ -45,28 +37,12 @@ public class HTMLPersonInfoForm
 	public static final String PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY = "perinfo";
 
 	private static final CommandLineParameters commandLineParameters = null;
-	
-	private CFGFamily m_family;
-	private PlaceList m_placeList;
-	private PersonList m_personList;
-	private MarriageList m_marriageList;
-	private ReferenceList m_referenceList;
-	private PhotoList m_photoList;
-	private boolean m_bSuppressLiving;
-	private CommandLineParameters m_commandLineParameters;
-	private IOutputStream m_outputStream;
-	  
+
+	private GenealogyContext m_context;
+
 	public HTMLPersonInfoForm(GenealogyContext context)
 	{
-		m_family = context.getFamily();
-		m_placeList = context.getPlaceList();
-		m_personList = context.getPersonList();
-		m_marriageList = context.getMarriageList();
-		m_referenceList = context.getReferenceList();
-		m_photoList = context.getPhotoList();
-		m_bSuppressLiving = context.getSuppressLiving();
-		m_commandLineParameters = context.getCommandLineParameters();
-		m_outputStream = context.getOutputStream();
+		m_context = context;
 	}
 	
 	public void create()
@@ -74,7 +50,7 @@ public class HTMLPersonInfoForm
 	{
 		// Get the base output file system path and make sure it 
 		// ends with a slash
-		String strOutputPath = m_family.getOutputPathHTML();
+		String strOutputPath = m_context.getFamily().getOutputPathHTML();
 		if (!strOutputPath.endsWith("\\"))
 		{
 			strOutputPath += "\\";
@@ -91,34 +67,26 @@ public class HTMLPersonInfoForm
 		}		
 		
 		// Create necessary Indexes
-		IndexPersonToParentMarriage idxPerToParentMar = new IndexPersonToParentMarriage(m_family, m_personList);
-		IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(m_family, m_marriageList);
-		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_family, m_marriageList);
-		IndexPersonToPhotos idxPerToPhoto = new IndexPersonToPhotos(m_family, m_personList, m_photoList);
-		IndexMarriageToPhotos idxMarToPhoto = new IndexMarriageToPhotos(m_family, m_marriageList, m_photoList);
-		IndexPersonsToReferences idxPerToReference = new IndexPersonsToReferences(m_family, m_personList, m_referenceList);
-		IndexMarriagesToReferences idxMarToReference = new IndexMarriagesToReferences(m_family, m_personList, m_marriageList, m_referenceList);
+		IndexPersonToParentMarriage idxPerToParentMar = new IndexPersonToParentMarriage(m_context.getFamily(), m_context.getPersonList());
+		IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(m_context.getFamily(), m_context.getMarriageList());
+		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_context.getFamily(), m_context.getMarriageList());
+		IndexPersonToPhotos idxPerToPhoto = new IndexPersonToPhotos(m_context.getFamily(), m_context.getPersonList(), m_context.getPhotoList());
+		IndexMarriageToPhotos idxMarToPhoto = new IndexMarriageToPhotos(m_context.getFamily(), m_context.getMarriageList(), m_context.getPhotoList());
+		IndexPersonsToReferences idxPerToReference = new IndexPersonsToReferences(m_context.getFamily(), m_context.getPersonList(), m_context.getReferenceList());
+		IndexMarriagesToReferences idxMarToReference = new IndexMarriagesToReferences(m_context.getFamily(), m_context.getPersonList(), m_context.getMarriageList(), m_context.getReferenceList());
 		
-		Iterator<Person> iter = m_personList.getPersons();
+		Iterator<Person> iter = m_context.getPersonList().getPersons();
 		while (iter.hasNext())
 		{
 			Person thisPerson = iter.next();
-			createPersonInfo(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
- 					         m_photoList, m_bSuppressLiving, idxPerToParentMar,
+			createPersonInfo(idxPerToParentMar,
  					         idxPerToMar, idxMarToSpouses, idxPerToPhoto, idxMarToPhoto,
  					         idxPerToReference, idxMarToReference, strOutputPath, thisPerson);
 		}
-		m_outputStream.output("Completed Generating All Person Info Files\n");	
+		m_context.output("Completed Generating All Person Info Files\n");	
 	}
 	
-	private void createPersonInfo(CFGFamily family,
-								 PlaceList placelist,
-			  					 PersonList personList,
-			  					 MarriageList marriageList,
-			  					 ReferenceList referenceList,
-			  					 PhotoList photoList,
-			  					 boolean bSuppressLiving,
-			  					 IndexPersonToParentMarriage idxPerToParentMar,
+	private void createPersonInfo(IndexPersonToParentMarriage idxPerToParentMar,
 			  					 IndexPersonToMarriages idxPerToMar,
 			  					 IndexMarriageToSpouses idxMarToSpouses,
 			  					 IndexPersonToPhotos idxPerToPhoto,
@@ -129,9 +97,9 @@ public class HTMLPersonInfoForm
 			  					 Person person)
 		throws Exception
 	{
-		PersonHelper personHelper = new PersonHelper(person, bSuppressLiving, placelist);
+		PersonHelper personHelper = new PersonHelper(person, m_context.getSuppressLiving(), m_context.getPlaceList());
 		String strFileName = strOutputPath + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + person.getPersonId() + ".htm";
-		m_outputStream.output("Generating Person Info File: " + strFileName+ "\n");
+		m_context.output("Generating Person Info File: " + strFileName+ "\n");
 		HTMLFormOutput output = new HTMLFormOutput(strFileName);
 		
 		// Discover relatives...
@@ -196,7 +164,7 @@ public class HTMLPersonInfoForm
 		
 		// Start document creation
 		String strTitle = "Information for:&nbsp;" + personHelper.getPersonName();
-		output.outputSidebarFrontEnd(strTitle, m_family, personList, marriageList);
+		output.outputSidebarFrontEnd(strTitle, m_context.getFamily(), m_context.getPersonList(), m_context.getMarriageList());
 		
 		// Top of Document Internal Link Tag
 		output.output("<A name=InfoTop></A>");
@@ -293,32 +261,32 @@ public class HTMLPersonInfoForm
 				int[] arParentsIds = idxMarToSpouses.getSpouses(parents.getMarriageId());
 				if (PersonIdHelper.PERSONID_INVALID != arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX])
 				{
-					personFather = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX]);
+					personFather = m_context.getPersonList().get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX]);
 				}
 				if (PersonIdHelper.PERSONID_INVALID != arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX])
 				{
-					personMother = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX]);
+					personMother = m_context.getPersonList().get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX]);
 				}
 				
 				
 			
 				// Father
-				PersonHelper fatherHelper = new PersonHelper(personFather, bSuppressLiving, placelist);
-				String strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personFather.getPersonId() + ".htm";
+				PersonHelper fatherHelper = new PersonHelper(personFather, m_context.getSuppressLiving(), m_context.getPlaceList());
+				String strHRef = m_context.getFamily().getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personFather.getPersonId() + ".htm";
 				output.outputStandardBracketedLink(strHRef, "View Father");
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, fatherHelper.getPersonName());
 				output.outputBR();
 				output.outputCRLF();
 				// Mother
-				PersonHelper motherHelper = new PersonHelper(personMother, bSuppressLiving, placelist);
-				strHRef = m_family.getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personMother.getPersonId() + ".htm";
+				PersonHelper motherHelper = new PersonHelper(personMother, m_context.getSuppressLiving(), m_context.getPlaceList());
+				strHRef = m_context.getFamily().getUrlPrefix() + PERSON_INFO_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.PERINFOFILENAME + personMother.getPersonId() + ".htm";
 				output.outputStandardBracketedLink(strHRef, "View Mother");
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, motherHelper.getPersonName());
 				output.outputBR();
 				output.outputCRLF();
 
 				// Show the "[View Parents Family Group Sheet]" link
-				strHRef = m_family.getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + parents.getMarriageId() + ".htm";
+				strHRef = m_context.getFamily().getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + parents.getMarriageId() + ".htm";
 				output.outputStandardBracketedLink(strHRef, "View Family");
 				// Show parent's name in the marriage
 				String strWork = fatherHelper.getPersonName() + " and " + motherHelper.getPersonName() + " - MID# " + parents.getMarriageId();
@@ -357,24 +325,24 @@ public class HTMLPersonInfoForm
 				int[] arParentsIds = idxMarToSpouses.getSpouses(alMarriageIds.get(m).intValue());
 				if (PersonIdHelper.PERSONID_INVALID != arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX])
 				{
-					husband = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX]);
+					husband = m_context.getPersonList().get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_HUSBAND_IDX]);
 				}
 				if (PersonIdHelper.PERSONID_INVALID != arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX])
 				{
-					wife = personList.get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX]);
+					wife = m_context.getPersonList().get(arParentsIds[IndexMarriageToSpouses.GET_SPOUSES_WIFE_IDX]);
 				}
 				if ((null != husband) && (null != wife))
 				{	// Show the "[View Family]" link
-					String strHRef = m_family.getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + alMarriageIds.get(m).intValue() + ".htm";
+					String strHRef = m_context.getFamily().getUrlPrefix() + HTMLShared.FGSDIR + "\\" + HTMLShared.FGSFILENAME + alMarriageIds.get(m).intValue() + ".htm";
 					output.outputStandardBracketedLink(strHRef, "View Family");
 					// Setup helpers
-					PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, m_placeList);
-					PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, m_placeList);
+					PersonHelper husbandHelper = new PersonHelper(husband, m_context.getSuppressLiving(), m_context.getPlaceList());
+					PersonHelper wifeHelper = new PersonHelper(wife, m_context.getSuppressLiving(), m_context.getPlaceList());
 					// Show THIS person's name in the marriage
 					output.output("<span class=\"pageBodyNormalText\">");
 					output.output(husbandHelper.getPersonName() + " and ");
 					// Show SPOUSE's name in marriage with link to PERSONINFO
-					strHRef = m_family.getUrlPrefix() + HTMLShared.PERINFODIR + "\\" + HTMLShared.PERINFOFILENAME + wifeHelper.getPersonId() + ".htm";
+					strHRef = m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "\\" + HTMLShared.PERINFOFILENAME + wifeHelper.getPersonId() + ".htm";
 					output.outputStartAnchor(strHRef);
 					output.output(wifeHelper.getPersonName());
 					output.outputEndAnchor();
@@ -405,19 +373,17 @@ public class HTMLPersonInfoForm
 				{
 					TaggedContainerDescriptor tag = alPersonPhotos.get(p);
 					int iPhotoId = (int)tag.getContainerId();
-					Photo photo = photoList.get(iPhotoId);
+					Photo photo = m_context.getPhotoList().get(iPhotoId);
 					if (null != photo)
 					{
-						String strUrl = family.getUrlPrefix() + "/" + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
+						String strUrl = m_context.getFamily().getUrlPrefix() + "/" + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
 						// Photos
 						output.outputStandardBracketedLink(strUrl, "View Photo");
-						String strDescription = HTMLShared.buildParagraphListObject(m_family, commandLineParameters,
-								  PhotoHelper.getDescription(photo), placelist, personList, m_marriageList,
-								  m_referenceList, m_photoList,
+						String strDescription = HTMLShared.buildParagraphListObject(m_context,
+								  PhotoHelper.getDescription(photo),
 								  idxMarToSpouses,
 								  true,
 								  true,
-								  m_bSuppressLiving,
 								  null,
 								  iPhotoId,
 								  0);
@@ -457,7 +423,7 @@ public class HTMLPersonInfoForm
 					if (null != alTags)
 					{						
 						int iMarriageId = alMarriageIds.get(m);
-						Marriage marriage = marriageList.get(iMarriageId);
+						Marriage marriage = m_context.getMarriageList().get(iMarriageId);
 						if (null != marriage)
 						{
 							for (int p=0; p<alTags.size(); p++)
@@ -466,19 +432,17 @@ public class HTMLPersonInfoForm
 								if (null != tag)
 								{
 									int iPhotoId = (int)tag.getContainerId();
-									Photo photo = photoList.get(iPhotoId);
+									Photo photo = m_context.getPhotoList().get(iPhotoId);
 									if (null != photo)
 									{
-										String strUrl = family.getUrlPrefix() + "/" + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
+										String strUrl = m_context.getFamily().getUrlPrefix() + "/" + HTMLShared.PHOTOWRAPDIR + "/" + HTMLShared.PHOTOWRAPFILENAME + iPhotoId + ".htm";
 										// Photos
 										output.outputStandardBracketedLink(strUrl, "View Photo");
-										String strDescription = HTMLShared.buildParagraphListObject(m_family, commandLineParameters,
-												  PhotoHelper.getDescription(photo), placelist, personList, m_marriageList,
-												  m_referenceList, m_photoList,
+										String strDescription = HTMLShared.buildParagraphListObject(m_context,
+												  PhotoHelper.getDescription(photo),
 												  idxMarToSpouses,
 												  true,
 												  true,
-												  m_bSuppressLiving,
 												  null,
 												  iPhotoId,
 												  0);
@@ -487,7 +451,7 @@ public class HTMLPersonInfoForm
 										output.outputCRLF();
 								
 										// Build "For Marriage..." string
-										String strForMarriage = HTMLShared.buildSimpleMarriageNameString(placelist, personList, idxMarToSpouses, iMarriageId, m_bSuppressLiving, "%s and %s");
+										String strForMarriage = HTMLShared.buildSimpleMarriageNameString(m_context, idxMarToSpouses, iMarriageId, "%s and %s");
 										output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallText, strForMarriage);
 										output.outputBR();
 										output.outputCRLF();
@@ -523,14 +487,14 @@ public class HTMLPersonInfoForm
 				{
 					TaggedContainerDescriptor tag = alPersonReferences.get(p);
 					int iReferenceId = (int)tag.getContainerId();
-					Reference reference = referenceList.get(iReferenceId);
+					Reference reference = m_context.getReferenceList().get(iReferenceId);
 					if (null != reference)
 					{
 						int iEntryId = (int)tag.getSubContainerId();
 						Entry entry = ReferenceHelper.getEntry(reference, (iEntryId - 1));
 						if (null != entry)
 						{	// Show Reference Title
-							String strUrl = family.getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm";
+							String strUrl = m_context.getFamily().getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm";
 							output.outputStandardBracketedLink(strUrl, "View Reference");
 							output.output(ReferenceHelper.getTitle(reference));
 							output.outputBR();
@@ -540,15 +504,15 @@ public class HTMLPersonInfoForm
 							int iTitleParagraphCount = EntryHelper.getTitleParagraphCount(entry);
 							if (0 != iTitleParagraphCount)
 							{
-								strUrl = family.getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm#REF" + iReferenceId + "ENT" + iEntryId;
+								strUrl = m_context.getFamily().getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm#REF" + iReferenceId + "ENT" + iEntryId;
 								output.outputStandardBracketedLink(strUrl, "View Entry");
 								for (int t=0; t<iTitleParagraphCount; t++)
 								{
 									Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);
-									String strEntryTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
-											paragraph, placelist, personList, marriageList, referenceList, photoList,
-					                        idxMarToSpouses, true, true, bSuppressLiving, null,
-					                        iReferenceId, iEntryId);
+									String strEntryTitle = HTMLShared.buildParagraphString(m_context,
+																							paragraph,
+																							idxMarToSpouses, true, true, null,
+																	                        iReferenceId, iEntryId);
 									output.output(strEntryTitle);
 								}
 								output.outputCRLF();
@@ -587,7 +551,7 @@ public class HTMLPersonInfoForm
 					if (null != alTags)
 					{						
 						int iMarriageId = alMarriageIds.get(m);
-						Marriage marriage = marriageList.get(iMarriageId);
+						Marriage marriage = m_context.getMarriageList().get(iMarriageId);
 						if (null != marriage)
 						{
 							for (int p=0; p<alTags.size(); p++)
@@ -596,14 +560,14 @@ public class HTMLPersonInfoForm
 								if (null != tag)
 								{
 									int iReferenceId = (int)tag.getContainerId();
-									Reference reference = referenceList.get(iReferenceId);
+									Reference reference = m_context.getReferenceList().get(iReferenceId);
 									if (null != reference)
 									{
 										int iEntryId = (int)tag.getSubContainerId();
 										Entry entry = ReferenceHelper.getEntry(reference, (iEntryId - 1));
 										if (null != entry)
 										{	// Show Reference Title
-											String strUrl = family.getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm";
+											String strUrl = m_context.getFamily().getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm";
 											output.outputStandardBracketedLink(strUrl, "View Reference");
 											output.output(ReferenceHelper.getTitle(reference));
 											output.outputBR();
@@ -613,14 +577,14 @@ public class HTMLPersonInfoForm
 											int iTitleParagraphCount = EntryHelper.getTitleParagraphCount(entry);
 											if (0 != iTitleParagraphCount)
 											{
-												strUrl = family.getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm#REF" + iReferenceId + "ENT" + iEntryId;
+												strUrl = m_context.getFamily().getUrlPrefix() + "/" + HTMLShared.REFERENCEDIR + "/" + HTMLShared.REFERENCEFILENAME + iReferenceId + ".htm#REF" + iReferenceId + "ENT" + iEntryId;
 												output.outputStandardBracketedLink(strUrl, "View Entry");
 												for (int t=0; t<iTitleParagraphCount; t++)
 												{
 													Paragraph paragraph = EntryHelper.getTitleParagraph(entry, t);
-													String strEntryTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
-															paragraph, placelist, personList, marriageList, referenceList, photoList,
-									                        idxMarToSpouses, true, true, bSuppressLiving, null,
+													String strEntryTitle = HTMLShared.buildParagraphString(m_context,
+															paragraph,
+									                        idxMarToSpouses, true, true, null,
 									                        iReferenceId, iEntryId);
 													output.output(strEntryTitle);
 												}
@@ -628,7 +592,7 @@ public class HTMLPersonInfoForm
 											}
 								
 											// Build "For Marriage..." string
-											String strForMarriage = HTMLShared.buildSimpleMarriageNameString(placelist, personList, idxMarToSpouses, iMarriageId, m_bSuppressLiving, "%s and %s");
+											String strForMarriage = HTMLShared.buildSimpleMarriageNameString(m_context, idxMarToSpouses, iMarriageId, "%s and %s");
 											output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodySmallText, strForMarriage);
 											output.outputBR();
 											output.outputCRLF();
@@ -816,7 +780,7 @@ public class HTMLPersonInfoForm
 		
 		// Show Person Event Data
 		// Person Event Internal Link Tag
-		if (!personHelper.getIsPersonLiving() || !m_bSuppressLiving)
+		if (!personHelper.getIsPersonLiving() || !m_context.getSuppressLiving())
 		{
 			int iEventCount = PersonHelper.getEventCount(person);
 			if (0 != iEventCount)
@@ -832,13 +796,12 @@ public class HTMLPersonInfoForm
 				for (int i=0 ;i<iEventCount; i++)
 				{
 					Event event = PersonHelper.getEvent(person, i);
-					EventHelper eventHelper = new EventHelper(event, personHelper.getIsPersonLiving(), bSuppressLiving);
+					EventHelper eventHelper = new EventHelper(event, personHelper.getIsPersonLiving(), m_context.getSuppressLiving());
 					Paragraph paraTitle = eventHelper.getEventTitleParagraph();
 					if (null != paraTitle)
 					{
-						String strEventTitle = HTMLShared.buildParagraphString(family, commandLineParameters,
-								paraTitle, placelist, personList, marriageList, referenceList, photoList,
-                                idxMarToSpouses, false, false, bSuppressLiving, null, -1, -1);
+						String strEventTitle = HTMLShared.buildParagraphString(m_context,
+								paraTitle, idxMarToSpouses, false, false, null, -1, -1);
 						if (0 != strEventTitle.length())
 						{
 							output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Title: ");
@@ -849,7 +812,7 @@ public class HTMLPersonInfoForm
 					}
 					
 					String strEventDate = eventHelper.getEventDate();
-					String strEventPlace = eventHelper.getEventPlace(placelist);
+					String strEventPlace = eventHelper.getEventPlace(m_context.getPlaceList());
 					String strEventTag = eventHelper.getEventTag();
 					if (0 != strEventTag.length())
 					{
@@ -884,9 +847,8 @@ public class HTMLPersonInfoForm
 							Paragraph paraDescription = eventHelper.getEventDescriptionParagraph(d);
 							if (null != paraDescription)
 							{
-								String strEventDescriptionParagraph = HTMLShared.buildParagraphString(family,
-										commandLineParameters, paraDescription, placelist, personList, marriageList, referenceList,
-										photoList, idxMarToSpouses, true, true, bSuppressLiving, null, -1, -1);
+								String strEventDescriptionParagraph = HTMLShared.buildParagraphString(m_context,
+										paraDescription, idxMarToSpouses, true, true, null, -1, -1);
 								if (0 != strEventDescriptionParagraph.length())
 								{
 									output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strEventDescriptionParagraph);

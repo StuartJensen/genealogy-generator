@@ -3,11 +3,8 @@ package home.genealogy.forms.html;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-import home.genealogy.CommandLineParameters;
 import home.genealogy.GenealogyContext;
-import home.genealogy.configuration.CFGFamily;
 import home.genealogy.indexes.IndexMarriageToChildren;
 import home.genealogy.indexes.IndexMarriageToSpouses;
 import home.genealogy.indexes.IndexMarriagesToReferences;
@@ -15,12 +12,6 @@ import home.genealogy.indexes.IndexPersonToMarriages;
 import home.genealogy.indexes.IndexPersonToParentMarriage;
 import home.genealogy.indexes.IndexPersonsToReferences;
 import home.genealogy.indexes.TaggedContainerDescriptor;
-import home.genealogy.lists.MarriageList;
-import home.genealogy.lists.PersonList;
-import home.genealogy.lists.PhotoList;
-import home.genealogy.lists.PlaceList;
-import home.genealogy.lists.ReferenceList;
-import home.genealogy.output.IOutputStream;
 import home.genealogy.schema.all.Marriage;
 import home.genealogy.schema.all.Parents;
 import home.genealogy.schema.all.Person;
@@ -33,27 +24,11 @@ public class HTMLFGSForm
 {
 	public static final String FGS_FILE_SYSTEM_SUBDIRECTORY = "fgs";
 	
-	private CFGFamily m_family;
-	private PlaceList m_placeList;
-	private PersonList m_personList;
-	private MarriageList m_marriageList;
-	private ReferenceList m_referenceList;
-	private PhotoList m_photoList;
-	private boolean m_bSuppressLiving;
-	private CommandLineParameters m_commandLineParameters;
-	private IOutputStream m_outputStream;
+	private GenealogyContext m_context;
 	  
 	public HTMLFGSForm(GenealogyContext context)
 	{
-		m_family = context.getFamily();
-		m_placeList = context.getPlaceList();
-		m_personList = context.getPersonList();
-		m_marriageList = context.getMarriageList();
-		m_referenceList = context.getReferenceList();
-		m_photoList = context.getPhotoList();
-		m_bSuppressLiving = context.getSuppressLiving();
-		m_commandLineParameters = context.getCommandLineParameters();
-		m_outputStream = context.getOutputStream();
+		m_context = context;
 	}
 	
 	public void create()
@@ -61,7 +36,7 @@ public class HTMLFGSForm
 	{
 		// Get the base output file system path and make sure it 
 		// ends with a slash
-		String strOutputPath = m_family.getOutputPathHTML();
+		String strOutputPath = m_context.getFamily().getOutputPathHTML();
 		if (!strOutputPath.endsWith("\\"))
 		{
 			strOutputPath += "\\";
@@ -78,32 +53,25 @@ public class HTMLFGSForm
 		}		
 		
 		// Create necessary Indexes
-		IndexPersonToParentMarriage idxPerToParentMar = new IndexPersonToParentMarriage(m_family, m_personList);
-		IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(m_family, m_marriageList);
-		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_family, m_marriageList);
-		IndexPersonsToReferences idxPerToRef = new IndexPersonsToReferences(m_family, m_personList, m_referenceList);
-		IndexMarriagesToReferences idxMarToRef = new IndexMarriagesToReferences(m_family, m_personList, m_marriageList, m_referenceList);
-		IndexMarriageToChildren idxMarToChildren = new IndexMarriageToChildren(m_family, m_commandLineParameters, m_personList);
+		IndexPersonToParentMarriage idxPerToParentMar = new IndexPersonToParentMarriage(m_context.getFamily(), m_context.getPersonList());
+		IndexPersonToMarriages idxPerToMar = new IndexPersonToMarriages(m_context.getFamily(), m_context.getMarriageList());
+		IndexMarriageToSpouses idxMarToSpouses = new IndexMarriageToSpouses(m_context.getFamily(), m_context.getMarriageList());
+		IndexPersonsToReferences idxPerToRef = new IndexPersonsToReferences(m_context.getFamily(), m_context.getPersonList(), m_context.getReferenceList());
+		IndexMarriagesToReferences idxMarToRef = new IndexMarriagesToReferences(m_context.getFamily(), m_context.getPersonList(), m_context.getMarriageList(), m_context.getReferenceList());
+		IndexMarriageToChildren idxMarToChildren = new IndexMarriageToChildren(m_context.getFamily(), m_context.getCommandLineParameters(), m_context.getPersonList());
 		
-		Iterator<Marriage> iter = m_marriageList.getMarriages();
+		Iterator<Marriage> iter = m_context.getMarriageList().getMarriages();
 		while (iter.hasNext())
 		{
 			Marriage thisMarriage = iter.next();
-			createFGS(m_family, m_placeList, m_personList, m_marriageList, m_referenceList,
- 					  m_photoList, m_bSuppressLiving, idxPerToParentMar,
+			createFGS(idxPerToParentMar,
  					  idxPerToMar, idxMarToSpouses, idxPerToRef, idxMarToRef,
  					  idxMarToChildren, strOutputPath, thisMarriage);
 		}
-		m_outputStream.output("Completed Generating All FGS Files\n");
+		m_context.output("Completed Generating All FGS Files\n");
 	}
 	
-	private void createFGS(CFGFamily family,
-			 PlaceList placeList,
-			 PersonList personList,
-			 MarriageList marriageList,
-			 ReferenceList referenceList,
-			 PhotoList photoList,
-			 boolean bSuppressLiving,
+	private void createFGS(
 			 IndexPersonToParentMarriage idxPerToParentMar,
 			 IndexPersonToMarriages idxPerToMar,
 			 IndexMarriageToSpouses idxMarToSpouses,
@@ -116,18 +84,18 @@ public class HTMLFGSForm
 	{
 		int iMarriageId = MarriageHelper.getMarriageId(marriage);
 		String strFileName = strOutputPath + FGS_FILE_SYSTEM_SUBDIRECTORY + "\\" + HTMLShared.FGSFILENAME + iMarriageId + ".htm";
-		m_outputStream.output("Generating FGS File: " + strFileName + "\n");
+		m_context.output("Generating FGS File: " + strFileName + "\n");
 		HTMLFormOutput output = new HTMLFormOutput(strFileName);
 
-		Person husband = personList.get(MarriageHelper.getHusbandPersonId(marriage));
-		Person wife = personList.get(MarriageHelper.getWifePersonId(marriage));
+		Person husband = m_context.getPersonList().get(MarriageHelper.getHusbandPersonId(marriage));
+		Person wife = m_context.getPersonList().get(MarriageHelper.getWifePersonId(marriage));
 		if ((null != husband) && (null != wife))
 		{
-			PersonHelper husbandHelper = new PersonHelper(husband, bSuppressLiving, placeList);
-			PersonHelper wifeHelper = new PersonHelper(wife, bSuppressLiving, placeList);
-			MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
-			String strMarriageTitle = HTMLShared.buildSimpleMarriageNameString(placeList, personList, idxMarToSpouses, iMarriageId, bSuppressLiving, "{0} and {2}");
-			output.outputSidebarFrontEnd("Family Group Sheet: " + strMarriageTitle, m_family, personList, marriageList);
+			PersonHelper husbandHelper = new PersonHelper(husband, m_context.getSuppressLiving(), m_context.getPlaceList());
+			PersonHelper wifeHelper = new PersonHelper(wife, m_context.getSuppressLiving(), m_context.getPlaceList());
+			MarriageHelper marriageHelper = new MarriageHelper(marriage, husbandHelper, wifeHelper, m_context.getSuppressLiving(), m_context.getPlaceList());
+			String strMarriageTitle = HTMLShared.buildSimpleMarriageNameString(m_context, idxMarToSpouses, iMarriageId, "{0} and {2}");
+			output.outputSidebarFrontEnd("Family Group Sheet: " + strMarriageTitle, m_context.getFamily(), m_context.getPersonList(), m_context.getMarriageList());
 			
 			// Top of Document Internal Link Tag
 			output.output("<A name=InfoTop></A>");
@@ -135,7 +103,7 @@ public class HTMLFGSForm
 
 			// Husband Data
 			String strUrl = "<A href=\"";
-			strUrl += family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  husbandHelper.getPersonId() + ".htm";
+			strUrl += m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  husbandHelper.getPersonId() + ".htm";
 			strUrl += "\">";
 			strUrl += husbandHelper.getPersonName();
 			strUrl += "</a>";
@@ -145,20 +113,20 @@ public class HTMLFGSForm
 			output.outputCRLF();
 			// Husband Data
 			output.output("<table width=\"500\" border=\"1\">");
-			outputBirth(family, husbandHelper, idxPerToRef, output);
-			outputChristening(family, husbandHelper, idxPerToRef, output);
-			outputMarriage(family, husbandHelper, wifeHelper, idxMarToRef, iMarriageId, personList, marriageList, m_bSuppressLiving, output);
-			outputDeath(family, husbandHelper, idxPerToRef, output);
-			outputBurial(family, husbandHelper, idxPerToRef, output);
-			outputCemetery(family, husbandHelper, idxPerToRef, output);
-			outputParents(family, husbandHelper, personList, marriageList, idxPerToRef, bSuppressLiving, output);
+			outputBirth(husbandHelper, idxPerToRef, output);
+			outputChristening(husbandHelper, idxPerToRef, output);
+			outputMarriage(husbandHelper, wifeHelper, idxMarToRef, iMarriageId, output);
+			outputDeath(husbandHelper, idxPerToRef, output);
+			outputBurial(husbandHelper, idxPerToRef, output);
+			outputCemetery(husbandHelper, idxPerToRef, output);
+			outputParents(husbandHelper, idxPerToRef, output);
 			output.output("</table>");
 			output.outputBR();
 			output.outputCRLF();
 			
 			// Wife Data
 			strUrl = "<A href=\"";
-			strUrl += family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  wifeHelper.getPersonId() + ".htm";
+			strUrl += m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  wifeHelper.getPersonId() + ".htm";
 			strUrl += "\">";
 			strUrl += wifeHelper.getPersonName();
 			strUrl += "</a>";
@@ -168,12 +136,12 @@ public class HTMLFGSForm
 			output.outputCRLF();
 			// Husband Data
 			output.output("<table width=\"500\" border=\"1\">");
-			outputBirth(family, wifeHelper, idxPerToRef, output);
-			outputChristening(family, wifeHelper, idxPerToRef, output);
-			outputDeath(family, wifeHelper, idxPerToRef, output);
-			outputBurial(family, wifeHelper, idxPerToRef, output);
-			outputCemetery(family, wifeHelper, idxPerToRef, output);
-			outputParents(family, wifeHelper, personList, marriageList, idxPerToRef, bSuppressLiving, output);
+			outputBirth(wifeHelper, idxPerToRef, output);
+			outputChristening(wifeHelper, idxPerToRef, output);
+			outputDeath(wifeHelper, idxPerToRef, output);
+			outputBurial(wifeHelper, idxPerToRef, output);
+			outputCemetery(wifeHelper, idxPerToRef, output);
+			outputParents(wifeHelper, idxPerToRef, output);
 			output.output("</table>");
 			output.outputBR();
 			output.outputCRLF();
@@ -194,10 +162,10 @@ public class HTMLFGSForm
 					if (null != intChildId)
 					{
 						int iChildId = intChildId.intValue();
-						Person child = personList.get(iChildId);
+						Person child = m_context.getPersonList().get(iChildId);
 						if (null != child)
 						{
-							PersonHelper childHelper = new PersonHelper(child, bSuppressLiving, m_placeList);
+							PersonHelper childHelper = new PersonHelper(child, m_context.getSuppressLiving(), m_context.getPlaceList());
 							// "Child #1 FEMALE"
 							String strGenderLine = "Child#&nbsp;" + iChildNumber + "&nbsp;" + PersonHelper.getGender(child);
 							output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, strGenderLine);
@@ -206,7 +174,7 @@ public class HTMLFGSForm
 							
 							// "SMITH, Jane - ID#5"
 							output.output("<span class=\"pageBodyBoldNormalText\">");
-							strUrl = family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  iChildId + ".htm";
+							strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  iChildId + ".htm";
 							output.outputStartAnchor(strUrl);
 							output.output(childHelper.getPersonName());
 							output.outputEndAnchor();
@@ -218,13 +186,13 @@ public class HTMLFGSForm
 							// Start Table
 							output.output("<table width=\"500\" border=\"1\">");
 							// Child Data
-							outputBirth(family, childHelper, idxPerToRef, output);
-							outputChristening(family, childHelper, idxPerToRef, output);
-							outputDeath(family, childHelper, idxPerToRef, output);
-							outputBurial(family, childHelper, idxPerToRef, output);
-							outputCemetery(family, childHelper, idxPerToRef, output);
+							outputBirth(childHelper, idxPerToRef, output);
+							outputChristening(childHelper, idxPerToRef, output);
+							outputDeath(childHelper, idxPerToRef, output);
+							outputBurial(childHelper, idxPerToRef, output);
+							outputCemetery(childHelper, idxPerToRef, output);
 							// Child's Spouse Data
-							outputSpouse(family, child, personList, marriageList, idxPerToMar, idxMarToSpouses, bSuppressLiving, output);
+							outputSpouse(child, idxPerToMar, idxMarToSpouses, output);
 							// End Table
 							output.output("</table>");
 							output.outputBR();
@@ -235,57 +203,6 @@ public class HTMLFGSForm
 					}
 				}
 			}
-
-/*			
-			if (pIndexMarriageToChildren->StartChildrenOfMarriageEnum(m_lMarriageId, &lCookie))
-			{
-				while (pIndexMarriageToChildren->NextChildrenOfMarriageEnum(m_lMarriageId, &lCookie, &childId))
-				{
-					Person *pChild = m_pPersonList->get(childId);
-					if (pChild)
-					{
-						FormsPersonAccessor childAccessor(pChild, m_pConfiguration->getSuppressLiving());
-						// "Child #1 FEMALE"
-						strWork.Format("Child#&nbsp;%d&nbsp;%s",  iChildNumber, childAccessor.getGender());
-						output.outputSpan(E_PageBodyBoldNormalText, strWork);
-						output.outputBR();
-						output.outputFormattingCRLF();
-						// "SMITH, Jane - ID#5"
-						CString strAsterisk = "";
-						if (childAccessor.isInLine())
-						{
-							strAsterisk = "*";
-						}
-						output.output("<span class=\"pageBodyBoldNormalText\">");
-						strWork.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, childAccessor.getPersonIdAsLong());
-						output.outputStartAnchor(strWork);
-						output.output(strAsterisk + "&nbsp;" + childAccessor.getFullBasicName());
-						output.outputEndAnchor();
-						strWork.Format("&nbsp;-&nbsp;ID#&nbsp;%d", childId);
-						output.output(strWork);
-						output.output("</span>");
-						output.outputBR();
-						output.outputFormattingCRLF();
-						// Start Table
-						output.output("<table width=\"450\" border=\"1\">");
-						// Child Data
-						OutputBirth(pChild, pOutputStream);
-						OutputChristening(pChild, pOutputStream);
-						OutputDeath(pChild, pOutputStream);
-						OutputBurial(pChild, pOutputStream);
-						OutputCemetery(pChild, pOutputStream);
-						// Child's Spouse Data
-						OutputSpouse(pChild, pOutputStream);
-						// End Table
-						output.output("</table>");
-						output.outputBR();
-						output.outputFormattingCRLF();
-
-						iChildNumber++;
-					}
-				}
-			}
-*/			
 		}
 		
 		output.outputSidebarBackEnd();
@@ -294,9 +211,9 @@ public class HTMLFGSForm
 		output = null;
 	}
 	
-	private void outputParents(CFGFamily family, PersonHelper personHelper, PersonList personList,
-			 MarriageList marriageList, IndexPersonsToReferences idxPerToRef, boolean bSuppressLiving,
-			 HTMLFormOutput output)
+	private void outputParents(PersonHelper personHelper,
+								IndexPersonsToReferences idxPerToRef,
+								HTMLFormOutput output)
 	{
 		Person father = null;
 		Person mother = null;
@@ -305,26 +222,26 @@ public class HTMLFGSForm
 		if (null != parents)
 		{
 			iParentMarriageId = parents.getMarriageId();
-			Marriage marriage = marriageList.get(iParentMarriageId);
+			Marriage marriage = m_context.getMarriageList().get(iParentMarriageId);
 			if (null != marriage)
 			{
 				int iFatherId = MarriageHelper.getHusbandPersonId(marriage);
 				int iMotherId = MarriageHelper.getWifePersonId(marriage);
 				if (PersonIdHelper.PERSONID_INVALID != iFatherId)
 				{
-					father = personList.get(iFatherId);
+					father = m_context.getPersonList().get(iFatherId);
 				}
 				if (PersonIdHelper.PERSONID_INVALID != iMotherId)
 				{
-					mother = personList.get(iMotherId);
+					mother = m_context.getPersonList().get(iMotherId);
 				}
 			}
 		}
 		
 		if ((null != father) && (null != mother))
 		{
-			PersonHelper fatherHelper = new PersonHelper(father, bSuppressLiving, m_placeList);
-			PersonHelper motherHelper = new PersonHelper(mother, bSuppressLiving, m_placeList);
+			PersonHelper fatherHelper = new PersonHelper(father, m_context.getSuppressLiving(), m_context.getPlaceList());
+			PersonHelper motherHelper = new PersonHelper(mother, m_context.getSuppressLiving(), m_context.getPlaceList());
 			String strFatherName = fatherHelper.getPersonName();
 			String strMotherName = motherHelper.getPersonName();
 			if ((0 != strFatherName.length()) || (0 != strMotherName.length()))
@@ -332,7 +249,7 @@ public class HTMLFGSForm
 				ArrayList<TaggedContainerDescriptor> alLinkCToFatherRefs = idxPerToRef.getReferencesForPerson(fatherHelper.getPersonId(), "LinkCToFather");
 				ArrayList<TaggedContainerDescriptor> alLinkCToMotherRefs = idxPerToRef.getReferencesForPerson(motherHelper.getPersonId(), "LinkCToMother");
 				// Output Father
-				String strUrl = family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  fatherHelper.getPersonId() + ".htm";
+				String strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  fatherHelper.getPersonId() + ".htm";
 				output.output("<tr><td>");
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Father:&nbsp;");
 				output.outputStartAnchor(strUrl);
@@ -341,13 +258,13 @@ public class HTMLFGSForm
 				if (0 != alLinkCToFatherRefs.size())
 				{
 					output.output("&nbsp;&nbsp;");
-					String strHRef = HTMLShared.getReferenceHRef(family, alLinkCToFatherRefs.get(0));
+					String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alLinkCToFatherRefs.get(0));
 					output.outputStartAnchor(strHRef);
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, "[Prove Link]");
 					output.outputEndAnchor();
 				}
 				// Show "[Family]" Link
-				strUrl = family.getUrlPrefix() + HTMLShared.FGSDIR + "/" + HTMLShared.FGSFILENAME +  iParentMarriageId + ".htm";
+				strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.FGSDIR + "/" + HTMLShared.FGSFILENAME +  iParentMarriageId + ".htm";
 				output.output("&nbsp;&nbsp;");
 				output.outputStartAnchor(strUrl);
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, "[Family]");
@@ -355,7 +272,7 @@ public class HTMLFGSForm
 				output.outputBR();
 				output.outputCRLF();
 				// Output Mother
-				strUrl = family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  motherHelper.getPersonId() + ".htm";
+				strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  motherHelper.getPersonId() + ".htm";
 				output.output("<tr><td>");
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Mother:&nbsp;");
 				output.outputStartAnchor(strUrl);
@@ -364,7 +281,7 @@ public class HTMLFGSForm
 				if (0 != alLinkCToMotherRefs.size())
 				{
 					output.output("&nbsp;&nbsp;");
-					String strHRef = HTMLShared.getReferenceHRef(family, alLinkCToMotherRefs.get(0));
+					String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alLinkCToMotherRefs.get(0));
 					output.outputStartAnchor(strHRef);
 					output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, "[Prove Link]");
 					output.outputEndAnchor();
@@ -374,7 +291,7 @@ public class HTMLFGSForm
 		
 	}
 	
-	private void outputBirth(CFGFamily family, PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
+	private void outputBirth(PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
 	{
 		String strEvent = personHelper.getBirthDate();
 		String strPlace = personHelper.getBirthPlace();
@@ -387,7 +304,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Born:&nbsp;");
 			if (0 != alBornDRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alBornDRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alBornDRefs.get(0));
 				output.outputStartAnchor(strHRef);
 			}
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strEvent);
@@ -400,7 +317,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Place:&nbsp;");
 			if (0 != alBornPRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alBornPRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alBornPRefs.get(0));
 
 				output.outputStartAnchor(strHRef);
 			}
@@ -415,7 +332,7 @@ public class HTMLFGSForm
 		}
 	}
 	
-	private void outputChristening(CFGFamily family, PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
+	private void outputChristening(PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
 	{
 		String strEvent = personHelper.getChrDate();
 		String strPlace = personHelper.getChrPlace();
@@ -429,7 +346,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Chr:&nbsp;");
 			if (0 != alChrDRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alChrDRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alChrDRefs.get(0));
 				output.outputStartAnchor(strHRef);
 			}
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strEvent);
@@ -442,7 +359,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Place:&nbsp;");
 			if (0 != alChrPRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alChrPRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alChrPRefs.get(0));
 
 				output.outputStartAnchor(strHRef);
 			}
@@ -458,7 +375,7 @@ public class HTMLFGSForm
 	}
 	
 	
-	private void outputDeath(CFGFamily family, PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
+	private void outputDeath(PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
 	{
 		String strEvent = personHelper.getDeathDate();
 		String strPlace = personHelper.getDeathPlace();
@@ -472,7 +389,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Died:&nbsp;");
 			if (0 != alDiedDRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alDiedDRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alDiedDRefs.get(0));
 				output.outputStartAnchor(strHRef);
 			}
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strEvent);
@@ -485,7 +402,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Place:&nbsp;");
 			if (0 != alDiedPRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alDiedPRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alDiedPRefs.get(0));
 
 				output.outputStartAnchor(strHRef);
 			}
@@ -500,7 +417,7 @@ public class HTMLFGSForm
 		}
 	}
 	
-	private void outputBurial(CFGFamily family, PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
+	private void outputBurial(PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
 	{
 		String strEvent = personHelper.getBurialDate();
 		String strPlace = personHelper.getBurialPlace();
@@ -514,7 +431,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Buried:&nbsp;");
 			if (0 != alDiedDRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alDiedDRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alDiedDRefs.get(0));
 				output.outputStartAnchor(strHRef);
 			}
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strEvent);
@@ -527,7 +444,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Place:&nbsp;");
 			if (0 != alDiedPRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alDiedPRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alDiedPRefs.get(0));
 
 				output.outputStartAnchor(strHRef);
 			}
@@ -542,7 +459,7 @@ public class HTMLFGSForm
 		}
 	}
 	
-	private void outputCemetery(CFGFamily family, PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
+	private void outputCemetery(PersonHelper personHelper, IndexPersonsToReferences idxPerToRef, HTMLFormOutput output)
 	{
 		String strEvent = personHelper.getBurialCemeteryName();
 		String strPlace = personHelper.getBurialCemeteryPlotAddress();
@@ -556,7 +473,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Cemetery:&nbsp;");
 			if (0 != alCemeteryNameRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alCemeteryNameRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alCemeteryNameRefs.get(0));
 				output.outputStartAnchor(strHRef);
 			}
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strEvent);
@@ -569,7 +486,7 @@ public class HTMLFGSForm
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Place:&nbsp;");
 			if (0 != alCemeteryPlotRefs.size())
 			{
-				String strHRef = HTMLShared.getReferenceHRef(family, alCemeteryPlotRefs.get(0));
+				String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alCemeteryPlotRefs.get(0));
 				output.outputStartAnchor(strHRef);
 			}
 			output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strPlace);
@@ -584,14 +501,14 @@ public class HTMLFGSForm
 	}
 	
 	
-	private void outputMarriage(CFGFamily family, PersonHelper husbandHelper, PersonHelper wifeHelper,
-							    IndexMarriagesToReferences idxMarToRef, int iMarriageId, PersonList personList, MarriageList marriageList,
-								boolean bSuppressLiving, HTMLFormOutput output)
+	private void outputMarriage(PersonHelper husbandHelper, PersonHelper wifeHelper,
+							    IndexMarriagesToReferences idxMarToRef, int iMarriageId,
+								HTMLFormOutput output)
 	{
-		Marriage marriage = marriageList.get(iMarriageId);
+		Marriage marriage = m_context.getMarriageList().get(iMarriageId);
 		if (null != marriage)
 		{
-			MarriageHelper mh = new MarriageHelper(marriage, husbandHelper, wifeHelper, bSuppressLiving, m_placeList);
+			MarriageHelper mh = new MarriageHelper(marriage, husbandHelper, wifeHelper, m_context.getSuppressLiving(), m_context.getPlaceList());
 			String strDate = mh.getDate();
 			String strPlace = mh.getPlace();
 			if ((0 != strDate.length()) || (0 != strPlace.length()))
@@ -603,7 +520,7 @@ public class HTMLFGSForm
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Marr:&nbsp;");
 				if (0 != alDateRefs.size())
 				{
-					String strHRef = HTMLShared.getReferenceHRef(family, alDateRefs.get(0));
+					String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alDateRefs.get(0));
 					output.outputStartAnchor(strHRef);
 				}
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strDate);
@@ -616,7 +533,7 @@ public class HTMLFGSForm
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Place:&nbsp;");
 				if (0 != alPlaceRefs.size())
 				{
-					String strHRef = HTMLShared.getReferenceHRef(family, alPlaceRefs.get(0));
+					String strHRef = HTMLShared.getReferenceHRef(m_context.getFamily(), alPlaceRefs.get(0));
 					output.outputStartAnchor(strHRef);
 				}
 				output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strPlace);
@@ -631,7 +548,7 @@ public class HTMLFGSForm
 		}
 	}
 	
-	private void outputSpouse(CFGFamily family, Person person, PersonList personList, MarriageList marriageList, IndexPersonToMarriages idxPerToMar, IndexMarriageToSpouses idxMarToSpouses, boolean bSuppressLiving, HTMLFormOutput output)
+	private void outputSpouse(Person person, IndexPersonToMarriages idxPerToMar, IndexMarriageToSpouses idxMarToSpouses, HTMLFormOutput output)
 	{
 		// Find the marriage that should be used
 		// 1 - In-Line Marriage
@@ -643,7 +560,7 @@ public class HTMLFGSForm
 			for (int m=0; m<alMarriageIds.size(); m++)
 			{
 				int iMarriageId = alMarriageIds.get(m).intValue();
-				marriage = marriageList.get(iMarriageId);
+				marriage = m_context.getMarriageList().get(iMarriageId);
 				if (null != marriage)
 				{	// Found a marriage, is it inline
 					if (MarriageHelper.isInLine(marriage))
@@ -665,23 +582,23 @@ public class HTMLFGSForm
 			{
 				if (iPersonId == iHusbandId)
 				{
-					spouse = personList.get(iWifeId);
+					spouse = m_context.getPersonList().get(iWifeId);
 				}
 				else if (iPersonId == iWifeId)
 				{
-					spouse = personList.get(iHusbandId);
+					spouse = m_context.getPersonList().get(iHusbandId);
 				}
 				// Did we find the spouse?
 				if (null != spouse)
 				{	// Yes
-					PersonHelper spouseHelper = new PersonHelper(spouse, bSuppressLiving, m_placeList);
+					PersonHelper spouseHelper = new PersonHelper(spouse, m_context.getSuppressLiving(), m_context.getPlaceList());
 					String strSpouseName = spouseHelper.getPersonName();
 					if ((null != strSpouseName) && (0 != strSpouseName.length()))
 					{
 						output.output("<tr><td>");
 						output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyBoldNormalText, "Spouse:&nbsp;");
 						// Show Spouse Name
-						String strUrl = family.getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  spouseHelper.getPersonId() + ".htm";
+						String strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.PERINFODIR + "/" + HTMLShared.PERINFOFILENAME +  spouseHelper.getPersonId() + ".htm";
 						output.outputStartAnchor(strUrl);
 						output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, strSpouseName);
 						output.outputEndAnchor();
@@ -695,7 +612,7 @@ public class HTMLFGSForm
 //						}
 						// Show "[Family]" Link
 						output.output("&nbsp;&nbsp;");
-						strUrl = family.getUrlPrefix() + HTMLShared.FGSDIR + "/" + HTMLShared.FGSFILENAME +  iMarriageId + ".htm";
+						strUrl = m_context.getFamily().getUrlPrefix() + HTMLShared.FGSDIR + "/" + HTMLShared.FGSFILENAME +  iMarriageId + ".htm";
 						output.outputStartAnchor(strUrl);
 						output.outputSpan(HTMLFormOutput.styleSelectors.E_PageBodyNormalText, "[Family]");
 						output.outputEndAnchor();
@@ -703,398 +620,10 @@ public class HTMLFGSForm
 						output.outputBR();
 						output.outputCRLF();
 						output.output("</td></tr>");
-
 					}
 				}
 			}
 		}
 	}
-	
 }
 
-
-/*
-
-void FormsHtmlFgs::Create()
-{
-	long lCookie;
-	CString strWork;
-	CString strFileName;
-	CString strEvent, strPlace;
-	strFileName.Format("%s%s/%s%d.htm", m_pConfiguration->getDestinationPath(), FGSDIR, FGSFILENAME, m_lMarriageId); 
-	m_pStatus->Log("Generating FGS: " + strFileName, LogLevel_Finest);
-	m_pStatus->UpdateStatus("Generating FGS: " + strFileName);
-	IndexMarriageToChildren *pIndexMarriageToChildren = m_pIndex->GetIndexMarriageToChildren();
-
-	FormsHtmlOutputStream *pOutputStream = new FormsHtmlOutputStream(strFileName, m_pStatus);
-
-	Marriage *pMarriage = m_pMarriageList->get(m_lMarriageId);
-	if (pMarriage)
-	{
-		PERSONID idHusband = pMarriage->getHusbandIdAsLong();
-		PERSONID idWife = pMarriage->getWifeIdAsLong();
-
-		FourGenerations fourGenHusband(m_pFamily, idHusband);
-		FourGenerations fourGenWife(m_pFamily, idWife);
-		Person *pHusband = fourGenHusband.getPerson();
-		Person *pWife = fourGenWife.getPerson();
-		FormsPersonAccessor husbandAccessor(pHusband, m_pConfiguration->getSuppressLiving());
-		FormsPersonAccessor wifeAccessor(pWife, m_pConfiguration->getSuppressLiving());
-
-		CString strMarriageName = FormsHtmlShared::BuildSimpleMarriageNameString(m_pConfiguration, m_lMarriageId, "%s and %s");
-
-		pOutputStream->OutputSidebarFrontEnd("Family Group Sheet: " + strMarriageName, m_pConfiguration);
-
-		// Top of Document Internal Link Tag
-		pOutputStream->Output("<A name=InfoTop></A>");
-		pOutputStream->OutputFormattingCRLF();
-
-		// Husband Name
-		CString strHusbandName;
-		strHusbandName.Format("<A href=\"%s%s/%s%d.htm\">%s</a>", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, husbandAccessor.getPersonIdAsLong(), husbandAccessor.getFullBasicName());
-		strWork.Format("Husband:&nbsp;%s - ID#&nbsp;%d", strHusbandName, husbandAccessor.getPersonIdAsLong());
-		pOutputStream->OutputSpan(E_PageBodyLargeText, strWork);
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		// Husband Data
-		pOutputStream->Output("<table width=\"450\" border=\"1\">");
-		OutputBirth(pHusband, pOutputStream);
-		OutputChristening(pHusband, pOutputStream);
-		OutputMarriage(pMarriage, pOutputStream);
-		OutputDeath(pHusband, pOutputStream);
-		OutputBurial(pHusband, pOutputStream);
-		OutputCemetery(pHusband, pOutputStream);
-		OutputParents(&fourGenHusband, pOutputStream);
-
-		pOutputStream->Output("</table>");
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-
-		// Wife Name
-		CString strWifeName;
-		strWifeName.Format("<A href=\"%s%s/%s%d.htm\">%s</a>", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, wifeAccessor.getPersonIdAsLong(), wifeAccessor.getFullBasicName());
-		strWork.Format("Wife:&nbsp;%s - ID#&nbsp;%d", strWifeName, wifeAccessor.getPersonIdAsLong());
-		pOutputStream->OutputSpan(E_PageBodyLargeText, strWork);
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		// Wife Data
-		pOutputStream->Output("<table width=\"450\" border=\"1\">");
-		OutputBirth(pWife, pOutputStream);
-		OutputChristening(pWife, pOutputStream);
-		OutputDeath(pWife, pOutputStream);
-		OutputBurial(pWife, pOutputStream);
-		OutputCemetery(pWife, pOutputStream);
-		OutputParents(&fourGenWife, pOutputStream);
-		pOutputStream->Output("</table>");
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-
-		// Children
-		PERSONID childId;
-		int iChildNumber = 1;
-		if (pIndexMarriageToChildren->StartChildrenOfMarriageEnum(m_lMarriageId, &lCookie))
-		{
-			// Children Section Header
-			pOutputStream->OutputSpan(E_PageBodyLargeText, "Children:");
-			pOutputStream->OutputBR(2);
-			pOutputStream->OutputFormattingCRLF();
-
-			while (pIndexMarriageToChildren->NextChildrenOfMarriageEnum(m_lMarriageId, &lCookie, &childId))
-			{
-				Person *pChild = m_pPersonList->get(childId);
-				if (pChild)
-				{
-					FormsPersonAccessor childAccessor(pChild, m_pConfiguration->getSuppressLiving());
-					// "Child #1 FEMALE"
-					strWork.Format("Child#&nbsp;%d&nbsp;%s",  iChildNumber, childAccessor.getGender());
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, strWork);
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					// "SMITH, Jane - ID#5"
-					CString strAsterisk = "";
-					if (childAccessor.isInLine())
-					{
-						strAsterisk = "*";
-					}
-					pOutputStream->Output("<span class=\"pageBodyBoldNormalText\">");
-					strWork.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, childAccessor.getPersonIdAsLong());
-					pOutputStream->OutputStartAnchor(strWork);
-					pOutputStream->Output(strAsterisk + "&nbsp;" + childAccessor.getFullBasicName());
-					pOutputStream->OutputEndAnchor();
-					strWork.Format("&nbsp;-&nbsp;ID#&nbsp;%d", childId);
-					pOutputStream->Output(strWork);
-					pOutputStream->Output("</span>");
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					// Start Table
-					pOutputStream->Output("<table width=\"450\" border=\"1\">");
-					// Child Data
-					OutputBirth(pChild, pOutputStream);
-					OutputChristening(pChild, pOutputStream);
-					OutputDeath(pChild, pOutputStream);
-					OutputBurial(pChild, pOutputStream);
-					OutputCemetery(pChild, pOutputStream);
-					// Child's Spouse Data
-					OutputSpouse(pChild, pOutputStream);
-					// End Table
-					pOutputStream->Output("</table>");
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-
-					iChildNumber++;
-				}
-			}
-		}
-
-
-		pOutputStream->OutputSidebarBackEnd();
-	}
-	m_pStatus->UpdateStatus("Completed FGS: " + strFileName);
-
-	if (pOutputStream)
-	{
-		delete pOutputStream;
-	}
-}
-
-void FormsHtmlFgs::OutputMarriage(Marriage *pMarriage, FormsHtmlOutputStream *pOutputStream)
-{
-	FormsMarriageAccessor marriageAccessor(pMarriage, m_pConfiguration->getSuppressLiving(), m_pConfiguration->getFamily());
-	CString strEvent = marriageAccessor.getDate();
-	CString strPlace = marriageAccessor.getPlace();
-	if ((0 != strEvent.GetLength()) || (0 != strPlace.GetLength()))
-	{
-		FormsTagFinderHtml dataPointRefEvent(m_pConfiguration);
-		FormsTagFinderHtml dataPointRefPlace(m_pConfiguration);
-		dataPointRefEvent.FindForMarriage(marriageAccessor.getMarriageIdAsLong(), "MarrD");
-		dataPointRefPlace.FindForMarriage(marriageAccessor.getMarriageIdAsLong(), "MarrP");
-
-		pOutputStream->Output("<tr><td>");
-		pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Marr:&nbsp;");
-		if (dataPointRefEvent.Found())
-		{
-			pOutputStream->OutputStartAnchor(dataPointRefEvent.GetHRef());
-		}
-		pOutputStream->OutputSpan(E_PageBodyNormalText, strEvent);
-		if (dataPointRefEvent.Found())
-		{
-			pOutputStream->OutputEndAnchor();
-		}
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Place:&nbsp;");
-		if (dataPointRefPlace.Found())
-		{
-			pOutputStream->OutputStartAnchor(dataPointRefPlace.GetHRef());
-		}
-		pOutputStream->OutputSpan(E_PageBodyNormalText, strPlace);
-		if (dataPointRefPlace.Found())
-		{
-			pOutputStream->OutputEndAnchor();
-		}
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		pOutputStream->Output("</td></tr>");
-	}
-}
-
-void FormsHtmlFgs::OutputCemetery(Person *pPerson, FormsHtmlOutputStream *pOutputStream)
-{
-	FormsPersonAccessor personAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-	CString strEvent = personAccessor.getBurialCemetery();
-	CString strPlace = personAccessor.getBurialPlotAddress();
-	if ((0 != strEvent.GetLength()) || (0 != strPlace.GetLength()))
-	{
-		FormsTagFinderHtml dataPointRefEvent(m_pConfiguration);
-		FormsTagFinderHtml dataPointRefPlace(m_pConfiguration);
-		dataPointRefEvent.FindForPerson(pPerson->getPersonIdAsLong(), "CemeteryName");
-		dataPointRefPlace.FindForPerson(pPerson->getPersonIdAsLong(), "CemeteryPlot");
-
-		pOutputStream->Output("<tr><td>");
-		pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Cemetery:&nbsp;");
-		if (dataPointRefEvent.Found())
-		{
-			pOutputStream->OutputStartAnchor(dataPointRefEvent.GetHRef());
-		}
-		pOutputStream->OutputSpan(E_PageBodyNormalText, strEvent);
-		if (dataPointRefEvent.Found())
-		{
-			pOutputStream->OutputEndAnchor();
-		}
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Plot:&nbsp;");
-		if (dataPointRefPlace.Found())
-		{
-			pOutputStream->OutputStartAnchor(dataPointRefPlace.GetHRef());
-		}
-		pOutputStream->OutputSpan(E_PageBodyNormalText, strPlace);
-		if (dataPointRefPlace.Found())
-		{
-			pOutputStream->OutputEndAnchor();
-		}
-		pOutputStream->OutputBR();
-		pOutputStream->OutputFormattingCRLF();
-		pOutputStream->Output("</td></tr>");
-	}
-}
-
-void FormsHtmlFgs::OutputParents(FourGenerations *pFourGen, FormsHtmlOutputStream *pOutputStream)
-{
-	Person *pPerson = pFourGen->getPerson();
-	Person *pFather = pFourGen->getFather();
-	Person *pMother = pFourGen->getMother();
-	CString strWork;
-
-	if (pPerson && pFather && pMother)
-	{
-		FormsPersonAccessor personAccessor(pPerson, m_pConfiguration->getSuppressLiving());
-		FormsPersonAccessor fatherAccessor(pFather, m_pConfiguration->getSuppressLiving());
-		FormsPersonAccessor motherAccessor(pMother, m_pConfiguration->getSuppressLiving());
-		CString strFatherName = fatherAccessor.getFullBasicName();
-		CString strMotherName = motherAccessor.getFullBasicName();
-		if ((0 != strFatherName.GetLength()) || (0 != strMotherName.GetLength()))
-		{
-			FormsTagFinderHtml dataPointRefFather(m_pConfiguration);
-			FormsTagFinderHtml dataPointRefMother(m_pConfiguration);
-			dataPointRefFather.FindForPerson(personAccessor.getPersonIdAsLong(), "LinkCToFather");
-			dataPointRefMother.FindForPerson(personAccessor.getPersonIdAsLong(), "LinkCToMother");
-
-			// Output Father
-			strWork.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, fatherAccessor.getPersonIdAsLong());
-			pOutputStream->Output("<tr><td>");
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Father:&nbsp;");
-			pOutputStream->OutputStartAnchor(strWork);
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strFatherName);
-			pOutputStream->OutputEndAnchor();
-			// Show "Prove Link"
-			if (dataPointRefFather.Found())
-			{
-				pOutputStream->Output("&nbsp;&nbsp;");
-				pOutputStream->OutputStartAnchor(dataPointRefFather.GetHRef());
-				pOutputStream->OutputSpan(E_PageBodyNormalText, "[Prove Link]");
-				pOutputStream->OutputEndAnchor();
-			}
-			// Show "[Family]" Link
-			pOutputStream->Output("&nbsp;&nbsp;");
-			strWork.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), FGSDIR, FGSFILENAME, pFourGen->getFatherMarriageId()); 
-			pOutputStream->OutputStartAnchor(strWork);
-			pOutputStream->OutputSpan(E_PageBodyNormalText, "[Family]");
-			pOutputStream->OutputEndAnchor();
-
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-
-			// Output Mother
-			strWork.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME ,motherAccessor.getPersonIdAsLong());
-			pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Mother:&nbsp;");
-			pOutputStream->OutputStartAnchor(strWork);
-			pOutputStream->OutputSpan(E_PageBodyNormalText, strMotherName);
-			pOutputStream->OutputEndAnchor();
-			// Show "Prove Link"
-			if (dataPointRefMother.Found())
-			{
-				pOutputStream->Output("&nbsp;&nbsp;");
-				pOutputStream->OutputStartAnchor(dataPointRefMother.GetHRef());
-				pOutputStream->OutputSpan(E_PageBodyNormalText, "[Prove Link]");
-				pOutputStream->OutputEndAnchor();
-			}
-			pOutputStream->OutputBR();
-			pOutputStream->OutputFormattingCRLF();
-			pOutputStream->Output("</td></tr>");
-		}
-	}
-}
-
-void FormsHtmlFgs::OutputSpouse(Person *pPerson, FormsHtmlOutputStream *pOutputStream)
-{
-	MARRIAGEID idMarriage = MARRIAGEID_INVALID;
-	MARRIAGEID idMarriageCurrent = MARRIAGEID_INVALID;
-	long lCookie;
-	CString strWork;
-
-	IndexPersonToMarriages *pIndexPersonToMarriages = m_pIndex->GetIndexPersonToMarriages();
-	IndexMarriageToSpouses *pIndexMarriageToSpouses = m_pIndex->GetIndexMarriageToSpouses();
-
-	// Find the marriage that should be used
-	// 1 - In-Line Marriage
-	// 2 - Any other marriage
-	if (pIndexPersonToMarriages->StartMarriagesOfPersonEnum(pPerson->getPersonIdAsLong(), &lCookie))
-	{
-		while (pIndexPersonToMarriages->NextMarriagesOfPersonEnum(pPerson->getPersonIdAsLong(), &lCookie, &idMarriage))
-		{
-			if (MARRIAGEID_INVALID != idMarriage)
-			{
-				Marriage *pMarriage = m_pMarriageList->get(idMarriage);
-				if (pMarriage)
-				{
-					if (pMarriage->isInLine())
-					{	// As soon as an In-Line marriage is found, done!
-						idMarriageCurrent = idMarriage;
-						break;
-					}
-					else if (MARRIAGEID_INVALID == idMarriageCurrent)
-					{
-						idMarriageCurrent = idMarriage;
-					}
-				}
-			}
-		}
-	}
-
-	if (MARRIAGEID_INVALID != idMarriageCurrent)
-	{
-		PERSONID idHusband, idWife, idPerson;
-		if (pIndexMarriageToSpouses->FindSpousesGivenMarriageId(idMarriageCurrent, &idHusband, &idWife))
-		{
-			idPerson = idHusband;
-			if (idHusband == pPerson->getPersonIdAsLong())
-			{
-				idPerson = idWife;
-			}
-
-			Person *pSpouse = m_pPersonList->get(idPerson);
-			if (pSpouse)
-			{
-				FormsPersonAccessor spouseAccessor(pSpouse, m_pConfiguration->getSuppressLiving());
-				CString strSpouseName = spouseAccessor.getFullBasicName();
-				if (0 != strSpouseName.GetLength())
-				{
-					FormsTagFinderHtml dataPointRefSpouse(m_pConfiguration);
-					dataPointRefSpouse.FindForMarriage(idMarriageCurrent, "LinkMarriage");
-
-					pOutputStream->Output("<tr><td>");
-					pOutputStream->OutputSpan(E_PageBodyBoldNormalText, "Spouse:&nbsp;");
-					// Show Spouse Name
-					strWork.Format("%s%s/%s%d.htm", m_pConfiguration->getBasePath(), PERINFODIR, PERINFOFILENAME, pSpouse->getPersonIdAsLong());
-					pOutputStream->OutputStartAnchor(strWork);
-					pOutputStream->OutputSpan(E_PageBodyNormalText, strSpouseName);
-					pOutputStream->OutputEndAnchor();
-					// Show "[Prove Link] Link"
-					if (dataPointRefSpouse.Found())
-					{
-						pOutputStream->Output("&nbsp;&nbsp;");
-						pOutputStream->OutputStartAnchor(dataPointRefSpouse.GetHRef());
-						pOutputStream->OutputSpan(E_PageBodyNormalText, "[Prove Link]");
-						pOutputStream->OutputEndAnchor();
-					}
-					// Show "[Family]" Link
-					pOutputStream->Output("&nbsp;&nbsp;");
-					strWork.Format("%sfgs/%s%d.htm", m_pConfiguration->getBasePath(), FGSFILENAME, idMarriageCurrent); 
-					pOutputStream->OutputStartAnchor(strWork);
-					pOutputStream->OutputSpan(E_PageBodyNormalText, "[Family]");
-					pOutputStream->OutputEndAnchor();
-
-					pOutputStream->OutputBR();
-					pOutputStream->OutputFormattingCRLF();
-					pOutputStream->Output("</td></tr>");
-				}
-			}
-		}
-	}
-}
-
-
-
-
-*/
